@@ -1,0 +1,7 @@
+pyramid
+pyramid_chameleon
+pyramid_mako
+pyramid_debugtoolbar
+waitress
+rdflib
+rdflib-jsonld

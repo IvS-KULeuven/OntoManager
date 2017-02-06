@@ -1,0 +1,91 @@
+
+table.functionblock {
+	border-collapse: collapse;
+}
+th.functionblock {
+    border-left: thin solid black;
+    border-right: thin solid black;
+    border-top: thin solid black;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+td.functionblock-input {
+    padding-left: 10px;
+    padding-right: 30px;
+    padding-bottom: 5px;
+    border-left: thin solid black;
+}
+td.functionblock-extends {
+    text-align: center;
+    border-right: thin solid black;
+    border-left: thin solid black;
+    padding-top: 0px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+td.functionblock-output {
+    text-align: right;
+    padding-right: 10px;
+    padding-left: 30px;
+    padding-bottom: 5px;
+    border-right: thin solid black;
+}
+td.functionblock-method {
+    text-align: right;
+    padding-right: 10px;
+    padding-left: 30px;
+    padding-bottom: 5px;
+    border-right: thin solid black;
+    border-left: thin solid black;
+    font-style: italic;
+}
+td.functionblock-local {
+    text-align: right;
+    padding-right: 10px;
+    padding-left: 30px;
+    padding-bottom: 5px;
+    border-right: thin solid black;
+    background-color: #eeeeee;
+    border-left: thin dashed #808080;
+}
+td.functionblock-local.first {
+    border-top: thin dashed #808080;
+}
+td.functionblock-local.last {
+    border-bottom: thin dashed #808080;
+}
+td.functionblock-local.single {
+    border-top: thin dashed #808080;
+    border-bottom: thin dashed #808080;
+}
+td.functionblock-below {
+    border-top: thin solid black;
+}
+
+.functionblock-bar {
+    background-color:black;
+    width: 30px;
+    height: 1px;
+    text-align: center;
+}
+
+.functionblock-half-circle {
+    position:absolute;
+    width: 10px;
+    height: 20px;
+    border-top-left-radius: 11px;
+    border-bottom-left-radius: 11px;
+    border: 1px solid black;
+    border-right: 0;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+
+.functionblock-bar-small {
+  border-bottom: 1px dashed #808080;
+  width: 15px;
+}
