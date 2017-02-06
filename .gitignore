@@ -1,0 +1,5 @@
+*.pyc
+ontomanager/rdf
+ontomanager/rdf-inferred
+ontomanager/home
+ontomanager/config/config.ini
