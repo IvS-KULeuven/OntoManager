@@ -17,6 +17,10 @@ c = ConfigParser.ConfigParser()
 
 c.read(CONFIG_FILE)
 
+print "Reading the coffeescript executable:"
+COFFEE = c.get("general", "coffee")
+print COFFEE
+
 # read the users and groups
 USERS = {}
 GROUPS = {}
@@ -61,7 +65,7 @@ for section in c.sections():
                 DEFAULT_REPOSITORY = REPOSITORIES[name]
 
 if DEFAULT_REPOSITORY is None:
-    sys.exit("OOPS")
+    sys.exit("No user with repository specified!")
 
 if not USERS.has_key("guest"):
     USERS["guest"] = "guest"

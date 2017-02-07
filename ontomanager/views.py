@@ -902,7 +902,7 @@ class ProcessDatasetThread(threading.Thread):
                     iPath = os.path.join(self.ontologiesDir, "coffee")
                     IPath = os.path.join(self.jsonldDir)
                     oPath = os.path.join(self.jsonldDir)
-                    command = "coffee %s -s -a -t -i %s -I %s -o %s -f" %(filename, iPath, IPath, oPath)
+                    command = "%s %s -s -a -t -i %s -I %s -o %s -f" %(configuration.COFFEE, filename, iPath, IPath, oPath)
 
                     self.log("============================ starting process ==========================")
                     self.log(command)
