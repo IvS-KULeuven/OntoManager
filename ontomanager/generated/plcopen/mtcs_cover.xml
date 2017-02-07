@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://www.plcopen.org/xml/tc6_0200">
-  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-03T09:55:04.032974" />
-  <contentHeader name="mtcs_cover" modificationDateTime="2017-02-03T09:55:04.032974">
+  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-07T02:16:46.402967" />
+  <contentHeader name="mtcs_cover" modificationDateTime="2017-02-07T02:16:46.402967">
     <coordinateInfo>
       <fbd>
         <scaling x="1" y="1" />
@@ -468,6 +468,30 @@
                 <xhtml xmlns="http://www.w3.org/1999/xhtml">Start closing the cover (only enabled in AUTO mode!)</xhtml>
               </documentation>
             </variable>
+            <variable name="forceOpen">
+              <type><derived name="Process" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Start opening the cover EVEN IF WE&#39;RE IN THE UNSAFE REGION</xhtml>
+              </documentation>
+            </variable>
+            <variable name="forceClose">
+              <type><derived name="Process" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Start closing the cover EVEN IF WE&#39;RE IN THE UNSAFE REGION</xhtml>
+              </documentation>
+            </variable>
             <variable name="abort">
               <type><derived name="Process" /></type>
               <addData>
@@ -831,6 +855,42 @@
                 <xhtml xmlns="http://www.w3.org/1999/xhtml">The minimum distance in degrees between both panelsets</xhtml>
               </documentation>
             </variable>
+            <variable name="unsafeRangeMinElevation">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The minimum elevation of the unsafe range</xhtml>
+              </documentation>
+            </variable>
+            <variable name="unsafeRangeMinAzimuth">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The minimum azimuth of the unsafe range</xhtml>
+              </documentation>
+            </variable>
+            <variable name="unsafeRangeMaxAzimuth">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The maximum azimuth of the unsafe range</xhtml>
+              </documentation>
+            </variable>
           </struct>
         </baseType>
       </dataType>
@@ -1065,6 +1125,20 @@
                 <xhtml xmlns="http://www.w3.org/1999/xhtml">The current measurement of the selected panels</xhtml>
               </documentation>
             </variable>
+            <variable name="safeToOpenOrClose">
+              <type><BOOL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">True if safe to open or close!</xhtml>
+              </documentation>
+            </variable>
             <variable name="statuses">
               <type><derived name="CoverStatuses" /></type>
               <addData>
@@ -1116,6 +1190,32 @@
                 <xhtml xmlns="http://www.w3.org/1999/xhtml"></xhtml>
               </documentation>
             </variable>
+            <variable name="aziPos">
+              <type><derived name="AngularPosition" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="0" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Actual azimuth position of the telescope</xhtml>
+              </documentation>
+            </variable>
+            <variable name="elePos">
+              <type><derived name="AngularPosition" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="0" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Actual elevation position of the telescope</xhtml>
+              </documentation>
+            </variable>
           </inOutVars>
           <localVars>
           </localVars>
@@ -1155,8 +1255,10 @@ processes.lock( isEnabled := operatorStatus.tech AND statuses.initializationStat
 processes.unlock( isEnabled := operatorStatus.tech AND statuses.initializationStatus.locked );
 processes.reset( isEnabled := statuses.initializationStatus.initialized AND (parts.apertureProcedure.state = CoverApertureProcedureStates.ERROR) );
 processes.changeOperatingState( isEnabled := statuses.busyStatus.idle AND statuses.initializationStatus.initialized );
-processes.open( isEnabled := (statuses.busyStatus.idle OR (statuses.busyStatus.busy AND (parts.apertureProcedure.state = CoverApertureProcedureStates.CLOSING_BOTH_PANELS))) AND (statuses.initializationStatus.initialized AND (statuses.operatingStatus.auto AND (NOT(statuses.apertureStatus.open)))) );
-processes.close( isEnabled := (statuses.busyStatus.idle OR (statuses.busyStatus.busy AND (parts.apertureProcedure.state = CoverApertureProcedureStates.OPENING_BOTH_PANELS))) AND (statuses.initializationStatus.initialized AND (statuses.operatingStatus.auto AND (NOT(statuses.apertureStatus.closed)))) );
+processes.open( isEnabled := processes.forceOpen.statuses.enabledStatus.enabled AND safeToOpenOrClose );
+processes.close( isEnabled := processes.forceClose.statuses.enabledStatus.enabled AND safeToOpenOrClose );
+processes.forceOpen( isEnabled := (statuses.busyStatus.idle OR (statuses.busyStatus.busy AND (parts.apertureProcedure.state = CoverApertureProcedureStates.CLOSING_BOTH_PANELS))) AND (statuses.initializationStatus.initialized AND (statuses.operatingStatus.auto AND (NOT(statuses.apertureStatus.open)))) );
+processes.forceClose( isEnabled := (statuses.busyStatus.idle OR (statuses.busyStatus.busy AND (parts.apertureProcedure.state = CoverApertureProcedureStates.OPENING_BOTH_PANELS))) AND (statuses.initializationStatus.initialized AND (statuses.operatingStatus.auto AND (NOT(statuses.apertureStatus.closed)))) );
 processes.abort( isEnabled := parts.apertureProcedure.statuses.busyStatus.busy );
 </xhtml>
           </ST>
@@ -1365,6 +1467,62 @@ processes.abort( isEnabled := parts.apertureProcedure.statuses.busyStatus.busy )
               <body>
                 <ST>
                   <xhtml xmlns="http://www.w3.org/1999/xhtml">close := THIS^.processes.close.request();
+</xhtml>
+                </ST>
+              </body>
+            </Method>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/method" handleUnknown="implementation">
+            <Method name="forceOpen">
+              <interface>
+                <returnType><derived name="RequestResults" /></returnType>
+                <inputVars>
+                </inputVars>
+                <outputVars>
+                </outputVars>
+                <inOutVars>
+                </inOutVars>
+                <localVars>
+                </localVars>
+                <addData>
+                  <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                    <Attributes>
+                      <Attribute Name="TcRpcEnable" Value="1" />
+                    </Attributes>
+                  </data>
+                </addData>
+              </interface>
+              <body>
+                <ST>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">forceOpen := THIS^.processes.forceOpen.request();
+</xhtml>
+                </ST>
+              </body>
+            </Method>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/method" handleUnknown="implementation">
+            <Method name="forceClose">
+              <interface>
+                <returnType><derived name="RequestResults" /></returnType>
+                <inputVars>
+                </inputVars>
+                <outputVars>
+                </outputVars>
+                <inOutVars>
+                </inOutVars>
+                <localVars>
+                </localVars>
+                <addData>
+                  <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                    <Attributes>
+                      <Attribute Name="TcRpcEnable" Value="1" />
+                    </Attributes>
+                  </data>
+                </addData>
+              </interface>
+              <body>
+                <ST>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">forceClose := THIS^.processes.forceClose.request();
 </xhtml>
                 </ST>
               </body>
@@ -2592,6 +2750,8 @@ LOGGER(
               <Object Name="changeOperatingState" />
               <Object Name="open" />
               <Object Name="close" />
+              <Object Name="forceOpen" />
+              <Object Name="forceClose" />
               <Object Name="abort" />
               <Object Name="_log" />
             </Object>

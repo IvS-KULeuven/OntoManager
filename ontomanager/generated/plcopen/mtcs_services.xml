@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://www.plcopen.org/xml/tc6_0200">
-  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-05T17:05:48.277559" />
-  <contentHeader name="mtcs_services" modificationDateTime="2017-02-05T17:05:48.277559">
+  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-07T02:31:10.596429" />
+  <contentHeader name="mtcs_services" modificationDateTime="2017-02-07T02:31:10.596429">
     <coordinateInfo>
       <fbd>
         <scaling x="1" y="1" />
@@ -181,7 +181,19 @@
                 </data>
               </addData>
               <documentation>
-                <xhtml xmlns="http://www.w3.org/1999/xhtml">Slot 2</xhtml>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Slot 3</xhtml>
+              </documentation>
+            </variable>
+            <variable name="slot4">
+              <type><derived name="EtherCatDevice" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Slot 4</xhtml>
               </documentation>
             </variable>
           </struct>
@@ -2879,7 +2891,10 @@ parts.slot2(
 parts.slot3(
     id := &#39;WESTS&#39;,
     typeId := &#39;EL6001&#39;);
-statuses.healthStatus( isGood := parts.coupler.statuses.healthStatus.isGood AND (parts.slot1.statuses.healthStatus.isGood AND parts.slot2.statuses.healthStatus.isGood) );
+parts.slot4(
+    id := &#39;TI-PTP&#39;,
+    typeId := &#39;EL6688&#39;);
+statuses.healthStatus( isGood := parts.coupler.statuses.healthStatus.isGood AND (parts.slot1.statuses.healthStatus.isGood AND (parts.slot2.statuses.healthStatus.isGood AND (parts.slot3.statuses.healthStatus.isGood AND parts.slot4.statuses.healthStatus.isGood))) );
 </xhtml>
           </ST>
         </body>
@@ -2953,6 +2968,9 @@ THIS^.parts.slot2._log(
     buffer := subBuffer);
 THIS^.parts.slot3._log(
     name := &#39;slot3&#39;,
+    buffer := subBuffer);
+THIS^.parts.slot4._log(
+    name := &#39;slot4&#39;,
     buffer := subBuffer);
 LOGGER(
     name := name,

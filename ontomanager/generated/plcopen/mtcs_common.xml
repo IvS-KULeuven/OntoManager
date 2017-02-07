@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://www.plcopen.org/xml/tc6_0200">
-  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-03T09:54:49.660343" />
-  <contentHeader name="mtcs_common" modificationDateTime="2017-02-03T09:54:49.660343">
+  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-07T02:14:31.088428" />
+  <contentHeader name="mtcs_common" modificationDateTime="2017-02-07T02:14:31.088428">
     <coordinateInfo>
       <fbd>
         <scaling x="1" y="1" />
@@ -2483,9 +2483,9 @@
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">open := (isOpen AND (NOT(isClosed))) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">closed := (isClosed AND (NOT(isOpen))) AND superState;
+open := (isOpen AND (NOT(isClosed))) AND superState;
 partiallyOpen := (NOT(isOpen OR isClosed)) AND superState;
-closed := (isClosed AND (NOT(isOpen))) AND superState;
 undefined := (isOpen AND isClosed) AND superState;
 </xhtml>
           </ST>
@@ -2633,8 +2633,8 @@ busy := isBusy AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">notStarted := (NOT(isStarted)) AND superState;
-started := isStarted AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">started := isStarted AND superState;
+notStarted := (NOT(isStarted)) AND superState;
 </xhtml>
           </ST>
         </body>
@@ -2707,8 +2707,8 @@ started := isStarted AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">enabled := isEnabled AND superState;
-disabled := (NOT(isEnabled)) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">disabled := (NOT(isEnabled)) AND superState;
+enabled := isEnabled AND superState;
 </xhtml>
           </ST>
         </body>
@@ -2781,8 +2781,8 @@ disabled := (NOT(isEnabled)) AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">enabled := isEnabled AND superState;
-disabled := (NOT(isEnabled)) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">disabled := (NOT(isEnabled)) AND superState;
+enabled := isEnabled AND superState;
 </xhtml>
           </ST>
         </body>
@@ -2882,9 +2882,9 @@ disabled := (NOT(isEnabled)) AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">warning := (isGood AND hasWarning) AND superState;
-bad := (NOT(isGood)) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">bad := (NOT(isGood)) AND superState;
 good := (isGood AND (NOT(hasWarning))) AND superState;
+warning := (isGood AND hasWarning) AND superState;
 </xhtml>
           </ST>
         </body>
@@ -2999,11 +2999,11 @@ good := (isGood AND (NOT(hasWarning))) AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">initialized := (state = InitializationStates.INITIALIZED) AND superState;
-initializing := (state = InitializationStates.INITIALIZING) AND superState;
-locked := (state = InitializationStates.LOCKED) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">locked := (state = InitializationStates.LOCKED) AND superState;
+initialized := (state = InitializationStates.INITIALIZED) AND superState;
 initializingFailed := (state = InitializationStates.INITIALIZING_FAILED) AND superState;
 shutdown := (state = InitializationStates.SHUTDOWN) AND superState;
+initializing := (state = InitializationStates.INITIALIZING) AND superState;
 </xhtml>
           </ST>
         </body>
@@ -3102,9 +3102,9 @@ shutdown := (state = InitializationStates.SHUTDOWN) AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">backward := (actVel &lt; (-(ABS(tolerance)))) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">forward := (actVel &gt; (ABS(tolerance))) AND superState;
+backward := (actVel &lt; (-(ABS(tolerance)))) AND superState;
 standstill := (NOT(forward OR backward)) AND superState;
-forward := (actVel &gt; (ABS(tolerance))) AND superState;
 </xhtml>
           </ST>
         </body>
@@ -3245,11 +3245,11 @@ forward := (actVel &gt; (ABS(tolerance))) AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">hi := (config.enabled AND ((value &gt;= config.hi) AND (value &lt; config.hiHi))) AND superState;
-disabled := (NOT(config.enabled)) AND superState;
-hiHi := (config.enabled AND (value &gt;= config.hiHi)) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">hiHi := (config.enabled AND (value &gt;= config.hiHi)) AND superState;
 lo := (config.enabled AND ((value &lt;= config.lo) AND (value &lt; config.loLo))) AND superState;
+hi := (config.enabled AND ((value &gt;= config.hi) AND (value &lt; config.hiHi))) AND superState;
 loLo := (config.enabled AND (value &lt;= config.loLo)) AND superState;
+disabled := (NOT(config.enabled)) AND superState;
 ok := (config.enabled AND ((value &gt; config.lo) AND (value &lt; config.hi))) AND superState;
 </xhtml>
           </ST>
@@ -3349,9 +3349,9 @@ ok := (config.enabled AND ((value &gt; config.lo) AND (value &lt; config.hi))) A
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">closing := (isClosing AND (NOT(isOpening))) AND superState;
-opening := (isOpening AND (NOT(isClosing))) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">opening := (isOpening AND (NOT(isClosing))) AND superState;
 standstill := (NOT(isClosing OR isOpening)) AND superState;
+closing := (isClosing AND (NOT(isOpening))) AND superState;
 </xhtml>
           </ST>
         </body>
@@ -3438,9 +3438,9 @@ standstill := (NOT(isClosing OR isOpening)) AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">none := (state = OperatorStates.NONE) AND superState;
-observer := (state = OperatorStates.OBSERVER) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">observer := (state = OperatorStates.OBSERVER) AND superState;
 tech := (state = OperatorStates.TECH) AND superState;
+none := (state = OperatorStates.NONE) AND superState;
 </xhtml>
           </ST>
         </body>
@@ -3513,8 +3513,8 @@ tech := (state = OperatorStates.TECH) AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">auto := (state = OperatingStates.AUTO) AND superState;
-manual := (state = OperatingStates.MANUAL) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">manual := (state = OperatingStates.MANUAL) AND superState;
+auto := (state = OperatingStates.AUTO) AND superState;
 </xhtml>
           </ST>
         </body>
@@ -3613,9 +3613,9 @@ manual := (state = OperatingStates.MANUAL) AND superState;
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">awake := (isAwake AND (NOT(isMoving))) AND superState;
-moving := (isAwake AND isMoving) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">moving := (isAwake AND isMoving) AND superState;
 sleeping := (NOT(isAwake)) AND superState;
+awake := (isAwake AND (NOT(isMoving))) AND superState;
 </xhtml>
           </ST>
         </body>
