@@ -172,7 +172,7 @@ class Model(dict):
 
         CLEAR_GRAPH()
 
-        self.log("Loading asserted ...")
+        self.log("Loading asserted (in %s)" %self['config']['jsonld_dir'])
 
         fileNames = FIND_FILES(self['config']['jsonld_dir'], '*.jsonld')
 
