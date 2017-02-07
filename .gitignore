@@ -3,3 +3,5 @@ ontomanager/rdf
 ontomanager/rdf-inferred
 ontomanager/home
 ontomanager/config/config.ini
+ontomanager/cache/cache.pickle
+
