@@ -140,6 +140,7 @@ class Model(dict):
 
         self["config"] = {
             "ontologies_dir" : configuration.DEFAULT_REPOSITORY["location"],
+            "jsonld_dir"     : os.path.join(PROJECT_DIR, "jsonld"),
             "inferred_dir"   : os.path.join(PROJECT_DIR, "rdf-inferred"),
             "plcopen_dir"    : os.path.join(PROJECT_DIR, "generated", "plcopen"),
             "pyuaf_dir"      : os.path.join(PROJECT_DIR, "generated", "pyuaf") }
@@ -173,7 +174,7 @@ class Model(dict):
 
         self.log("Loading asserted ...")
 
-        fileNames = FIND_FILES(os.path.join(self['config']['ontologies_dir'], 'jsonld'), '*.jsonld')
+        fileNames = FIND_FILES(self['config']['jsonld_dir'], '*.jsonld')
 
         global CACHE
 
@@ -219,11 +220,12 @@ class Model(dict):
         self.log("Updating dataset to %s (%s)" %(repo['comment'], repo['location']))
         self["config"]["ontologies_dir"] = repo['location']
         ontologiesDir = self["config"]["ontologies_dir"]
+        jsonldDir = self["config"]["jsonld_dir"]
         self["dataset"]["metamodels"] = { "coffee" : dataset.findFiles(os.path.join(ontologiesDir, "coffee", "metamodels"), "*.coffee"),
                                           "ttl"    : dataset.findFiles(os.path.join(ontologiesDir, "ttl"   , "metamodels"), "*.ttl"),
-                                          "jsonld" : dataset.findFiles(os.path.join(ontologiesDir, "jsonld", "metamodels"), "*.jsonld") }
+                                          "jsonld" : dataset.findFiles(os.path.join(jsonldDir, "metamodels"), "*.jsonld") }
         self["dataset"]["models"]     = { "coffee" : dataset.findFiles(os.path.join(ontologiesDir, "coffee", "models")    , "*.coffee"),
-                                          "jsonld" : dataset.findFiles(os.path.join(ontologiesDir, "jsonld", "models")    , "*.jsonld") }
+                                          "jsonld" : dataset.findFiles(os.path.join(jsonldDir, "models")    , "*.jsonld") }
         self["dataset"]["run_models"]["tree"] = dataset.getJsTree(os.path.join(ontologiesDir, "coffee", "models")    , "*.coffee")
 
         self["models"] = dataset.getJsTree(os.path.join(ontologiesDir, "coffee", "models"), "*.coffee")
@@ -235,13 +237,14 @@ class Model(dict):
 
         plcopenDir = self["config"]["plcopen_dir"]
         ontologiesDir = self["config"]["ontologies_dir"]
+        jsonldDir = self["config"]["jsonld_dir"]
 
         self["dataset"]["thread_running"] = False
         self["dataset"]["metamodels"] = { "coffee" : dataset.findFiles(os.path.join(ontologiesDir, "coffee", "metamodels"), "*.coffee"),
                                           "ttl"    : dataset.findFiles(os.path.join(ontologiesDir, "ttl"   , "metamodels"), "*.ttl"),
-                                          "jsonld" : dataset.findFiles(os.path.join(ontologiesDir, "jsonld", "metamodels"), "*.jsonld") }
+                                          "jsonld" : dataset.findFiles(os.path.join(jsonldDir, "metamodels"), "*.jsonld") }
         self["dataset"]["models"]     = { "coffee" : dataset.findFiles(os.path.join(ontologiesDir, "coffee", "models")    , "*.coffee"),
-                                          "jsonld" : dataset.findFiles(os.path.join(ontologiesDir, "jsonld", "models")    , "*.jsonld") }
+                                          "jsonld" : dataset.findFiles(os.path.join(jsonldDir, "models")    , "*.jsonld") }
 
 
         self["dataset"]["main_checkboxes"] = [ "run_metamodels",
@@ -840,6 +843,7 @@ class ProcessDatasetThread(threading.Thread):
         self.user = U.getUser(request)
 
         self.ontologiesDir = self.model["config"]["ontologies_dir"]
+        self.jsonldDir = self.model["config"]["jsonld_dir"]
 
     def log(self, msg, newLine=True):
         print msg
@@ -883,7 +887,7 @@ class ProcessDatasetThread(threading.Thread):
                     inputFilesOrDirs = [ os.path.join(self.ontologiesDir, "ttl"   , "metamodels") ],
                     inputFormat      = "n3",
                     inputExtensions  = [".ttl"],
-                    outputDir        = os.path.join(self.ontologiesDir, "jsonld"   , "metamodels"),
+                    outputDir        = os.path.join(self.jsonldDir , "metamodels"),
                     outputFormat     = "json-ld",
                     outputExt        = ".jsonld",
                     recursive        = True,
@@ -896,8 +900,8 @@ class ProcessDatasetThread(threading.Thread):
                 filenames = self.model.datasetGetCheckedFilenames(self.model['dataset']['run_models']['tree'])
                 for filename in filenames:
                     iPath = os.path.join(self.ontologiesDir, "coffee")
-                    IPath = os.path.join(self.ontologiesDir, "jsonld")
-                    oPath = os.path.join(self.ontologiesDir, "jsonld")
+                    IPath = os.path.join(self.jsonldDir)
+                    oPath = os.path.join(self.jsonldDir)
                     command = "coffee %s -s -a -t -i %s -I %s -o %s -f" %(filename, iPath, IPath, oPath)
 
                     self.log("============================ starting process ==========================")
