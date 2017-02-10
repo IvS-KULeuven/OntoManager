@@ -3,7 +3,7 @@
 import tc2_mc2
 
 
-# This file (mtcs_common.py) was automatically generated at 2017-02-06T17:06:09.671415 -- do not edit manually!
+# This file (mtcs_common.py) was automatically generated at 2017-02-10T19:12:26.837572 -- do not edit manually!
 import opcuanode
 import pyuaf
 from opcuanode import OpcUaNode
@@ -158,6 +158,15 @@ class ConfigManagerProcesses(OpcUaNode):
         self.__addInstance__("save", ns, WriteXmlProcess, 'Save the currently active config to disk')
         self.__addInstance__("load", ns, ReadXmlProcess, 'Load the config from disk')
         self.__addInstance__("activate", ns, ActivateProcess, 'Activate the loaded config')
+
+class ModbusRTUBusProcesses(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addInstance__("readCoil", ns, ModbusRTUBusReadCoilProcess, 'Read coil')
+        self.__addInstance__("writeCoil", ns, ModbusRTUBusWriteCoilProcess, 'Write coil')
+        self.__addInstance__("readRegister", ns, ModbusRTUBusReadRegisterProcess, 'Read register')
+        self.__addInstance__("writeRegister", ns, ModbusRTUBusWriteRegisterProcess, 'Write register')
 
 class BaseProcessStatuses(OpcUaNode):
 
@@ -318,6 +327,12 @@ class ConfigManagerStatuses(OpcUaNode):
         OpcUaNode.__init__(self, parent, name, ns, info)
         self.__addInstance__("busyStatus", ns, BusyStatus, 'Is the config manager in a busy state?')
         self.__addInstance__("healthStatus", ns, HealthStatus, 'Is the config manager in a healthy state?')
+
+class ModbusRTUBusStatuses(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addInstance__("busyStatus", ns, BusyStatus, 'Is the config manager in a busy state?')
 
 class HiHiLoLoAlarmConfig(OpcUaNode):
 
@@ -516,6 +531,36 @@ class WriteXmlProcessArgs(OpcUaNode):
     def __init__(self, parent, name, ns, info):
         OpcUaNode.__init__(self, parent, name, ns, info)
         self.__addVariable__("filePath", ns, 'Full path of the filename to write', datatype=pyuaf.util.primitives.String, permissions='')
+
+class ModbusRTUBusReadCoilProcessArgs(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("unitID", ns, 'Modbus station address (1..247)', datatype=pyuaf.util.primitives.Byte, permissions='')
+        self.__addVariable__("address", ns, 'Modbus data address', datatype=pyuaf.util.primitives.Int16, permissions='')
+
+class ModbusRTUBusWriteCoilProcessArgs(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("unitID", ns, 'Modbus station address (1..247)', datatype=pyuaf.util.primitives.Byte, permissions='')
+        self.__addVariable__("address", ns, 'Modbus data address', datatype=pyuaf.util.primitives.Int16, permissions='')
+        self.__addVariable__("value", ns, 'Value to write on the coil', datatype=pyuaf.util.primitives.Boolean, permissions='')
+
+class ModbusRTUBusReadRegisterProcessArgs(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("unitID", ns, 'Modbus station address (1..247)', datatype=pyuaf.util.primitives.Byte, permissions='')
+        self.__addVariable__("address", ns, 'Modbus data address', datatype=pyuaf.util.primitives.Int16, permissions='')
+
+class ModbusRTUBusWriteRegisterProcessArgs(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("unitID", ns, 'Modbus station address (1..247)', datatype=pyuaf.util.primitives.Byte, permissions='')
+        self.__addVariable__("address", ns, 'Modbus data address', datatype=pyuaf.util.primitives.Int16, permissions='')
+        self.__addVariable__("value", ns, 'Value to write on the register', datatype=pyuaf.util.primitives.UInt16, permissions='')
 
 
 # === FBs ===
@@ -1372,6 +1417,20 @@ class ConfigManager(SM_ConfigManager):
     def __init__(self, parent, name, ns, info):
         SM_ConfigManager.__init__(self, parent, name, ns, info)
 
+class SM_ModbusRTUBus(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("isEnabled", ns, 'Is control enabled?', datatype=pyuaf.util.primitives.Boolean, permissions='')
+        self.__addVariable__("actualStatus", ns, 'Current status description', datatype=pyuaf.util.primitives.String, permissions='r')
+        self.__addVariable__("previousStatus", ns, 'Previous status description', datatype=pyuaf.util.primitives.String, permissions='')
+        self.__addInstance__("statuses", ns, ModbusRTUBusStatuses, 'Statuses of the state machine')
+        self.__addInstance__("processes", ns, ModbusRTUBusProcesses, 'Processes of the state machine')
+
+class ModbusRTUBus(SM_ModbusRTUBus):
+    def __init__(self, parent, name, ns, info):
+        SM_ModbusRTUBus.__init__(self, parent, name, ns, info)
+
 class Process(BaseProcess):
 
     def __init__(self, parent, name, ns, info):
@@ -1581,6 +1640,44 @@ class ActivateProcess(BaseProcess):
     def __init__(self, parent, name, ns, info):
         BaseProcess.__init__(self, parent, name, ns, info)
         self.__addVariable__("testVar", ns, 'At least 1 variable needed because subclass members of an empty class are not exposed by OPC UA (TwinCAT bug!)', datatype=pyuaf.util.primitives.Boolean, permissions='')
+
+
+class ModbusRTUBusReadCoilProcess(BaseProcess):
+
+    def __init__(self, parent, name, ns, info):
+        BaseProcess.__init__(self, parent, name, ns, info)
+        self.__addVariable__("value", ns, 'Value of the coil', datatype=pyuaf.util.primitives.Boolean, permissions='')
+        self.__addVariable__("errorId", ns, 'Error Id. Modbus error code', datatype=pyuaf.util.primitives.UInt16, permissions='')
+        self.__addInstance__("set", ns, ModbusRTUBusReadCoilProcessArgs, 'Arguments to be set, before writing do_request TRUE')
+        self.__addInstance__("get", ns, ModbusRTUBusReadCoilProcessArgs, 'Arguments in use by the process, if do_request was accepted')
+
+
+class ModbusRTUBusWriteCoilProcess(BaseProcess):
+
+    def __init__(self, parent, name, ns, info):
+        BaseProcess.__init__(self, parent, name, ns, info)
+        self.__addVariable__("errorId", ns, 'Error Id. Modbus error code', datatype=pyuaf.util.primitives.UInt16, permissions='')
+        self.__addInstance__("set", ns, ModbusRTUBusWriteCoilProcessArgs, 'Arguments to be set, before writing do_request TRUE')
+        self.__addInstance__("get", ns, ModbusRTUBusWriteCoilProcessArgs, 'Arguments in use by the process, if do_request was accepted')
+
+
+class ModbusRTUBusReadRegisterProcess(BaseProcess):
+
+    def __init__(self, parent, name, ns, info):
+        BaseProcess.__init__(self, parent, name, ns, info)
+        self.__addVariable__("value", ns, 'Value of the register', datatype=pyuaf.util.primitives.UInt16, permissions='')
+        self.__addVariable__("errorId", ns, 'Error Id. Modbus error code', datatype=pyuaf.util.primitives.UInt16, permissions='')
+        self.__addInstance__("set", ns, ModbusRTUBusReadRegisterProcessArgs, 'Arguments to be set, before writing do_request TRUE')
+        self.__addInstance__("get", ns, ModbusRTUBusReadRegisterProcessArgs, 'Arguments in use by the process, if do_request was accepted')
+
+
+class ModbusRTUBusWriteRegisterProcess(BaseProcess):
+
+    def __init__(self, parent, name, ns, info):
+        BaseProcess.__init__(self, parent, name, ns, info)
+        self.__addVariable__("errorId", ns, 'Error Id. Modbus error code', datatype=pyuaf.util.primitives.UInt16, permissions='')
+        self.__addInstance__("set", ns, ModbusRTUBusWriteRegisterProcessArgs, 'Arguments to be set, before writing do_request TRUE')
+        self.__addInstance__("get", ns, ModbusRTUBusWriteRegisterProcessArgs, 'Arguments in use by the process, if do_request was accepted')
 
 
 

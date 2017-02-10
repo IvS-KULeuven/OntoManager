@@ -3,7 +3,7 @@
 import mtcs_common
 
 
-# This file (mtcs_dome.py) was automatically generated at 2017-02-06T16:56:39.700842 -- do not edit manually!
+# This file (mtcs_dome.py) was automatically generated at 2017-02-10T19:18:24.523719 -- do not edit manually!
 import opcuanode
 import pyuaf
 from opcuanode import OpcUaNode
@@ -136,7 +136,21 @@ class DomeShutterConfig(OpcUaNode):
 
     def __init__(self, parent, name, ns, info):
         OpcUaNode.__init__(self, parent, name, ns, info)
-        self.__addVariable__("wirelessPolling", ns, 'Polling frequency of the wireless I/O, in seconds. Negative value = no polling.', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("wirelessPolling", ns, 'Polling frequency of the wireless I/O device, in seconds. Negative value = no polling.', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("wirelessIpAddress", ns, 'IP address of the wireless I/O device', datatype=pyuaf.util.primitives.String, permissions='')
+        self.__addVariable__("wirelessPort", ns, 'Port of the wireless I/O device', datatype=pyuaf.util.primitives.Int16, permissions='')
+        self.__addVariable__("wirelessUnitID", ns, 'Unit ID the wireless I/O device', datatype=pyuaf.util.primitives.Byte, permissions='')
+        self.__addVariable__("wirelessTimeoutSeconds", ns, 'The timeout of a single command. Does not lead to an error (yet), because we still retry.', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("wirelessRetriesSeconds", ns, 'The total timeout of the retries. If no valid data is received after this time, then we consider the shutters in error.', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("upperEstimatedOpenTime", ns, 'Estimated opening time of the upper panel, in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("upperEstimatedCloseTime", ns, 'Estimated closing time of the upper panel, in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("lowerEstimatedOpenTime", ns, 'Estimated opening time of the lower panel, in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("lowerEstimatedCloseTime", ns, 'Estimated closing time of the lower panel, in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("lowerOpenTimeout", ns, 'Opening timeout of the lower panel, in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("lowerCloseTimeout", ns, 'Closing timeout of the lower panel, in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("upperOpenTimeout", ns, 'Opening timeout of the upper panel, in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("upperCloseTimeout", ns, 'Closing timeout of the upper panel, in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("timeAfterStop", ns, 'Time to wait after a stop command, in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
 
 class DomeRotationConfig(OpcUaNode):
 
@@ -176,6 +190,9 @@ class SM_DomeShutter(OpcUaNode):
         self.__addVariable__("wirelessTimeout", ns, 'True if the wireless communication to the shutter signals is timing out', datatype=pyuaf.util.primitives.Boolean, permissions='r')
         self.__addVariable__("wirelessError", ns, 'True if the wireless communication to the shutter signals is in error (other than timeout)', datatype=pyuaf.util.primitives.Boolean, permissions='r')
         self.__addVariable__("wirelessErrorId", ns, 'The error id if wirelessError is true', datatype=pyuaf.util.primitives.Int32, permissions='r')
+        self.__addVariable__("wirelessData", ns, 'The received wireless data', datatype=pyuaf.util.primitives.Int16, permissions='r')
+        self.__addInstance__("upperTimeRemaining", ns, mtcs_common.Duration, 'Estimated time remaining to open/close the upper panel')
+        self.__addInstance__("lowerTimeRemaining", ns, mtcs_common.Duration, 'Estimated time remaining to open/close the lower panel')
         self.__addVariable__("actualStatus", ns, 'Current status description', datatype=pyuaf.util.primitives.String, permissions='r')
         self.__addVariable__("previousStatus", ns, 'Previous status description', datatype=pyuaf.util.primitives.String, permissions='')
         self.__addInstance__("statuses", ns, DomeShutterStatuses, 'Statuses of the state machine')
@@ -198,7 +215,7 @@ class SM_DomeRotation(OpcUaNode):
         self.__addInstance__("actTorqueMaster", ns, mtcs_common.Torque, 'The actual torque on the telescope axis by the master motor')
         self.__addInstance__("actTorqueSlave", ns, mtcs_common.Torque, 'The actual torque on the telescope axis by the slave motor')
         self.__addInstance__("masterSlaveLag", ns, mtcs_common.AngularPosition, 'masterAxis.actPos - slaveAxis.actPos')
-        self.__addInstance__("masterSlaveLagError", ns, mtcs_common.AngularPosition, 'masterSlaveLag &gt;= config.maxMasterSlaveLag')
+        self.__addVariable__("masterSlaveLagError", ns, 'masterSlaveLag &gt;= config.maxMasterSlaveLag', datatype=pyuaf.util.primitives.Boolean, permissions='r')
         self.__addVariable__("homingSensorSignal", ns, 'True = at home position', datatype=pyuaf.util.primitives.Boolean, permissions='r')
         self.__addInstance__("statuses", ns, DomeRotationStatuses, 'Statuses of the state machine')
         self.__addInstance__("parts", ns, DomeRotationParts, 'Parts of the state machine')

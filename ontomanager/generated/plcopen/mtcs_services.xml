@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://www.plcopen.org/xml/tc6_0200">
-  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-07T02:31:10.596429" />
-  <contentHeader name="mtcs_services" modificationDateTime="2017-02-07T02:31:10.596429">
+  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-10T20:43:27.030767" />
+  <contentHeader name="mtcs_services" modificationDateTime="2017-02-10T20:43:27.030767">
     <coordinateInfo>
       <fbd>
         <scaling x="1" y="1" />
@@ -88,6 +88,18 @@
                 <xhtml xmlns="http://www.w3.org/1999/xhtml">Meteo service</xhtml>
               </documentation>
             </variable>
+            <variable name="west">
+              <type><derived name="ServicesWest" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">West service</xhtml>
+              </documentation>
+            </variable>
             <variable name="io">
               <type><derived name="ServicesIO" /></type>
               <addData>
@@ -128,6 +140,72 @@
               </addData>
               <documentation>
                 <xhtml xmlns="http://www.w3.org/1999/xhtml">Info acquired by serial link</xhtml>
+              </documentation>
+            </variable>
+          </struct>
+        </baseType>
+      </dataType>
+      <dataType name="ServicesWestParts">
+        <baseType>
+          <struct>
+            <variable name="bus">
+              <type><derived name="ModbusRTUBus" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The shared Modbus RTU bus</xhtml>
+              </documentation>
+            </variable>
+            <variable name="domeTemperature">
+              <type><derived name="ServicesWestController" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The West controller at the dome to control the temperature </xhtml>
+              </documentation>
+            </variable>
+            <variable name="firstFloorTemperature">
+              <type><derived name="ServicesWestController" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The West controller at the first floor to control the temperature</xhtml>
+              </documentation>
+            </variable>
+            <variable name="pumpsRoomTemperature">
+              <type><derived name="ServicesWestController" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The West controller at the pumps room to control the temperature</xhtml>
+              </documentation>
+            </variable>
+            <variable name="oilHeatExchangerTemperature">
+              <type><derived name="ServicesWestController" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The West controller at the heat exchanger to control the oil temperature</xhtml>
               </documentation>
             </variable>
           </struct>
@@ -262,6 +340,54 @@
       <dataType name="ServicesMeteoProcesses">
         <baseType>
           <struct>
+          </struct>
+        </baseType>
+      </dataType>
+      <dataType name="ServicesWestControllerProcesses">
+        <baseType>
+          <struct>
+            <variable name="update">
+              <type><derived name="Process" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Read the process value</xhtml>
+              </documentation>
+            </variable>
+            <variable name="writeSetpoint">
+              <type><derived name="ChangeSetpointProcess" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Write the setpoint</xhtml>
+              </documentation>
+            </variable>
+          </struct>
+        </baseType>
+      </dataType>
+      <dataType name="ServicesWestProcesses">
+        <baseType>
+          <struct>
+            <variable name="changeOperatingState">
+              <type><derived name="ChangeOperatingStateProcess" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Change the operating state (e.g. AUTO, MANUAL, ...)</xhtml>
+              </documentation>
+            </variable>
           </struct>
         </baseType>
       </dataType>
@@ -458,6 +584,66 @@
               </addData>
               <documentation>
                 <xhtml xmlns="http://www.w3.org/1999/xhtml"></xhtml>
+              </documentation>
+            </variable>
+          </struct>
+        </baseType>
+      </dataType>
+      <dataType name="ServicesWestControllerStatuses">
+        <baseType>
+          <struct>
+            <variable name="healthStatus">
+              <type><derived name="HealthStatus" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Is the data valid and within range?</xhtml>
+              </documentation>
+            </variable>
+            <variable name="alarmStatus">
+              <type><derived name="HiHiLoLoAlarmStatus" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Alarm status</xhtml>
+              </documentation>
+            </variable>
+          </struct>
+        </baseType>
+      </dataType>
+      <dataType name="ServicesWestStatuses">
+        <baseType>
+          <struct>
+            <variable name="healthStatus">
+              <type><derived name="HealthStatus" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Are the WESTs in healthy state (good) or not (bad)</xhtml>
+              </documentation>
+            </variable>
+            <variable name="operatingStatus">
+              <type><derived name="OperatingStatus" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Are the WESTs being polled (auto) or not (manual)?</xhtml>
               </documentation>
             </variable>
           </struct>
@@ -817,6 +1003,258 @@
           </struct>
         </baseType>
       </dataType>
+      <dataType name="ServicesWestTemperatureTimeConfig">
+        <baseType>
+          <struct>
+            <variable name="enable">
+              <type><BOOL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Enable this time (TRUE) or not (FALSE)</xhtml>
+              </documentation>
+            </variable>
+            <variable name="hour">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The time to change the setpoint, as decimal hour (e.g. 9.5 = 9:30 am)</xhtml>
+              </documentation>
+            </variable>
+            <variable name="offset">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Setpoint = air temperature of meteo station + this offset (in degrees celsius)</xhtml>
+              </documentation>
+            </variable>
+          </struct>
+        </baseType>
+      </dataType>
+      <dataType name="ServicesWestTemperatureUpdateConfig">
+        <baseType>
+          <struct>
+            <variable name="time0">
+              <type><derived name="ServicesWestTemperatureTimeConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Time config 0</xhtml>
+              </documentation>
+            </variable>
+            <variable name="time1">
+              <type><derived name="ServicesWestTemperatureTimeConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Time config 1</xhtml>
+              </documentation>
+            </variable>
+            <variable name="time2">
+              <type><derived name="ServicesWestTemperatureTimeConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Time config 2</xhtml>
+              </documentation>
+            </variable>
+            <variable name="time3">
+              <type><derived name="ServicesWestTemperatureTimeConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Time config 3</xhtml>
+              </documentation>
+            </variable>
+            <variable name="time4">
+              <type><derived name="ServicesWestTemperatureTimeConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Time config 4</xhtml>
+              </documentation>
+            </variable>
+          </struct>
+        </baseType>
+      </dataType>
+      <dataType name="ServicesWestControllerConfig">
+        <baseType>
+          <struct>
+            <variable name="address">
+              <type><USINT /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The address of the controller</xhtml>
+              </documentation>
+            </variable>
+            <variable name="measurement">
+              <type><derived name="MeasurementConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The measurement config</xhtml>
+              </documentation>
+            </variable>
+            <variable name="update">
+              <type><BOOL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">True to automatically update the setpoint</xhtml>
+              </documentation>
+            </variable>
+            <variable name="updateMinimumSetpoint">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Minimum setpoint when the PLC updates the value</xhtml>
+              </documentation>
+            </variable>
+            <variable name="warningMessage">
+              <type><string /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">A warning message (empty = not shown)</xhtml>
+              </documentation>
+            </variable>
+          </struct>
+        </baseType>
+      </dataType>
+      <dataType name="ServicesWestConfig">
+        <baseType>
+          <struct>
+            <variable name="pollingInterval">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Time between bus reads in seconds</xhtml>
+              </documentation>
+            </variable>
+            <variable name="domeTemperature">
+              <type><derived name="ServicesWestControllerConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The address of the Dome temperature controller</xhtml>
+              </documentation>
+            </variable>
+            <variable name="firstFloorTemperature">
+              <type><derived name="ServicesWestControllerConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The address of the first floor temperature controller</xhtml>
+              </documentation>
+            </variable>
+            <variable name="pumpsRoomTemperature">
+              <type><derived name="ServicesWestControllerConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The address of the pumps room temperature controller</xhtml>
+              </documentation>
+            </variable>
+            <variable name="oilHeatExchangerTemperature">
+              <type><derived name="ServicesWestControllerConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The address of the oil heat exchanger temperature controller</xhtml>
+              </documentation>
+            </variable>
+            <variable name="temperatureUpdate">
+              <type><derived name="ServicesWestTemperatureUpdateConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The config for the temperature setpoint</xhtml>
+              </documentation>
+            </variable>
+          </struct>
+        </baseType>
+      </dataType>
       <dataType name="ServicesConfig">
         <baseType>
           <struct>
@@ -842,6 +1280,18 @@
               </addData>
               <documentation>
                 <xhtml xmlns="http://www.w3.org/1999/xhtml">Meteo config</xhtml>
+              </documentation>
+            </variable>
+            <variable name="west">
+              <type><derived name="ServicesWestConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">West config</xhtml>
               </documentation>
             </variable>
           </struct>
@@ -959,6 +1409,19 @@
                 <xhtml xmlns="http://www.w3.org/1999/xhtml">Shared operator status</xhtml>
               </documentation>
             </variable>
+            <variable name="domeApertureStatus">
+              <type><derived name="ApertureStatus" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="0" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Is the dome open or closed?</xhtml>
+              </documentation>
+            </variable>
           </inOutVars>
           <localVars>
           </localVars>
@@ -969,12 +1432,17 @@
     operatorStatus := operatorStatus,
     config := config.timing);
 parts.meteo( config := config.meteo );
+parts.west(
+    operatorStatus := operatorStatus,
+    config := config.west,
+    airTemperature := parts.meteo.airTemperature,
+    domeApertureStatus := domeApertureStatus);
 parts.io();
 parts.configManager( isEnabled := operatorStatus.tech );
 statuses.initializationStatus();
 statuses.healthStatus(
-    isGood := parts.timing.statuses.healthStatus.isGood AND (parts.meteo.statuses.healthStatus.isGood AND parts.io.statuses.healthStatus.isGood),
-    hasWarning := parts.timing.statuses.healthStatus.hasWarning OR (parts.meteo.statuses.healthStatus.hasWarning OR parts.io.statuses.healthStatus.hasWarning));
+    isGood := parts.timing.statuses.healthStatus.isGood AND (parts.meteo.statuses.healthStatus.isGood AND (parts.west.statuses.healthStatus.isGood AND parts.io.statuses.healthStatus.isGood)),
+    hasWarning := parts.timing.statuses.healthStatus.hasWarning OR (parts.meteo.statuses.healthStatus.hasWarning OR (parts.west.statuses.healthStatus.hasWarning OR parts.io.statuses.healthStatus.hasWarning)));
 statuses.busyStatus( isBusy := statuses.initializationStatus.initializing );
 statuses.operatingStatus( superState := statuses.initializationStatus.initialized );
 processes.initialize( isEnabled := statuses.initializationStatus.shutdown OR (statuses.initializationStatus.initializingFailed OR statuses.initializationStatus.initialized) );
@@ -1172,6 +1640,9 @@ processes.changeOperatingState( isEnabled := FALSE );
     buffer := subBuffer);
 THIS^.parts.meteo._log(
     name := &#39;meteo&#39;,
+    buffer := subBuffer);
+THIS^.parts.west._log(
+    name := &#39;west&#39;,
     buffer := subBuffer);
 THIS^.parts.io._log(
     name := &#39;io&#39;,
@@ -2816,6 +3287,617 @@ statuses.healthStatus( isGood := NOT(serialTimeout OR comError) );
           </data>
         </addData>
       </pou>
+      <pou name="SM_ServicesWestController" pouType="functionBlock">
+        <interface>
+          <inputVars>
+            <variable name="isEnabled">
+              <type><BOOL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Are the processes enabled?</xhtml>
+              </documentation>
+            </variable>
+            <variable name="unit">
+              <type><derived name="Units" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"></xhtml>
+              </documentation>
+            </variable>
+          </inputVars>
+          <outputVars>
+            <variable name="actualStatus">
+              <type><string /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Current status description</xhtml>
+              </documentation>
+            </variable>
+            <variable name="previousStatus">
+              <type><string /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Previous status description</xhtml>
+              </documentation>
+            </variable>
+            <variable name="invalidData">
+              <type><BOOL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">True if there is invalid data</xhtml>
+              </documentation>
+            </variable>
+            <variable name="processValue">
+              <type><derived name="QuantityValue" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The process value</xhtml>
+              </documentation>
+            </variable>
+            <variable name="outputPower">
+              <type><derived name="QuantityValue" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The output power</xhtml>
+              </documentation>
+            </variable>
+            <variable name="setpoint">
+              <type><derived name="QuantityValue" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The setpoint</xhtml>
+              </documentation>
+            </variable>
+            <variable name="statuses">
+              <type><derived name="ServicesWestControllerStatuses" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Statuses of the state machine</xhtml>
+              </documentation>
+            </variable>
+            <variable name="processes">
+              <type><derived name="ServicesWestControllerProcesses" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Processes of the state machine</xhtml>
+              </documentation>
+            </variable>
+          </outputVars>
+          <inOutVars>
+            <variable name="config">
+              <type><derived name="ServicesWestControllerConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="0" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">A small config only for a single WEST controller</xhtml>
+              </documentation>
+            </variable>
+            <variable name="bus">
+              <type><derived name="ModbusRTUBus" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="0" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The shared Modbus RTU bus</xhtml>
+              </documentation>
+            </variable>
+          </inOutVars>
+          <localVars>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">statuses.healthStatus(
+    superState := config.measurement.enabled,
+    isGood := NOT(invalidData OR (statuses.alarmStatus.hiHi OR statuses.alarmStatus.loLo)),
+    hasWarning := statuses.alarmStatus.hi OR statuses.alarmStatus.lo);
+statuses.alarmStatus(
+    superState := config.measurement.enabled,
+    config := config.measurement.alarms,
+    value := processValue.value);
+processes.update( isEnabled := isEnabled );
+processes.writeSetpoint( isEnabled := isEnabled );
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/method" handleUnknown="implementation">
+            <Method name="update">
+              <interface>
+                <returnType><derived name="RequestResults" /></returnType>
+                <inputVars>
+                </inputVars>
+                <outputVars>
+                </outputVars>
+                <inOutVars>
+                </inOutVars>
+                <localVars>
+                </localVars>
+                <addData>
+                  <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                    <Attributes>
+                      <Attribute Name="TcRpcEnable" Value="1" />
+                    </Attributes>
+                  </data>
+                </addData>
+              </interface>
+              <body>
+                <ST>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">update := THIS^.processes.update.request();
+</xhtml>
+                </ST>
+              </body>
+            </Method>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/method" handleUnknown="implementation">
+            <Method name="writeSetpoint">
+              <interface>
+                <returnType><derived name="RequestResults" /></returnType>
+                <inputVars>
+                  <variable name="setpoint">
+                    <type><LREAL /></type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml"></xhtml>
+                    </documentation>
+                  </variable>
+                </inputVars>
+                <outputVars>
+                </outputVars>
+                <inOutVars>
+                </inOutVars>
+                <localVars>
+                </localVars>
+                <addData>
+                  <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                    <Attributes>
+                      <Attribute Name="TcRpcEnable" Value="1" />
+                    </Attributes>
+                  </data>
+                </addData>
+              </interface>
+              <body>
+                <ST>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">writeSetpoint := THIS^.processes.writeSetpoint.request( setpoint := setpoint );
+</xhtml>
+                </ST>
+              </body>
+            </Method>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/method" handleUnknown="implementation">
+            <Method name="_log">
+              <interface>
+                <returnType><BOOL /></returnType>
+                <inputVars>
+                  <variable name="name">
+                    <type><string /></type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Name of this function block instance</xhtml>
+                    </documentation>
+                  </variable>
+                </inputVars>
+                <outputVars>
+                </outputVars>
+                <inOutVars>
+                  <variable name="buffer">
+                    <type><derived name="LogBuffer" /></type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Buffer to write all logging to</xhtml>
+                    </documentation>
+                  </variable>
+                </inOutVars>
+                <localVars>
+                  <variable name="subBuffer">
+                    <type><derived name="LogBuffer" /></type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Temporary buffer to write logging by parts (sub-statemachines) to</xhtml>
+                    </documentation>
+                  </variable>
+                </localVars>
+                <addData>
+                  <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                    <Attributes>
+                      <Attribute Name="TcRpcEnable" Value="1" />
+                    </Attributes>
+                  </data>
+                </addData>
+              </interface>
+              <body>
+                <ST>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">LOGGER(
+    name := name,
+    actualStatus := THIS^.actualStatus,
+    previousStatus := THIS^.previousStatus,
+    buffer := buffer,
+    subBuffer := subBuffer,
+    pHealthStatus := ADR(THIS^.statuses.healthStatus));
+</xhtml>
+                </ST>
+              </body>
+            </Method>
+          </data>
+        </addData>
+      </pou>
+      <pou name="SM_ServicesWest" pouType="functionBlock">
+        <interface>
+          <inputVars>
+          </inputVars>
+          <outputVars>
+            <variable name="actualStatus">
+              <type><string /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Current status description</xhtml>
+              </documentation>
+            </variable>
+            <variable name="previousStatus">
+              <type><string /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Previous status description</xhtml>
+              </documentation>
+            </variable>
+            <variable name="statuses">
+              <type><derived name="ServicesWestStatuses" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Statuses of the state machine</xhtml>
+              </documentation>
+            </variable>
+            <variable name="parts">
+              <type><derived name="ServicesWestParts" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Parts of the state machine</xhtml>
+              </documentation>
+            </variable>
+            <variable name="processes">
+              <type><derived name="ServicesWestProcesses" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Processes of the state machine</xhtml>
+              </documentation>
+            </variable>
+          </outputVars>
+          <inOutVars>
+            <variable name="operatorStatus">
+              <type><derived name="OperatorStatus" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="0" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Shared operator status</xhtml>
+              </documentation>
+            </variable>
+            <variable name="config">
+              <type><derived name="ServicesWestConfig" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="0" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The config</xhtml>
+              </documentation>
+            </variable>
+            <variable name="airTemperature">
+              <type><derived name="ServicesMeteoMeasurement" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="0" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Air temperature</xhtml>
+              </documentation>
+            </variable>
+            <variable name="domeApertureStatus">
+              <type><derived name="ApertureStatus" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="0" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Is the dome open or closed?</xhtml>
+              </documentation>
+            </variable>
+          </inOutVars>
+          <localVars>
+          </localVars>
+        </interface>
+        <body>
+          <ST>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">parts.bus( isEnabled := operatorStatus.tech AND statuses.operatingStatus.manual );
+parts.domeTemperature(
+    isEnabled := parts.bus.isEnabled,
+    unit := Units.DEGREES_CELSIUS,
+    config := config.domeTemperature,
+    bus := parts.bus);
+parts.firstFloorTemperature(
+    isEnabled := parts.bus.isEnabled,
+    unit := Units.DEGREES_CELSIUS,
+    config := config.firstFloorTemperature,
+    bus := parts.bus);
+parts.pumpsRoomTemperature(
+    isEnabled := parts.bus.isEnabled,
+    unit := Units.DEGREES_CELSIUS,
+    config := config.pumpsRoomTemperature,
+    bus := parts.bus);
+parts.oilHeatExchangerTemperature(
+    isEnabled := parts.bus.isEnabled,
+    unit := Units.DEGREES_CELSIUS,
+    config := config.oilHeatExchangerTemperature,
+    bus := parts.bus);
+statuses.healthStatus(
+    isGood := parts.domeTemperature.statuses.healthStatus.isGood AND (parts.firstFloorTemperature.statuses.healthStatus.isGood AND (parts.pumpsRoomTemperature.statuses.healthStatus.isGood AND parts.oilHeatExchangerTemperature.statuses.healthStatus.isGood)),
+    hasWarning := parts.domeTemperature.statuses.healthStatus.hasWarning OR (parts.firstFloorTemperature.statuses.healthStatus.hasWarning OR (parts.pumpsRoomTemperature.statuses.healthStatus.hasWarning OR parts.oilHeatExchangerTemperature.statuses.healthStatus.hasWarning)));
+statuses.operatingStatus();
+processes.changeOperatingState( isEnabled := operatorStatus.tech );
+</xhtml>
+          </ST>
+        </body>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/method" handleUnknown="implementation">
+            <Method name="changeOperatingState">
+              <interface>
+                <returnType><derived name="RequestResults" /></returnType>
+                <inputVars>
+                  <variable name="state">
+                    <type><derived name="OperatingStates" /></type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml"></xhtml>
+                    </documentation>
+                  </variable>
+                </inputVars>
+                <outputVars>
+                </outputVars>
+                <inOutVars>
+                </inOutVars>
+                <localVars>
+                </localVars>
+                <addData>
+                  <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                    <Attributes>
+                      <Attribute Name="TcRpcEnable" Value="1" />
+                    </Attributes>
+                  </data>
+                </addData>
+              </interface>
+              <body>
+                <ST>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">changeOperatingState := THIS^.processes.changeOperatingState.request( state := state );
+</xhtml>
+                </ST>
+              </body>
+            </Method>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/method" handleUnknown="implementation">
+            <Method name="_log">
+              <interface>
+                <returnType><BOOL /></returnType>
+                <inputVars>
+                  <variable name="name">
+                    <type><string /></type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Name of this function block instance</xhtml>
+                    </documentation>
+                  </variable>
+                </inputVars>
+                <outputVars>
+                </outputVars>
+                <inOutVars>
+                  <variable name="buffer">
+                    <type><derived name="LogBuffer" /></type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Buffer to write all logging to</xhtml>
+                    </documentation>
+                  </variable>
+                </inOutVars>
+                <localVars>
+                  <variable name="subBuffer">
+                    <type><derived name="LogBuffer" /></type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Temporary buffer to write logging by parts (sub-statemachines) to</xhtml>
+                    </documentation>
+                  </variable>
+                </localVars>
+                <addData>
+                  <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                    <Attributes>
+                      <Attribute Name="TcRpcEnable" Value="1" />
+                    </Attributes>
+                  </data>
+                </addData>
+              </interface>
+              <body>
+                <ST>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">THIS^.parts.bus._log(
+    name := &#39;bus&#39;,
+    buffer := subBuffer);
+THIS^.parts.domeTemperature._log(
+    name := &#39;domeTemperature&#39;,
+    buffer := subBuffer);
+THIS^.parts.firstFloorTemperature._log(
+    name := &#39;firstFloorTemperature&#39;,
+    buffer := subBuffer);
+THIS^.parts.pumpsRoomTemperature._log(
+    name := &#39;pumpsRoomTemperature&#39;,
+    buffer := subBuffer);
+THIS^.parts.oilHeatExchangerTemperature._log(
+    name := &#39;oilHeatExchangerTemperature&#39;,
+    buffer := subBuffer);
+LOGGER(
+    name := name,
+    actualStatus := THIS^.actualStatus,
+    previousStatus := THIS^.previousStatus,
+    buffer := buffer,
+    subBuffer := subBuffer,
+    pHealthStatus := ADR(THIS^.statuses.healthStatus));
+</xhtml>
+                </ST>
+              </body>
+            </Method>
+          </data>
+        </addData>
+      </pou>
       <pou name="SM_ServicesIO" pouType="functionBlock">
         <interface>
           <inputVars>
@@ -3009,6 +4091,8 @@ LOGGER(
               </Object>
               <Object Name="ServicesTimingParts">
               </Object>
+              <Object Name="ServicesWestParts">
+              </Object>
               <Object Name="ServicesIOParts">
               </Object>
             </Folder>
@@ -3018,6 +4102,10 @@ LOGGER(
               <Object Name="ServicesTimingProcesses">
               </Object>
               <Object Name="ServicesMeteoProcesses">
+              </Object>
+              <Object Name="ServicesWestControllerProcesses">
+              </Object>
+              <Object Name="ServicesWestProcesses">
               </Object>
             </Folder>
             <Folder Name="Statuses">
@@ -3030,6 +4118,10 @@ LOGGER(
               <Object Name="ServicesMeteoMeasurementStatuses">
               </Object>
               <Object Name="ServicesMeteoStatuses">
+              </Object>
+              <Object Name="ServicesWestControllerStatuses">
+              </Object>
+              <Object Name="ServicesWestStatuses">
               </Object>
               <Object Name="ServicesIOStatuses">
               </Object>
@@ -3053,6 +4145,15 @@ LOGGER(
             <Object Name="SM_ServicesMeteo">
               <Object Name="_log" />
             </Object>
+            <Object Name="SM_ServicesWestController">
+              <Object Name="update" />
+              <Object Name="writeSetpoint" />
+              <Object Name="_log" />
+            </Object>
+            <Object Name="SM_ServicesWest">
+              <Object Name="changeOperatingState" />
+              <Object Name="_log" />
+            </Object>
             <Object Name="SM_ServicesIO">
               <Object Name="_log" />
             </Object>
@@ -3061,6 +4162,14 @@ LOGGER(
             <Object Name="ServicesTimingConfig">
             </Object>
             <Object Name="ServicesMeteoConfig">
+            </Object>
+            <Object Name="ServicesWestTemperatureTimeConfig">
+            </Object>
+            <Object Name="ServicesWestTemperatureUpdateConfig">
+            </Object>
+            <Object Name="ServicesWestControllerConfig">
+            </Object>
+            <Object Name="ServicesWestConfig">
             </Object>
             <Object Name="ServicesConfig">
             </Object>

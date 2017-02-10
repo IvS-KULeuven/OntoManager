@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://www.plcopen.org/xml/tc6_0200">
-  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-07T02:27:14.569552" />
-  <contentHeader name="mtcs_m3" modificationDateTime="2017-02-07T02:27:14.569552">
+  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-09T01:11:15.222177" />
+  <contentHeader name="mtcs_m3" modificationDateTime="2017-02-09T01:11:15.222177">
     <coordinateInfo>
       <fbd>
         <scaling x="1" y="1" />
@@ -1844,9 +1844,9 @@
         </interface>
         <body>
           <ST>
-            <xhtml xmlns="http://www.w3.org/1999/xhtml">knownPosition := (state = M3TargetStates.KNOWN_POSITION) AND superState;
-newPosition := (state = M3TargetStates.NEW_POSITION) AND superState;
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">newPosition := (state = M3TargetStates.NEW_POSITION) AND superState;
 noTargetGiven := (state = M3TargetStates.NO_TARGET_GIVEN) AND superState;
+knownPosition := (state = M3TargetStates.KNOWN_POSITION) AND superState;
 </xhtml>
           </ST>
         </body>

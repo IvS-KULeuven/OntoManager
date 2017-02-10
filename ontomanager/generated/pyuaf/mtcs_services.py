@@ -4,7 +4,7 @@ import mtcs_common
 import mtcs_tmc
 
 
-# This file (mtcs_services.py) was automatically generated at 2017-02-05T17:05:44.831698 -- do not edit manually!
+# This file (mtcs_services.py) was automatically generated at 2017-02-10T19:11:48.715357 -- do not edit manually!
 import opcuanode
 import pyuaf
 from opcuanode import OpcUaNode
@@ -49,6 +49,7 @@ class ServicesParts(OpcUaNode):
         OpcUaNode.__init__(self, parent, name, ns, info)
         self.__addInstance__("timing", ns, ServicesTiming, 'Timing service')
         self.__addInstance__("meteo", ns, ServicesMeteo, 'Meteo service')
+        self.__addInstance__("west", ns, ServicesWest, 'West service')
         self.__addInstance__("io", ns, ServicesIO, 'I/O modules')
         self.__addInstance__("configManager", ns, mtcs_common.ConfigManager, 'The config manager (to load/save/activate configuration data)')
 
@@ -58,6 +59,16 @@ class ServicesTimingParts(OpcUaNode):
         OpcUaNode.__init__(self, parent, name, ns, info)
         self.__addInstance__("serialInfo", ns, ServicesTimingSerialInfo, 'Info acquired by serial link')
 
+class ServicesWestParts(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addInstance__("bus", ns, mtcs_common.ModbusRTUBus, 'The shared Modbus RTU bus')
+        self.__addInstance__("domeTemperature", ns, ServicesWestController, 'The West controller at the dome to control the temperature ')
+        self.__addInstance__("firstFloorTemperature", ns, ServicesWestController, 'The West controller at the first floor to control the temperature')
+        self.__addInstance__("pumpsRoomTemperature", ns, ServicesWestController, 'The West controller at the pumps room to control the temperature')
+        self.__addInstance__("oilHeatExchangerTemperature", ns, ServicesWestController, 'The West controller at the heat exchanger to control the oil temperature')
+
 class ServicesIOParts(OpcUaNode):
 
     def __init__(self, parent, name, ns, info):
@@ -65,7 +76,8 @@ class ServicesIOParts(OpcUaNode):
         self.__addInstance__("coupler", ns, mtcs_common.EtherCatDevice, 'Coupler')
         self.__addInstance__("slot1", ns, mtcs_common.EtherCatDevice, 'Slot 1')
         self.__addInstance__("slot2", ns, mtcs_common.EtherCatDevice, 'Slot 2')
-        self.__addInstance__("slot3", ns, mtcs_common.EtherCatDevice, 'Slot 2')
+        self.__addInstance__("slot3", ns, mtcs_common.EtherCatDevice, 'Slot 3')
+        self.__addInstance__("slot4", ns, mtcs_common.EtherCatDevice, 'Slot 4')
 
 class ServicesProcesses(OpcUaNode):
 
@@ -85,6 +97,19 @@ class ServicesMeteoProcesses(OpcUaNode):
 
     def __init__(self, parent, name, ns, info):
         OpcUaNode.__init__(self, parent, name, ns, info)
+
+class ServicesWestControllerProcesses(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addInstance__("update", ns, mtcs_common.Process, 'Read the process value')
+        self.__addInstance__("writeSetpoint", ns, mtcs_common.ChangeSetpointProcess, 'Write the setpoint')
+
+class ServicesWestProcesses(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addInstance__("changeOperatingState", ns, mtcs_common.ChangeOperatingStateProcess, 'Change the operating state (e.g. AUTO, MANUAL, ...)')
 
 class ServicesStatuses(OpcUaNode):
 
@@ -124,6 +149,20 @@ class ServicesMeteoStatuses(OpcUaNode):
         OpcUaNode.__init__(self, parent, name, ns, info)
         self.__addInstance__("meteoHealthStatus", ns, mtcs_common.HealthStatus, '')
         self.__addInstance__("healthStatus", ns, mtcs_common.HealthStatus, '')
+
+class ServicesWestControllerStatuses(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addInstance__("healthStatus", ns, mtcs_common.HealthStatus, 'Is the data valid and within range?')
+        self.__addInstance__("alarmStatus", ns, mtcs_common.HiHiLoLoAlarmStatus, 'Alarm status')
+
+class ServicesWestStatuses(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addInstance__("healthStatus", ns, mtcs_common.HealthStatus, 'Are the WESTs in healthy state (good) or not (bad)')
+        self.__addInstance__("operatingStatus", ns, mtcs_common.OperatingStatus, 'Are the WESTs being polled (auto) or not (manual)?')
 
 class ServicesIOStatuses(OpcUaNode):
 
@@ -168,12 +207,50 @@ class ServicesMeteoConfig(OpcUaNode):
         self.__addInstance__("supplyVoltage", ns, mtcs_common.MeasurementConfig, 'Config for the supply voltage')
         self.__addInstance__("referenceVoltage", ns, mtcs_common.MeasurementConfig, 'Config for the 3.5 V reference voltage')
 
+class ServicesWestTemperatureTimeConfig(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("enable", ns, 'Enable this time (TRUE) or not (FALSE)', datatype=pyuaf.util.primitives.Boolean, permissions='')
+        self.__addVariable__("hour", ns, 'The time to change the setpoint, as decimal hour (e.g. 9.5 = 9:30 am)', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addVariable__("offset", ns, 'Setpoint = air temperature of meteo station + this offset (in degrees celsius)', datatype=pyuaf.util.primitives.Double, permissions='')
+
+class ServicesWestTemperatureUpdateConfig(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addInstance__("time0", ns, ServicesWestTemperatureTimeConfig, 'Time config 0')
+        self.__addInstance__("time1", ns, ServicesWestTemperatureTimeConfig, 'Time config 1')
+        self.__addInstance__("time2", ns, ServicesWestTemperatureTimeConfig, 'Time config 2')
+        self.__addInstance__("time3", ns, ServicesWestTemperatureTimeConfig, 'Time config 3')
+        self.__addInstance__("time4", ns, ServicesWestTemperatureTimeConfig, 'Time config 4')
+
+class ServicesWestControllerConfig(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("address", ns, 'The address of the controller', datatype=pyuaf.util.primitives.Byte, permissions='')
+        self.__addInstance__("measurement", ns, mtcs_common.MeasurementConfig, 'The measurement config')
+        self.__addVariable__("update", ns, 'True to automatically update the setpoint', datatype=pyuaf.util.primitives.Boolean, permissions='')
+
+class ServicesWestConfig(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("pollingInterval", ns, 'Time between bus reads in seconds', datatype=pyuaf.util.primitives.Double, permissions='')
+        self.__addInstance__("domeTemperature", ns, ServicesWestControllerConfig, 'The address of the Dome temperature controller')
+        self.__addInstance__("firstFloorTemperature", ns, ServicesWestControllerConfig, 'The address of the first floor temperature controller')
+        self.__addInstance__("pumpsRoomTemperature", ns, ServicesWestControllerConfig, 'The address of the pumps room temperature controller')
+        self.__addInstance__("oilHeatExchangerTemperature", ns, ServicesWestControllerConfig, 'The address of the oil heat exchanger temperature controller')
+        self.__addInstance__("temperatureUpdate", ns, ServicesWestTemperatureUpdateConfig, 'The config for the temperature setpoint')
+
 class ServicesConfig(OpcUaNode):
 
     def __init__(self, parent, name, ns, info):
         OpcUaNode.__init__(self, parent, name, ns, info)
         self.__addInstance__("timing", ns, ServicesTimingConfig, 'Timing config')
         self.__addInstance__("meteo", ns, ServicesMeteoConfig, 'Meteo config')
+        self.__addInstance__("west", ns, ServicesWestConfig, 'West config')
 
 
 # === FBs ===
@@ -311,6 +388,39 @@ class SM_ServicesMeteo(OpcUaNode):
 class ServicesMeteo(SM_ServicesMeteo):
     def __init__(self, parent, name, ns, info):
         SM_ServicesMeteo.__init__(self, parent, name, ns, info)
+
+class SM_ServicesWestController(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("isEnabled", ns, 'Are the processes enabled?', datatype=pyuaf.util.primitives.Boolean, permissions='r')
+        self.__addVariable__("unit", ns, '', datatype=mtcs_common.Units, permissions='r')
+        self.__addVariable__("actualStatus", ns, 'Current status description', datatype=pyuaf.util.primitives.String, permissions='r')
+        self.__addVariable__("previousStatus", ns, 'Previous status description', datatype=pyuaf.util.primitives.String, permissions='')
+        self.__addVariable__("invalidData", ns, 'True if there is invalid data', datatype=pyuaf.util.primitives.Boolean, permissions='r')
+        self.__addInstance__("processValue", ns, mtcs_common.QuantityValue, 'The process value')
+        self.__addInstance__("outputPower", ns, mtcs_common.QuantityValue, 'The output power')
+        self.__addInstance__("setpoint", ns, mtcs_common.QuantityValue, 'The setpoint')
+        self.__addInstance__("statuses", ns, ServicesWestControllerStatuses, 'Statuses of the state machine')
+        self.__addInstance__("processes", ns, ServicesWestControllerProcesses, 'Processes of the state machine')
+
+class ServicesWestController(SM_ServicesWestController):
+    def __init__(self, parent, name, ns, info):
+        SM_ServicesWestController.__init__(self, parent, name, ns, info)
+
+class SM_ServicesWest(OpcUaNode):
+
+    def __init__(self, parent, name, ns, info):
+        OpcUaNode.__init__(self, parent, name, ns, info)
+        self.__addVariable__("actualStatus", ns, 'Current status description', datatype=pyuaf.util.primitives.String, permissions='r')
+        self.__addVariable__("previousStatus", ns, 'Previous status description', datatype=pyuaf.util.primitives.String, permissions='')
+        self.__addInstance__("statuses", ns, ServicesWestStatuses, 'Statuses of the state machine')
+        self.__addInstance__("parts", ns, ServicesWestParts, 'Parts of the state machine')
+        self.__addInstance__("processes", ns, ServicesWestProcesses, 'Processes of the state machine')
+
+class ServicesWest(SM_ServicesWest):
+    def __init__(self, parent, name, ns, info):
+        SM_ServicesWest.__init__(self, parent, name, ns, info)
 
 class SM_ServicesIO(OpcUaNode):
 

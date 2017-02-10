@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://www.plcopen.org/xml/tc6_0200">
-  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-07T02:01:16.949163" />
-  <contentHeader name="mtcs" modificationDateTime="2017-02-07T02:01:16.949163">
+  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-10T20:44:04.926484" />
+  <contentHeader name="mtcs" modificationDateTime="2017-02-10T20:44:04.926484">
     <coordinateInfo>
       <fbd>
         <scaling x="1" y="1" />
@@ -756,6 +756,18 @@
       <dataType name="MTCSEndOfNightStepConfig">
         <baseType>
           <struct>
+            <variable name="description">
+              <type><string /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Description of this step (to show in HMI)</xhtml>
+              </documentation>
+            </variable>
             <variable name="parkAxes">
               <type><BOOL /></type>
               <addData>
@@ -765,7 +777,7 @@
                 </data>
               </addData>
               <documentation>
-                <xhtml xmlns="http://www.w3.org/1999/xhtml">Park the telescope</xhtml>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Park the axes</xhtml>
               </documentation>
             </variable>
             <variable name="parkAxesPosition">
@@ -777,10 +789,10 @@
                 </data>
               </addData>
               <documentation>
-                <xhtml xmlns="http://www.w3.org/1999/xhtml">Position to park the telescope</xhtml>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Position to park the axes</xhtml>
               </documentation>
             </variable>
-            <variable name="parkTelescopeWait">
+            <variable name="parkAxesWait">
               <type><BOOL /></type>
               <addData>
                 <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
@@ -789,7 +801,7 @@
                 </data>
               </addData>
               <documentation>
-                <xhtml xmlns="http://www.w3.org/1999/xhtml">Wait until the telescope is parked</xhtml>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Wait until the axes is parked</xhtml>
               </documentation>
             </variable>
             <variable name="parkM3">
@@ -1714,7 +1726,9 @@ parts.m2(
     m3KnownPositionsConfig := parts.m3.config.knownPositions,
     temperatures := parts.telemetry.parts.temperatures);
 parts.m3( operatorStatus := statuses.operatorStatus );
-parts.services( operatorStatus := statuses.operatorStatus );
+parts.services(
+    operatorStatus := statuses.operatorStatus,
+    domeApertureStatus := parts.dome.parts.shutter.statuses.apertureStatus);
 parts.safety(
     operatorStatus := statuses.operatorStatus,
     activityStatus := statuses.activityStatus);

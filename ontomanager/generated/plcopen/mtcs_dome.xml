@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://www.plcopen.org/xml/tc6_0200">
-  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-07T02:18:52.270690" />
-  <contentHeader name="mtcs_dome" modificationDateTime="2017-02-07T02:18:52.270690">
+  <fileHeader companyName="Institute of Astronomy" productName="OntoManager" productVersion="0.0.1" creationDateTime="2017-02-10T20:43:09.622030" />
+  <contentHeader name="mtcs_dome" modificationDateTime="2017-02-10T20:43:09.622030">
     <coordinateInfo>
       <fbd>
         <scaling x="1" y="1" />
@@ -801,7 +801,175 @@
                 </data>
               </addData>
               <documentation>
-                <xhtml xmlns="http://www.w3.org/1999/xhtml">Polling frequency of the wireless I/O, in seconds. Negative value = no polling.</xhtml>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Polling frequency of the wireless I/O device, in seconds. Negative value = no polling.</xhtml>
+              </documentation>
+            </variable>
+            <variable name="wirelessIpAddress">
+              <type><string /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">IP address of the wireless I/O device</xhtml>
+              </documentation>
+            </variable>
+            <variable name="wirelessPort">
+              <type><UINT /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Port of the wireless I/O device</xhtml>
+              </documentation>
+            </variable>
+            <variable name="wirelessUnitID">
+              <type><USINT /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Unit ID the wireless I/O device</xhtml>
+              </documentation>
+            </variable>
+            <variable name="wirelessTimeoutSeconds">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The timeout of a single command. Does not lead to an error (yet), because we still retry.</xhtml>
+              </documentation>
+            </variable>
+            <variable name="wirelessRetriesSeconds">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The total timeout of the retries. If no valid data is received after this time, then we consider the shutters in error.</xhtml>
+              </documentation>
+            </variable>
+            <variable name="upperEstimatedOpenTime">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Estimated opening time of the upper panel, in seconds</xhtml>
+              </documentation>
+            </variable>
+            <variable name="upperEstimatedCloseTime">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Estimated closing time of the upper panel, in seconds</xhtml>
+              </documentation>
+            </variable>
+            <variable name="lowerEstimatedOpenTime">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Estimated opening time of the lower panel, in seconds</xhtml>
+              </documentation>
+            </variable>
+            <variable name="lowerEstimatedCloseTime">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Estimated closing time of the lower panel, in seconds</xhtml>
+              </documentation>
+            </variable>
+            <variable name="lowerOpenTimeout">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Opening timeout of the lower panel, in seconds</xhtml>
+              </documentation>
+            </variable>
+            <variable name="lowerCloseTimeout">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Closing timeout of the lower panel, in seconds</xhtml>
+              </documentation>
+            </variable>
+            <variable name="upperOpenTimeout">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Opening timeout of the upper panel, in seconds</xhtml>
+              </documentation>
+            </variable>
+            <variable name="upperCloseTimeout">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Closing timeout of the upper panel, in seconds</xhtml>
+              </documentation>
+            </variable>
+            <variable name="timeAfterStop">
+              <type><LREAL /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Time to wait after a stop command, in seconds</xhtml>
               </documentation>
             </variable>
           </struct>
@@ -985,7 +1153,6 @@
         <body>
           <ST>
             <xhtml xmlns="http://www.w3.org/1999/xhtml">parts.shutter(
-    openingAllowed := operatorStatus.tech OR statuses.poweredStatus.enabled,
     initializationStatus := statuses.initializationStatus,
     operatorStatus := operatorStatus,
     operatingStatus := statuses.operatingStatus,
@@ -1398,20 +1565,6 @@ LOGGER(
       <pou name="SM_DomeShutter" pouType="functionBlock">
         <interface>
           <inputVars>
-            <variable name="openingAllowed">
-              <type><BOOL /></type>
-              <addData>
-                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
-                  <Attributes>
-                    <Attribute Name="OPC.UA.DA" Value="1" />
-                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
-                  </Attributes>
-                </data>
-              </addData>
-              <documentation>
-                <xhtml xmlns="http://www.w3.org/1999/xhtml">True if opening is allowed by observer</xhtml>
-              </documentation>
-            </variable>
             <variable name="lowerOpenSignal">
               <type><BOOL /></type>
               <addData>
@@ -1508,6 +1661,48 @@ LOGGER(
               </addData>
               <documentation>
                 <xhtml xmlns="http://www.w3.org/1999/xhtml">The error id if wirelessError is true</xhtml>
+              </documentation>
+            </variable>
+            <variable name="wirelessData">
+              <type><UINT /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">The received wireless data</xhtml>
+              </documentation>
+            </variable>
+            <variable name="upperTimeRemaining">
+              <type><derived name="Duration" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Estimated time remaining to open/close the upper panel</xhtml>
+              </documentation>
+            </variable>
+            <variable name="lowerTimeRemaining">
+              <type><derived name="Duration" /></type>
+              <addData>
+                <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                  <Attributes>
+                    <Attribute Name="OPC.UA.DA" Value="1" />
+                    <Attribute Name="OPC.UA.DA.Access" Value="1" />
+                  </Attributes>
+                </data>
+              </addData>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">Estimated time remaining to open/close the lower panel</xhtml>
               </documentation>
             </variable>
           </inputVars>
@@ -1640,12 +1835,15 @@ parts.upperCloseRelay( isEnabled := operatorStatus.tech );
 parts.lowerOpenRelay( isEnabled := operatorStatus.tech );
 parts.lowerCloseRelay( isEnabled := operatorStatus.tech );
 statuses.apertureStatus(
+    superState := NOT(wirelessTimeout OR wirelessError),
     isOpen := statuses.lowerApertureStatus.open AND statuses.upperApertureStatus.open,
     isClosed := statuses.lowerApertureStatus.closed AND statuses.upperApertureStatus.closed);
 statuses.lowerApertureStatus(
+    superState := NOT(wirelessTimeout OR wirelessError),
     isOpen := lowerOpenSignal,
     isClosed := lowerClosedSignal);
 statuses.upperApertureStatus(
+    superState := NOT(wirelessTimeout OR wirelessError),
     isOpen := upperOpenSignal,
     isClosed := upperClosedSignal);
 statuses.healthStatus(
@@ -1653,7 +1851,7 @@ statuses.healthStatus(
     hasWarning := processes.reset.statuses.healthStatus.hasWarning OR (processes.open.statuses.healthStatus.hasWarning OR (processes.close.statuses.healthStatus.hasWarning OR (processes.stop.statuses.healthStatus.hasWarning OR (processes.lowerOpen.statuses.healthStatus.hasWarning OR (processes.lowerClose.statuses.healthStatus.hasWarning OR (processes.upperOpen.statuses.healthStatus.hasWarning OR processes.upperClose.statuses.healthStatus.hasWarning)))))));
 statuses.busyStatus( isBusy := processes.reset.statuses.busyStatus.busy OR (processes.open.statuses.busyStatus.busy OR (processes.close.statuses.busyStatus.busy OR (processes.stop.statuses.busyStatus.busy OR (processes.lowerOpen.statuses.busyStatus.busy OR (processes.lowerClose.statuses.busyStatus.busy OR (processes.upperOpen.statuses.busyStatus.busy OR processes.upperClose.statuses.busyStatus.busy)))))) );
 processes.reset( isEnabled := TRUE );
-processes.open( isEnabled := (openingAllowed OR operatorStatus.tech) AND (statuses.busyStatus.idle AND initializationStatus.initialized) );
+processes.open( isEnabled := statuses.busyStatus.idle AND initializationStatus.initialized );
 processes.close( isEnabled := statuses.busyStatus.idle AND initializationStatus.initialized );
 processes.stop( isEnabled := statuses.busyStatus.busy );
 processes.lowerOpen( isEnabled := processes.open.isEnabled );
