@@ -62,6 +62,16 @@ def getFileTree(dir, pattern):
     return matches, tree
 
 
+def makeJsTree(abspath, tree=[]):
+    """
+    Make a new tree of files (that may not exist yet), for use with the javascript extension of the templates.
+
+    The most simple tree is a flat list of filenames.
+    """
+    jsTree = convertToJsTree(abspath, '', tree)
+    return jsTree
+
+
 def getJsTree(abspath, pattern):
     """
     Get a tree of files, for use with the javascript extension of the templates.
@@ -81,7 +91,9 @@ def convertToJsTree(abspath,relpath, tree):
 
         d = {}
 
-        if isinstance(item, str):
+        if isinstance(item, basestring):
+            # convert unicode to a str if needed
+            item = str(item)
             # the item is a file
             d['text'] = item
             d['type'] = 'file'

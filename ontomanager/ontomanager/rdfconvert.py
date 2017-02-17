@@ -31,7 +31,7 @@ OUTPUT_FORMAT_TO_EXTENSION = { "xml"        : ".xml",
                                "n3"         : ".n3" }
 
 
-def convert(inputFilesOrDirs, inputFormat, inputExtensions, outputDir, outputFormat, outputExt, recursive=True, overwrite=True):
+def convert(inputFilesOrDirs, inputFormat, inputExtensions, outputDir, outputFormat, outputExt, recursive=True, overwrite=True, loggingFunction=None):
     """
     Conversion function.
 
@@ -43,10 +43,13 @@ def convert(inputFilesOrDirs, inputFormat, inputExtensions, outputDir, outputFor
     @param recursive        : if inputFilesOrDirs contains directories, descend into these directories to find all files
     @param overwrite        : True to overwrite any existing file.
     """
+    if loggingFunction is None:
+        loggingFunction = INFO
+
     # process each input file sequentially:
     for inputFileOrDir in inputFilesOrDirs:
 
-        INFO("Processing input file or directory '%s'" %inputFileOrDir)
+        loggingFunction("Processing input file or directory '%s'" %inputFileOrDir)
 
         # check if the file exists, and if it's a directory or a file
         isdir = False
@@ -149,5 +152,5 @@ def convert(inputFilesOrDirs, inputFormat, inputExtensions, outputDir, outputFor
                         DEBUG("Now creating %s since it does not exist yet" %dirName)
                         os.makedirs(dirName)
 
-                    INFO("Writing %s" %outputAbsFileName)
+                    loggingFunction("Writing %s" %outputAbsFileName)
                     g.serialize(outputAbsFileName, auto_compact=True, format=outputFormat)

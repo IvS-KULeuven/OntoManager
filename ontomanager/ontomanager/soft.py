@@ -13,6 +13,16 @@ from logging import INFO, ERROR
 # ========================================================= Read and write code ====================================================
 
 
+def GET_FILENAME(library, ext):
+    """
+    Get the name of a software library with the given extension.
+
+    @param library: qname of the library
+    @param ext: filename extension (without dot, e.g. 'xml' or 'py')
+    """
+    return "%s.%s" %(library.split(':',1)[1].lower(), ext)
+
+
 def GET_FILEPATH(dir, library, ext):
     """
     Get the path of a software library with the given extension in the given directory.
@@ -21,7 +31,7 @@ def GET_FILEPATH(dir, library, ext):
     @param library: qname of the library
     @param ext: filename extension (without dot, e.g. 'xml' or 'py')
     """
-    return os.path.join(dir, "%s.%s" %(library.split(':',1)[1].lower(), ext))
+    return os.path.join(dir, GET_FILENAME(library, ext))
 
 
 def getCode(library, filePath, busyUpdating):
@@ -123,7 +133,7 @@ def show_library(node, args=None):
     """
     INFO("soft.show_library(%s)" %node['qname'])
 
-    node.expand("soft", "library", visible=False)
+    node.expand("soft", "library")
 
     for ns in node["namespaces"]:
         node.cache[ns].show("soft")
@@ -153,7 +163,7 @@ def show_namespace(node, args=None):
     """
     INFO("soft.show_namespace(%s)" %node['qname'])
 
-    node.expand("soft", "namespace", visible=False)
+    node.expand("soft", "namespace")
 
     for ns in node["namespaces"]:
         node.cache[ns].show("soft")
@@ -195,7 +205,7 @@ def show_plc_method(node, args=None):
     INFO("soft.show_plc_method(%s)" %node['qname'])
 
     show_type(node)
-    node.expand("soft", "plc_method", visible=False)
+    node.expand("soft", "plc_method")
 
     node["this"] = generic.getRelated(node.cache, node["qname"], "(^iec61131:hasMethod) | (^iec61131:hasMethodInstance)")[0]
     node.cache[node["this"]].show("soft")
@@ -230,7 +240,7 @@ def show_fb(node, args=None):
     INFO("soft.show_fb(%s)" %node['qname'])
 
     show_type(node)
-    node.expand("soft", "fb", visible=False)
+    node.expand("soft", "fb")
 
     if node["implementation"] is not None:
         node.cache[node["implementation"]].show("soft")
@@ -258,7 +268,7 @@ def show_struct(node, args=None):
     INFO("soft.show_struct(%s)" %node['qname'])
 
     show_type(node)
-    node.expand("soft", "struct", visible=False)
+    node.expand("soft", "struct")
 
     for attr in node["attributes"]:
         node.cache[attr].show("soft")
@@ -283,7 +293,7 @@ def show_enum(node, args=None):
     INFO("soft.show_enum(%s)" %node['qname'])
 
     show_type(node)
-    node.expand("soft", "enum", visible=False)
+    node.expand("soft", "enum")
 
     for ns in node["items"]:
         node.cache[ns].show("soft", "enum_item")
@@ -330,7 +340,7 @@ def show_attribute(node, args=None):
     """
     INFO("soft.show_attribute(%s)" %node['qname'])
 
-    node.expand("soft", "attribute", visible=False)
+    node.expand("soft", "attribute")
 
     show_variable(node)
 
@@ -351,7 +361,7 @@ def show_argument(node, args=None):
     """
     INFO("soft.show_argument(%s)" %node['qname'])
 
-    node.expand("soft", "argument", visible=False)
+    node.expand("soft", "argument")
 
     show_variable(node)
 
@@ -374,7 +384,7 @@ def show_Interface(node, args=None):
     """
     INFO("soft.show_Interface(%s)" %node['qname'])
 
-    node.expand("soft", "Interface", visible=False)
+    node.expand("soft", "Interface")
 
     for v in node["variables"]:
         node.cache[v].show("soft")
@@ -398,7 +408,7 @@ def show_InterfaceInstance(node, args=None):
     """
     INFO("soft.show_InterfaceInstance(%s)" %node['qname'])
 
-    node.expand("soft", "InterfaceInstance", visible=False)
+    node.expand("soft", "InterfaceInstance")
 
     for v in node["variables"]:
         node.cache[v].show()
@@ -520,7 +530,7 @@ def show_variable(node, args=None):
         if value is not None:
             node["value"] = getExpressionString(value)
 
-    node.expand("soft", "variable", visible=False)
+    node.expand("soft", "variable")
 
     for memberOf in node["member_of"]:
         node.cache[memberOf].show("soft")
@@ -693,7 +703,7 @@ def show_implementation(node, args=None):
     """
     INFO("soft.show_implementation(%s)" %node['qname'])
 
-    node.expand("soft", "implementation", visible=False)
+    node.expand("soft", "implementation")
 
     for expr in node["expressions"]:
         node.cache[expr].show("soft")
@@ -708,7 +718,7 @@ def show_call(node, args=None):
     """
     INFO("soft.show_call(%s)" %node['qname'])
 
-    node.expand("soft", "call", visible=False)
+    node.expand("soft", "call")
 
     calls = generic.getRelated(node.cache, node["qname"], "soft:calls")
 

@@ -31,7 +31,7 @@ def show_configuration(node, args=None):
     """
     INFO("elec.show_configuration(%s)" %node['qname'])
 
-    node.expand("elec", "configuration", visible=False)
+    node.expand("elec", "configuration")
 
     for expansion in ["I/O modules",
                       "circuit breakers",
@@ -90,7 +90,7 @@ def show_Terminal(node, args=None):
     if node['owner'] is not None:
         generic.getDefaultNode(node.cache, node['owner']).show("elec")
 
-    node.expand("elec", "Terminal", visible=False)
+    node.expand("elec", "Terminal")
 
     for connection in node["connections"]:
         node.cache[connection].show("elec")
@@ -109,7 +109,7 @@ def show_TerminalInstance(node, args=None):
     if node['realizes'] is not None:
         generic.getDefaultNode(node.cache, node['realizes']).show("elec")
 
-    node.expand("elec", "TerminalInstance", visible=False)
+    node.expand("elec", "TerminalInstance")
 
     for connection in node["connections"]:
         node.cache[connection].show("elec")
@@ -191,7 +191,7 @@ def show_ConnectorType(node, args=None):
     """
     INFO("elec.show_ConnectorType(%s)" %node['qname'])
 
-    node.expand("elec", "ConnectorType", visible=False)
+    node.expand("elec", "ConnectorType")
 
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' },
@@ -227,7 +227,7 @@ def show_ConnectorInstance(node, args=None):
     """
     INFO("elec.show_ConnectorInstance(%s)" %node['qname'])
 
-    node.expand("elec", "ConnectorInstance", visible=False)
+    node.expand("elec", "ConnectorInstance")
 
     generic.fillFields(node, mandatories={'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol' })
     generic.getDefaultNode(node.cache, node['man_type']).show("elec")
@@ -261,13 +261,13 @@ def show_Pin(node, args=None):
     """
     INFO("elec.show_Pin(%s)" %node['qname'])
 
-    node.expand("elec", "Pin", visible=False)
+    node.expand("elec", "Pin")
 
     generic.fillFields(node, optionals={ 'symbol' : 'elec:hasSymbol', 'owner' : '^elec:hasPin' })
     if node['owner'] is not None:
         generic.getDefaultNode(node.cache, node['owner']).show("elec")
 
-    node.expand("elec", "Pin", visible=False)
+    node.expand("elec", "Pin")
 
     for connection in node["connections"]:
         node.cache[connection].show("elec")
@@ -278,7 +278,7 @@ def show_PinInstance(node, args=None):
     """
     INFO("elec.show_PinInstance(%s)" %node['qname'])
 
-    node.expand("elec", "PinInstance", visible=False)
+    node.expand("elec", "PinInstance")
 
     generic.fillFields(node, mandatories= { 'realizes' : 'sys:realizes' }, optionals={ 'symbol' : 'elec:hasSymbol', 'owner' : '^elec:hasPin' })
 
@@ -289,7 +289,7 @@ def show_PinInstance(node, args=None):
     if node['realizes'] is not None:
         generic.getDefaultNode(node.cache, node['realizes']).show("elec")
 
-    node.expand("elec", "PinInstance", visible=False)
+    node.expand("elec", "PinInstance")
 
     for connection in node["connections"]:
         node.cache[connection].show("elec")
@@ -320,7 +320,7 @@ def show_Wire(node, args=None):
     """
     INFO("elec.show_Wire(%s)" %node['qname'])
 
-    node.expand("elec", "Wire", visible=False)
+    node.expand("elec", "Wire")
 
     for color in node["colors"]:
         node.cache[color].show("colors")
@@ -343,7 +343,7 @@ def show_WireInstance(node, args=None):
     """
     INFO("elec.show_WireInstance(%s)" %node['qname'])
 
-    node.expand("elec", "WireInstance", visible=False)
+    node.expand("elec", "WireInstance")
 
     generic.fillFields(node, mandatories= { 'realizes' : 'sys:realizes' }, optionals={ 'symbol' : 'elec:hasSymbol', 'owner' : '^elec:hasWire', 'connectsFrom' : 'elec:connectsFrom', 'connectsTo' : 'elec:connectsTo'  })
 
@@ -380,7 +380,7 @@ def show_CableType(node, args=None):
     """
     INFO("elec.show_CableType(%s)" %node['qname'])
 
-    node.expand("elec", "CableType", visible=False)
+    node.expand("elec", "CableType")
 
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' }, optionals={'symbol' : 'elec:hasSymbol'})
@@ -409,7 +409,7 @@ def show_CableInstance(node, args=None):
     """
     INFO("elec.show_CableInstance(%s)" %node['qname'])
 
-    node.expand("elec", "CableInstance", visible=False)
+    node.expand("elec", "CableInstance")
 
     generic.fillFields(node, mandatories={'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show("elec")
@@ -441,7 +441,7 @@ def show_Channel(node, args=None):
     """
     INFO("elec.show_Channel(%s)" %node['qname'])
 
-    node.expand("elec", "Channel", visible=False)
+    node.expand("elec", "Channel")
 
     for terminal in node["terminals"]:
         node.cache[terminal].show("elec")
@@ -480,7 +480,7 @@ def show_IoModuleInstance(node, args=None):
     if node['interface'] is not None:
         generic.getDefaultNode(node.cache, node['interface']).show('soft')
 
-    node.expand("elec", "IoModuleInstance", visible=False)
+    node.expand("elec", "IoModuleInstance")
 
     for qname in node["channels"]:
         node.cache[qname].show("elec")
@@ -521,7 +521,7 @@ def show_IoModuleType(node, args=None):
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
     generic.getDefaultNode(node.cache, node['interface']).show()
 
-    node.expand("elec", "IoModuleType", visible=False)
+    node.expand("elec", "IoModuleType")
 
     node["owning_configurations_counts"] = []
 
@@ -568,7 +568,7 @@ def show_DriveInstance(node, args=None):
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'} )
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
-    node.expand("elec", "DriveInstance", visible=False)
+    node.expand("elec", "DriveInstance")
 
     for channel in node["channels"]:
         node.cache[channel].show("elec")
@@ -610,7 +610,7 @@ def show_DriveType(node, args=None):
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
 
-    node.expand("elec", "DriveType", visible=False)
+    node.expand("elec", "DriveType")
 
     node["owning_configurations_counts"] = []
 
@@ -663,7 +663,7 @@ def show_SensorInstance(node, args=None):
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
-    node.expand("elec", "SensorInstance", visible=False)
+    node.expand("elec", "SensorInstance")
 
     for channel in node["channels"]:
         node.cache[channel].show("elec")
@@ -705,7 +705,7 @@ def show_SensorType(node, args=None):
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
 
-    node.expand("elec", "SensorType", visible=False)
+    node.expand("elec", "SensorType")
 
     node["owning_configurations_counts"] = []
 
@@ -759,7 +759,7 @@ def show_ActuatorInstance(node, args=None):
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
-    node.expand("elec", "ActuatorInstance", visible=False)
+    node.expand("elec", "ActuatorInstance")
 
     for channel in node["channels"]:
         node.cache[channel].show("elec")
@@ -801,7 +801,7 @@ def show_ActuatorType(node, args=None):
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
 
-    node.expand("elec", "ActuatorType", visible=False)
+    node.expand("elec", "ActuatorType")
 
     node["owning_configurations_counts"] = []
 
@@ -856,7 +856,7 @@ def show_PowerSupplyInstance(node, args=None):
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
-    node.expand("elec", "PowerSupplyInstance", visible=False)
+    node.expand("elec", "PowerSupplyInstance")
 
     for channel in node["channels"]:
         node.cache[channel].show("elec")
@@ -898,7 +898,7 @@ def show_PowerSupplyType(node, args=None):
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
 
-    node.expand("elec", "PowerSupplyType", visible=False)
+    node.expand("elec", "PowerSupplyType")
 
     node["owning_configurations_counts"] = []
 
@@ -952,7 +952,7 @@ def show_CableAssemblyInstance(node, args=None):
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
-    node.expand("elec", "CableAssemblyInstance", visible=False)
+    node.expand("elec", "CableAssemblyInstance")
 
     for cable in node["cables"]:
         node.cache[cable].show("elec")
@@ -986,7 +986,7 @@ def show_CableAssemblyType(node, args=None):
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
 
-    node.expand("elec", "CableAssemblyType", visible=False)
+    node.expand("elec", "CableAssemblyType")
 
     node["owning_configurations_counts"] = []
 
@@ -1030,7 +1030,7 @@ def show_MotorInstance(node, args=None):
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
-    node.expand("elec", "MotorInstance", visible=False)
+    node.expand("elec", "MotorInstance")
 
     for channel in node["channels"]:
         node.cache[channel].show("elec")
@@ -1072,7 +1072,7 @@ def show_MotorType(node, args=None):
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
 
-    node.expand("elec", "MotorType", visible=False)
+    node.expand("elec", "MotorType")
 
     node["owning_configurations_counts"] = []
 
@@ -1126,7 +1126,7 @@ def show_SwitchInstance(node, args=None):
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
-    node.expand("elec", "SwitchInstance", visible=False)
+    node.expand("elec", "SwitchInstance")
 
     for channel in node["channels"]:
         node.cache[channel].show("elec")
@@ -1168,7 +1168,7 @@ def show_SwitchType(node, args=None):
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
 
-    node.expand("elec", "SwitchType", visible=False)
+    node.expand("elec", "SwitchType")
 
     node["owning_configurations_counts"] = []
 
@@ -1228,7 +1228,7 @@ def show_DeviceInstance(node, args=None):
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
-    node.expand("elec", "DeviceInstance", visible=False)
+    node.expand("elec", "DeviceInstance")
 
     for channel in node["channels"]:
         node.cache[channel].show("elec")
@@ -1271,7 +1271,7 @@ def show_DeviceType(node, args=None):
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
 
-    node.expand("elec", "DeviceType", visible=False)
+    node.expand("elec", "DeviceType")
 
     node["owning_configurations_counts"] = []
 
@@ -1330,7 +1330,7 @@ def show_CircuitBreakerInstance(node, args=None):
     if node['interface'] is not None:
         generic.getDefaultNode(node.cache, node['interface']).show('soft')
 
-    node.expand("elec", "CircuitBreakerInstance", visible=False)
+    node.expand("elec", "CircuitBreakerInstance")
 
     for qname in node["channels"]:
         node.cache[qname].show("elec")
@@ -1369,7 +1369,7 @@ def show_CircuitBreakerType(node, args=None):
                                        'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
 
-    node.expand("elec", "CircuitBreakerType", visible=False)
+    node.expand("elec", "CircuitBreakerType")
 
     node["owning_configurations_counts"] = []
 

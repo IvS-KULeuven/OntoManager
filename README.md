@@ -17,8 +17,8 @@ How to install:
     virtualenv .
     git clone https://github.com/IvS-KULeuven/OntoManager.git
     ./bin/python OntoManager/setup.py install
-    # setup.py may fail because the installation order of some dependencies
-    # is incorrectly configured. Simply run it again, if needed:
+    \# setup.py may fail because the installation order of some dependencies
+    \# is incorrectly configured. Simply run it again, if needed:
     ./bin/python OntoManager/setup.py install
 
 
@@ -34,9 +34,9 @@ To execute Ontoscript models, you need to install the following:
 
 * coffee-script
 
-   # for example, on Fedora:
+   \# for example, on Fedora:
    sudo dnf install coffee-script
-   # this should automatically install Node.js (package 'nodejs'), as well.
+   \# this should automatically install Node.js (package 'nodejs'), as well.
 
 * (Optional) inference engine
 
@@ -56,9 +56,9 @@ How to configure:
 -----------------
 
     cd /some/path/ontomanager
-    # make a directory to store all generated files:
+    \# make a directory to store all generated files:
     mkdir generated
-    # create a configuration file by copying the example configuration file:
+    \# create a configuration file by copying the example configuration file:
     cp OntoManager/ontomanager/config/example_config.ini OntoManager/ontomanager/config/config.ini
 
 Then, edit the config.ini file.

@@ -245,6 +245,8 @@ class Model(dict):
 
         @param repoName: the name of the chosen repository, as determined by the config.ini.
         """
+        global CACHE
+
         # if no repoName is specified, then we use the default repository:
         if repoName is None:
             repo = configuration.DEFAULT_REPOSITORY
@@ -281,10 +283,18 @@ class Model(dict):
         for checkbox in self["dataset"]["main_checkboxes"]:
             self["dataset"][checkbox] = { "checked" : False }
 
+        # create a list of generated source code files
+        plcOpenXmlFiles = []
+        pyuafFiles = []
+        libs = soft.getLibraries(CACHE)
+        for lib in libs:
+            plcOpenXmlFiles.append(soft.GET_FILENAME(lib, "xml"))
+            pyuafFiles.append(soft.GET_FILENAME(lib, "py"))
+
         # create the tree menus
         self["dataset"]["run_models"]["tree"] = dataset.getJsTree(self["config"]["models_dir"], "*.coffee")
-        self["dataset"]["generate_plcopen"]["tree"] = dataset.getJsTree(self["config"]["plcopen_dir"], "*.xml")
-        self["dataset"]["generate_pyuaf"]["tree"] = dataset.getJsTree(self["config"]["pyuaf_dir"], "*.xml")
+        self["dataset"]["generate_plcopen"]["tree"] = dataset.makeJsTree(self["config"]["plcopen_dir"], plcOpenXmlFiles)
+        self["dataset"]["generate_pyuaf"]["tree"] = dataset.makeJsTree(self["config"]["pyuaf_dir"], pyuafFiles)
         self["models"] = dataset.getJsTree(self["config"]["models_dir"], "*.coffee")
 
         # create the repository checbboxes, and select the current one
@@ -821,7 +831,7 @@ def dataset_view(request):
                 return HTTPFound(location=url)
 
 
-    for checkbox in ["run_models", 'generate_plcopen']:
+    for checkbox in ["run_models", 'generate_plcopen', 'generate_pyuaf']:
         if request.POST.has_key("%s_tree_unchecked" %checkbox):
             relPathString = request.POST["%s_tree_unchecked" %checkbox]
             M.datasetSetChecked(checkbox, relPathString, False)
@@ -1312,7 +1322,7 @@ class ProcessDatasetThread(threading.Thread):
                     outputExt        = ".jsonld",
                     recursive        = True,
                     overwrite        = True,
-                    loggingCb        = self.log)
+                    loggingFunction  = self.log)
 
 
             if self.model['dataset']['run_models']['checked']:
@@ -1362,7 +1372,7 @@ class ProcessDatasetThread(threading.Thread):
             if self.model["dataset"]["generate_plcopen"]["checked"]:
                 filenames = self.model.datasetGetCheckedFilenames(self.model['dataset']['generate_plcopen']['tree'])
 
-                self.log("============================ Generating libraries ==========================")
+                self.log("============================ Generating PLCOpen XML libraries ==========================")
                 for filePath in filenames:
                     # find the corresponding library
                     library = None
@@ -1378,6 +1388,28 @@ class ProcessDatasetThread(threading.Thread):
                         node = generic.getDefaultNode(CACHE, lib)
                         soft.show_library(node)
                         code = render('ontomanager:templates/soft/export_plcopen.mako', { 'project' : lib, 'CACHE' : CACHE } , request=self.request)
+                        soft.writeCode(code, lib, filePath)
+                        self.log(" OK", newLine=False)
+
+            if self.model["dataset"]["generate_pyuaf"]["checked"]:
+                filenames = self.model.datasetGetCheckedFilenames(self.model['dataset']['generate_pyuaf']['tree'])
+
+                self.log("============================ Generating PyUAF libraries ==========================")
+                for filePath in filenames:
+                    # find the corresponding library
+                    library = None
+                    for lib in U[self.user]['soft']['tree'].keys():
+                        if soft.GET_FILEPATH(self.model["config"]["pyuaf_dir"], lib, "py") == filePath:
+                            library = lib
+                            break
+
+                    if library is None:
+                        self.log("Skipping %s: no corresponding library found" %filePath)
+                    else:
+                        self.log("Generating %s..." %filePath)
+                        node = generic.getDefaultNode(CACHE, lib)
+                        soft.show_library(node)
+                        code = render('ontomanager:templates/soft/export_pyuaf.mako', { 'project' : lib, 'CACHE' : CACHE } , request=self.request)
                         soft.writeCode(code, lib, filePath)
                         self.log(" OK", newLine=False)
 

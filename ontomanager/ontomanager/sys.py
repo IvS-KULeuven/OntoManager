@@ -24,7 +24,7 @@ def show_project(node, args=None):
     """
     INFO("sys.show_project(%s)" %node['qname'])
 
-    node.expand("sys", "project", visible=False)
+    node.expand("sys", "project")
 
 
 # ========================================================= REALIZES ====================================================
@@ -45,7 +45,7 @@ def show_Realization(node, args=None):
     """
     INFO("sys.show_Realization(%s)" %node['qname'])
 
-    node.expand("sys", "Realization", visible=False)
+    node.expand("sys", "Realization")
     for r in node["realizes"]:
         node.cache[r].show()
 
@@ -68,7 +68,7 @@ def show_concept(node, args=None):
     """
     INFO("sys.show_concept(%s)" %node['qname'])
 
-    node.expand("sys", "concept", visible=False)
+    node.expand("sys", "concept")
 
     for expansion in [ "requirements", "states", "properties", "constraints", "tests", "designs" ]:
         for qname in node[expansion]:
@@ -102,7 +102,7 @@ def show_requirement(node, args=None):
     """
     INFO("sys.show_requirement(%s)" %node['qname'])
 
-    node.expand("sys", "requirement", visible=False)
+    node.expand("sys", "requirement")
 
     for derived in node["derives"]:
         node.cache[derived].show()
@@ -184,7 +184,7 @@ def show_design(node, args=None):
     """
     INFO("sys.show_design(%s)" %node['qname'])
 
-    node.expand("sys", "design", visible=False)
+    node.expand("sys", "design")
 
     for expansion in [ "realizes", "realized_requirements", "requirements", "states", "properties", "constraints", "tests", "parts" ]:
         for qname in node[expansion]:
@@ -245,7 +245,7 @@ def show_test(node, args=None):
     """
     INFO("sys.show_test(%s)" %node['qname'])
 
-    node.expand("sys", "test", visible=False)
+    node.expand("sys", "test")
 
     for verifies in node["verifies"]:
         node.cache[verifies].show()
@@ -289,5 +289,5 @@ def show_part(node, args=None):
     """
     INFO("sys.show_part(%s)" %node['qname'])
 
-    node.expand("sys", "part", visible=False)
+    node.expand("sys", "part")
 

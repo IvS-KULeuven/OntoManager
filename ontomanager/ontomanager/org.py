@@ -14,7 +14,7 @@ def show_Manufacturer(node, args=None):
     """
     INFO("org.show_Manufacturer(%s)" %node['qname'])
 
-    node.expand("org", "Manufacturer", visible=False)
+    node.expand("org", "Manufacturer")
 
     generic.fillFields(node, mandatories={ 'long_name'    : 'org:hasLongName',
                                            'short_name'   : 'org:hasShortName' })
@@ -32,7 +32,7 @@ def show_Organization(node, args=None):
     """
     INFO("org.show_Organization(%s)" %node['qname'])
 
-    node.expand("org", "Organization", visible=False)
+    node.expand("org", "Organization")
 
     generic.fillFields(node, mandatories={ 'long_name'    : 'org:hasLongName',
                                            'short_name'   : 'org:hasShortName' })
