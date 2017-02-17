@@ -17,8 +17,8 @@ How to install:
     virtualenv .
     git clone https://github.com/IvS-KULeuven/OntoManager.git
     ./bin/python OntoManager/setup.py install
-    \# setup.py may fail because the installation order of some dependencies
-    \# is incorrectly configured. Simply run it again, if needed:
+    # setup.py may fail because the installation order of some dependencies
+    # is incorrectly configured. Simply run it again, if needed:
     ./bin/python OntoManager/setup.py install
 
 
@@ -29,36 +29,36 @@ To execute Ontoscript models, you need to install the following:
 
 * Ontoscript
 
-   cd /some/path
-   git clone https://github.com/IvS-KULeuven/Ontoscript
+    cd /some/path
+    git clone https://github.com/IvS-KULeuven/Ontoscript
 
 * coffee-script
 
-   \# for example, on Fedora:
-   sudo dnf install coffee-script
-   \# this should automatically install Node.js (package 'nodejs'), as well.
+    # for example, on Fedora:
+    sudo dnf install coffee-script
+    # this should automatically install Node.js (package 'nodejs'), as well.
 
 * (Optional) inference engine
 
-   Download and install SPIN API
-   (http://www.topquadrant.com/repository/spin/org/topbraid/spin/).
+  Download and install SPIN API
+  (http://www.topquadrant.com/repository/spin/org/topbraid/spin/).
 
-   You'll also need to install its main dependency: Apache Jena
-   (http://jena.apache.org).
+  You'll also need to install its main dependency: Apache Jena
+  (http://jena.apache.org).
 
-   SPIN API and Jena are only required to verify and analyze models.
+  SPIN API and Jena are only required to verify and analyze models.
 
-   For common tasks (browsing the HTML web pages, generating PLCopen XML
-   and PyUAF source code), the inference engine is not needed.
+  For common tasks (browsing the HTML web pages, generating PLCopen XML
+  and PyUAF source code), the inference engine is not needed.
 
 
 How to configure:
 -----------------
 
     cd /some/path/ontomanager
-    \# make a directory to store all generated files:
+    # make a directory to store all generated files:
     mkdir generated
-    \# create a configuration file by copying the example configuration file:
+    # create a configuration file by copying the example configuration file:
     cp OntoManager/ontomanager/config/example_config.ini OntoManager/ontomanager/config/config.ini
 
 Then, edit the config.ini file.
