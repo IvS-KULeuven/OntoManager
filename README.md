@@ -17,6 +17,9 @@ How to install:
     virtualenv .
     git clone https://github.com/IvS-KULeuven/OntoManager.git
     ./bin/python OntoManager/setup.py install
+    # setup.py may fail because the installation order of some dependencies
+    # is incorrectly configured. Simply run it again, if needed:
+    ./bin/python OntoManager/setup.py install
 
 
 How to install other dependencies:
