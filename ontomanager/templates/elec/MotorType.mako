@@ -3,10 +3,7 @@
 
 <%
     motorType = CACHE[U["elec"]["show"]["qname"]]
-
 %>
-
-
 
 
 <h1>Motor type ${misc.render_view_link(motorType, "title")}</h1>

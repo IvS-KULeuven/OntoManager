@@ -3,10 +3,7 @@
 
 <%
     actuatorType = CACHE[U["elec"]["show"]["qname"]]
-
 %>
-
-
 
 
 <h1>Actuator type ${misc.render_view_link(actuatorType, "title")}</h1>

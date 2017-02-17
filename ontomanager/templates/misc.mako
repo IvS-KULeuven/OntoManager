@@ -103,33 +103,6 @@
 </%def>
 
 
-##<%def name="render_default_view_link(node)">\
-##<%
-##    if len(node["views_order"]) > 0:
-##        viewCategory, viewType = node["views_order"][0]
-##    else:
-##        viewCategory = "browse"
-##        viewType     = "all"
-##%>\
-##<a href="${viewCategory}?show=${viewType};qname=${node['qname']}"><b>[${viewType[0]}] ${node['label']}</b></a>
-##
-##        <div class="viewddd">
-##            <a href="#"
-##                onmouseover="mopen('m_${node['qname']}')"
-##                onmouseout="mclosetime()"><img src="${request.static_url('ontomanager:static/eye-icon.png')}" width="9" height="9"></a>
-##                <div id='m_${node['qname']}'
-##                    onmouseover="mcancelclosetime()"
-##                    onmouseout="mclosetime()">
-##                % for viewCategory, viewType in node['views_order']:
-##                    <a href="${viewCategory}?show=${viewType};qname=${node['qname']}">[${viewType[0]}] ${viewType}</a>
-##                % endfor
-##                </div>
-##        </div>
-##</%def>
-
-
-
-
 <%def name="render_tree(qname, branch, category, path, firstItem=True, display='label')">\
 <%
 

@@ -1,7 +1,6 @@
 <%namespace name="misc" file="../misc.mako"/>
 
 
-
 <%def name="render_pin_or_terminal(node)">\
 <%
     kind = ''
@@ -19,7 +18,6 @@
         kind = 'wire'
     else:
         kind = '???'
-
 
     if node.has_key('label'): label = node['label']
     if node.has_key('symbol'): symbol = node['symbol']

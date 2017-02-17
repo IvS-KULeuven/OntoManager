@@ -14,7 +14,7 @@
     <h2>Select data source</h2>
 
     % for checkboxName in dataset["repository_checkboxes"]:
-         <div tooltip='${dataset[checkboxName]['location']}'><h3><input type="radio" id="checkbox_repo_${checkboxName}" name="repos" />${dataset[checkboxName]['comment']}</h3></div>
+         <h3><input type="radio" id="checkbox_repo_${checkboxName}" name="repos" />${dataset[checkboxName]['comment']}</h3>
     % endfor
 
     <br/>
@@ -67,28 +67,6 @@
     <h3><input type="checkbox" id="checkbox_load_asserted" /> Load asserted data</h3>
 
     <div id="load_asserted_tree"></div>
-##
-##    <script type="application/javascript" language="JavaScript">
-##    <%
-##        import json
-##        jsonTree = json.dumps(dataset["load_asserted"]["tree"])
-##    %>
-##    $('#load_asserted_tree')
-##    .jstree({
-##        'plugins':["checkbox", "types"],
-##        'core' : {
-##            'data' : ${jsonTree | n}
-##        },//"checkbox": { //"two_state": true, //"whole_node" : false //,//"keep_selected_style" : false},
-##        "types" :
-##        {
-##           "file"   :  { 'icon' : "${request.static_url('ontomanager:static/document_16x16.png')}" },
-##           "folder" :  { 'icon' : "${request.static_url('ontomanager:static/folder_open_yellow_16x16.png')}" }
-##        }
-##
-##    })
-##    .on( 'select_node.jstree', function(e, data) { $.post("dataset", { "load_asserted_tree_checked" : data.node.id } ); })
-##    .on( 'deselect_node.jstree', function(e, data) { $.post("dataset", { "load_asserted_tree_unchecked" : data.node.id } ); });
-##    </script>
 
     <h3><input type="checkbox" id="checkbox_load_inferred" /> Load inferred data</h3>
 
@@ -97,38 +75,51 @@
 
     <h2>Post-process data (optional)</h2>
 
-    <h3><input type="checkbox" id="checkbox_generate_plcopen" /> Generate PLCopen files</h3>
+      % for fileType in ["plcopen", "pyuaf"]:
 
-    <style media="screen" type="text/css">
-        .folder>i.jstree-checkbox
-        {
-            display:none
-        }
-    </style>
+            <%
+                if fileType == "plcopen":
+                    fileTypeTitle = "PLCOpen"
+                elif fileType == "pyuaf":
+                    fileTypeTitle = "PyUAF"
+                else:
+                    fileTypeTitle = fileType
+            %>
 
-        <div id="generate_plcopen_tree"></div>
+            <h3><input type="checkbox" id="checkbox_generate_${fileType}" /> Generate ${fileTypeTitle} files</h3>
 
-        <script type="application/javascript" language="JavaScript">
-        <%
-            import json
-            jsonTree = json.dumps(dataset["generate_plcopen"]["tree"])
-        %>
-        $('#generate_plcopen_tree')
-        .jstree({
-            'plugins':["checkbox", "types"],
-            'core' : {
-                'data' : ${jsonTree | n}
-            },//"checkbox": { //"two_state": true, //"whole_node" : false //,//"keep_selected_style" : false},
-            "types" :
-            {
-               "file"   :  { 'icon' : "${request.static_url('ontomanager:static/document_16x16.png')}" },
-               "folder" :  { 'icon' : "${request.static_url('ontomanager:static/folder_open_yellow_16x16.png')}" }
-            }
+            <style media="screen" type="text/css">
+                .folder>i.jstree-checkbox
+                {
+                    display:none
+                }
+            </style>
 
-        })
-        .on( 'select_node.jstree', function(e, data) { $.post("dataset", { "generate_plcopen_tree_checked" : data.node.id } ); })
-        .on( 'deselect_node.jstree', function(e, data) { $.post("dataset", { "generate_plcopen_tree_unchecked" : data.node.id } ); });
-        </script>
+
+            <div id="generate_${fileType}_tree"></div>
+
+            <script type="application/javascript" language="JavaScript">
+            <%
+                import json
+                jsonTree = json.dumps(dataset["generate_%s" %fileType]["tree"])
+            %>
+            $('#generate_${fileType}_tree')
+            .jstree({
+                'plugins':["checkbox", "types"],
+                'core' : {
+                    'data' : ${jsonTree | n}
+                },//"checkbox": { //"two_state": true, //"whole_node" : false //,//"keep_selected_style" : false},
+                "types" :
+                {
+                   "file"   :  { 'icon' : "${request.static_url('ontomanager:static/document_16x16.png')}" },
+                   "folder" :  { 'icon' : "${request.static_url('ontomanager:static/folder_open_yellow_16x16.png')}" }
+                }
+
+            })
+            .on( 'select_node.jstree', function(e, data) { $.post("dataset", { "generate_${fileType}_tree_checked" : data.node.id } ); })
+            .on( 'deselect_node.jstree', function(e, data) { $.post("dataset", { "generate_${fileType}_tree_unchecked" : data.node.id } ); });
+            </script>
+      % endfor
 
 
     <h3><input type="checkbox" id="checkbox_save_cache" /> Save cache</h3>
@@ -149,7 +140,7 @@
             $('#checkbox_${checkbox}').prop( "checked", ${str(dataset[checkbox]["checked"]).lower()} );
             // post on change
             $('#checkbox_${checkbox}').change(function() {
-                %if checkbox in ["run_models", "generate_plcopen"]:
+                %if checkbox in ["run_models", "generate_plcopen", "generate_pyuaf"]:
                     $.post("dataset",
                             { '${checkbox}_checked'    : $(this).is(':checked') },
                             // update visibility by success function:
@@ -166,7 +157,7 @@
 
             });
 
-            %if checkbox in ["run_models", "generate_plcopen"]:
+            %if checkbox in ["run_models", "generate_plcopen", "generate_pyuaf"]:
                 // set initial visibility
                 if ($('#checkbox_${checkbox}').is(':checked')) {
                     $('#${checkbox}_tree').show();
@@ -182,10 +173,10 @@
             // post on change
             $('#checkbox_repo_${checkbox}').change(function() {
             $.post("dataset", { '${checkbox}_checked'    : $(this).is(':checked') } );
-            // sleep a second, so that the python code has updated the tree, before reloading the page
+            // sleep a few seconds, so that the python code has updated the tree, before reloading the page
             setTimeout(function() {
                 window.location.reload();
-            }, 1000);
+            }, 3000);
             });
         % endfor
     });

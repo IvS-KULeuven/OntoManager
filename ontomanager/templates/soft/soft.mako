@@ -38,10 +38,6 @@
             <p>No '${show_type}' view defined for <a href="browse?show=thing;qname=${U['soft']['show']['qname']}">${U['soft']['show']['qname']}</a></p>
         %endif
 
-
-
-
-
     </div>
 
 </%block>

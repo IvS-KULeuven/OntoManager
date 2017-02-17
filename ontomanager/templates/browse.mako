@@ -22,28 +22,6 @@
     </form>
 
 
-##    <h3>Summary:</h3>
-##    <div class="box">
-##        % for result in node["results"]:
-##            % if result.has_key("manchester"):
-##                % if result["qname"] == "rdf:type":
-##                    <h4>Types:</h4>
-##                % elif result["qname"] == "owl:equivalentClass":
-##                    <h4>Equivalent classes:</h4>
-##                % elif result["qname"] == "rdfs:subClassOf":
-##                    <h4>Subclasses:</h4>
-##                % else:
-##                    <h4>${result["qname"]}:</h4>
-##                % endif
-##                <ul>
-##                    % for s in result["manchester"]:
-##                        <li>${s}</li>
-##                    % endfor
-##                </ul>
-##            % endif
-##        % endfor
-##    </div>
-
 % if node is not None:
 
     <p>

@@ -87,13 +87,6 @@
     <div id="middle">
       <div class="middle align-center">
 
-
-
-##        <div id="menu_reset">
-##            <a href="problems?reset"><img src="${request.static_url('ontomanager:static/refresh.png')}" width="20" height="20"></a>
-####            <a href="#" class="html_popup"><img src="${request.static_url('ontomanager:static/refresh_green.png')}" width="20" height="20"></a>
-##        </div>
-
         <ul class="menu">
           % for item in M['menu_items']:
             % if current_page == item["name"]:

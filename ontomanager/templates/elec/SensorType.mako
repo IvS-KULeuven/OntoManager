@@ -3,10 +3,7 @@
 
 <%
     sensorType = CACHE[U["elec"]["show"]["qname"]]
-
 %>
-
-
 
 
 <h1>Sensor type ${misc.render_view_link(sensorType, "title")}</h1>

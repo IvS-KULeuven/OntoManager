@@ -5,5 +5,4 @@
 
     <div id="errormessagebox">No mechanics views yet...</div>
 
-
 </%block>

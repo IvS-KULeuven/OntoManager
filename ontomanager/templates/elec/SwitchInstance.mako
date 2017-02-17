@@ -23,7 +23,6 @@ ${misc.render_comment_below_title(switchType)}
 ${elec_misc.render_device_type_summary(switchType)}
 
 
-
 <!-- ============================================ CONNECTIONS =====================================================  -->
 
 <h5>Connections</h5>

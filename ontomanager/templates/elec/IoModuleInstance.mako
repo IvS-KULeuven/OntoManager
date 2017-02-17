@@ -4,10 +4,7 @@
 
 <%
     module = CACHE[U["elec"]["show"]["qname"]]
-
     moduleType = CACHE[module["man_type"]]
-
-
 %>
 
 

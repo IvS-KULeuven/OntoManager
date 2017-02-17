@@ -40,12 +40,6 @@
                         % if M['functions']['IS_URI'](result):
                             <%
                                 resultQname = M['functions']['URI_TO_QNAME'](result)
-##                                try:
-##                                    resultNode = CACHE[resultQName]
-##                                    doShow = True
-##                                except Exception, e:
-##                                    #raise Exception(str(resultQname) + str(CACHE.has_key(resultQname)) +  str(CACHE[str(resultQName)]))
-##                                    doShow = False
                             %>
                             % if CACHE.has_key(resultQname):
 

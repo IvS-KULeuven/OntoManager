@@ -3,10 +3,7 @@
 
 <%
     switchType = CACHE[U["elec"]["show"]["qname"]]
-
 %>
-
-
 
 
 <h1>Switch type ${misc.render_view_link(switchType, "title")}</h1>
