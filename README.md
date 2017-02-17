@@ -29,14 +29,14 @@ To execute Ontoscript models, you need to install the following:
 
 * Ontoscript
 
-    cd /some/path
-    git clone https://github.com/IvS-KULeuven/Ontoscript
+      cd /some/path
+      git clone https://github.com/IvS-KULeuven/Ontoscript
 
 * coffee-script
 
-    sudo dnf install coffee-script
-    # in the above line, dnf is the package manager for fedora
-    # this should automatically install Node.js (package 'nodejs'), as well.
+      sudo dnf install coffee-script
+      # in the above line, dnf is the package manager for fedora
+      # this should automatically install Node.js (package 'nodejs'), as well.
 
 * (Optional) inference engine
 
