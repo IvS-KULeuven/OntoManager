@@ -1,45 +1,6 @@
-from pyramid.response import Response
-from pyramid.renderers import get_renderer, render
-from pyramid.view import view_config, view_defaults
-from pyramid.httpexceptions import HTTPFound, HTTPNotFound
-from pyramid.response import FileResponse
-from queries import ontologies, triplestore, browse, soft, problems, util, register, generic, dataset, rdfconvert, elec
-from queries import sys as mercator_sys
-from queries.triplestore import *
-from queries.util import *
-from queries.register import REGISTRY
-import configuration
+# python system libraries
 import subprocess
-
 from collections import OrderedDict
-import allviews
-
-TESTQUERY = """SELECT ?company ?companyName ?m ?id ?comment (COUNT(?instance) AS ?count)
-WHERE {
-    ?m        rdf:type             elec:IoModuleType .
-    ?m        man:hasId            ?id .
-    ?m        man:isManufacturedBy ?company .
-    ?company  org:hasLongName      ?companyName  .
-    ?instance sys:realizes         ?m .
-    OPTIONAL { ?m rdfs:comment ?comment }
-}
-GROUP BY ?id
-ORDER BY ASC(?id)"""
-
-
-from pyramid.view import (
-    view_config,
-    forbidden_view_config,
-    )
-
-from pyramid.security import (
-    remember,
-    forget,
-    )
-
-from .configuration import USERS, groupfinder
-
-
 import urllib
 import threading
 import pprint
@@ -47,78 +8,117 @@ import os
 import pickle
 import sys
 
+# pyramid librariies
+from pyramid.renderers import render
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
+from pyramid.response import FileResponse
+from pyramid.view import view_config, forbidden_view_config
+from pyramid.security import remember, forget
 
+# ontomanager libraries
+import ontomanager
+from ontomanager import ontologies, triplestore, soft, problems, util, generic, dataset, rdfconvert, elec, logging, configuration
+from ontomanager.triplestore import GET_GRAPH, CREATE_GRAPH, FIND_FILES, CLEAR_GRAPH, LOAD_MINIMAL_CONTEXT, LOG_CONTEXT, IS_QNAME, IS_URI, URI_TO_QNAME, QUERY
+from ontomanager.register import REGISTRY
+from ontomanager.logging import INFO, DEBUG, LOG, ERROR, do_DEBUG
+from ontomanager.configuration import USERS, HOMES
+from tests import TESTQUERY
 
+# since the config has been read, we can set the loglevel
+logging.SET_LOGLEVEL(configuration.LOGLEVEL)
+
+# some queries form a deep cascade of new queries, so therefore we set the recursion limit to a high number
 sys.setrecursionlimit(sys.getrecursionlimit() * 10)
-
-print "New recursion limit: %d" %sys.getrecursionlimit()
-
-PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
+DEBUG("New recursion limit: %d" %sys.getrecursionlimit())
 
 
-print "REGISTRY:"
-print REGISTRY
+###################################################################################################
+# the CACHE memory of our application is a global variable
+CACHE = {}
+###################################################################################################
 
 
+# =================================================================================================
 def buildResponse(request, currentPage):
+    """
+    Build a response (a dictionary) to a HTTP request.
+
+    The contents of this response will be accessible from within the templates.
+    """
     global M
     global U
     global CACHE
+
+    # find out the user ID
     userId = request.authenticated_userid
+
+    # we always require a user
+    if userId is None:
+        userId = "guest"
+
+    # build the response structure
     d = dict(
         M = M,
         CACHE = CACHE,
         user_id = userId,
-        user_groups = groupfinder(userId, request),
-        current_page = currentPage
+        user_groups = ontomanager.configuration.groupfinder(userId, request),
+        current_page = currentPage,
+        U = U[userId]
     )
 
-    if userId is None:
-        userId = "guest"
-
-    if userId is not None:
-        d['U'] = U[userId]
     return d
 
 
-CACHE = {}
-
+# =================================================================================================
 class Model(dict):
+    """
+    A Model in the Model-View-Controller paradigm holds all information that must be displayed.
+    """
+
     def __init__(self):
+        """
+        Create the model.
+        """
+        # initialize the dictionary
         dict.__init__(self)
+
+        # clear the cache
         global CACHE
         CACHE = {}
-        CREATE_GRAPH()
-        self.reset()
 
-    def test(self):
-        QUERY("""
-        SELECT DISTINCT ?instance ?view ?anything
-        WHERE {
-            ?instance rdf:type/rdfs:subClassOf* sys:Project .
-            OPTIONAL { ?view ontoscript:views ?anything } .
-        }
-        """)
+        # create the basic graph
+        CREATE_GRAPH()
+
+        # load a minimal context, so that we can already execute some queries
+        LOAD_MINIMAL_CONTEXT()
+
+        # reset the application
+        self.reset()
 
 
     def reset(self):
+        """
+        Reset the application.
+
+        Resetting means: put OntoManager in its initial state, before the user
+        started clicking on things and before queries were executed by the user.
+        The configuration file (config/config.ini) will be re-read.
+        """
         LOG("Resetting...")
 
+        # build the main structure of the dictionary
         self["logged_in"] = None
         self["authentication"] = None
         self["DEBUG"] = False
         self["functions"]    = { "PARSE_FOR_URI"        : triplestore.PARSE_FOR_URI,
                                  "IS_URI"               : triplestore.IS_URI,
                                  "URI_TO_QNAME"         : triplestore.URI_TO_QNAME,
-                                 "SOFT_GET_FILEPATH"    : soft.GET_FILEPATH
-                                 }
+                                 "SOFT_GET_FILEPATH"    : soft.GET_FILEPATH }
         self["project"]      = 'OntoManager @ Mercator Telescope'
         self["menu_items"]   = [ { 'name'   : 'Home',
                                    'target' : '/' },
                                  { 'name'   : 'Models',
                                    'target' : '/models' },
-                                 # { 'name'   : 'Config',
-                                 #   'target' : '/config' },
                                  { 'name'   : 'Dataset',
                                    'target' : '/dataset' },
                                  { 'name'   : 'Problems',
@@ -127,8 +127,6 @@ class Model(dict):
                                    'target' : '/browse' },
                                  { 'name'   : 'Query',
                                    'target' : '/query' },
-                                 # { 'name'   : 'Org',
-                                 #   'target' : '/org' },
                                  { 'name'   : 'Systems',
                                    'target' : '/sys' },
                                  { 'name'   : 'Mechanics',
@@ -137,28 +135,40 @@ class Model(dict):
                                    'target' : '/elec' },
                                  { 'name'   : 'Software',
                                    'target' : '/soft' } ]
-
-        self["config"] = {
-            "ontologies_dir" : configuration.DEFAULT_REPOSITORY["location"],
-            "jsonld_dir"     : os.path.join(PROJECT_DIR, "jsonld"),
-            "inferred_dir"   : os.path.join(PROJECT_DIR, "rdf-inferred"),
-            "plcopen_dir"    : os.path.join(PROJECT_DIR, "generated", "plcopen"),
-            "pyuaf_dir"      : os.path.join(PROJECT_DIR, "generated", "pyuaf") }
-        
         self["dataset"] = {}
-        self.createDataset()
+        self["dataset"]["output"] = ""
+        self["dataset"]["thread_running"] = False
+        self["dataset"]["main_checkboxes"] = [ "run_metamodels",
+                                               "run_models",
+                                               "run_inferences",
+                                               "load_asserted",
+                                               "load_inferred",
+                                               "generate_plcopen",
+                                               "generate_pyuaf",
+                                               "save_cache"  ]
+        self["config"] = {}
+        self["problems"] = { "violations" : [] }
 
+
+        # read contents from the files (coffee, jsonld, ...) that are inside the
+        # directories of the configuration file
+        self.updateDataset()
+
+        # load the asserted data
         self.loadAsserted()
-
-        #self.loadInferred()
-
-        self["models"] = dataset.getJsTree(os.path.join(self["config"]["ontologies_dir"], "coffee", "models"), "*.coffee")
 
         LOG("Reset done.")
 
 
     def log(self, msg, newLine=True):
-        print msg
+        """
+        Log a message, both to OntoManager's logging system and to the
+        ["dataset"]["output"] string, which can be displayed in the web browser.
+
+        @param newLine: True if a newline must be added before the message
+                        displayed in the web browser..
+        """
+        INFO(msg)
         if newLine:
             msg = b'\n%s' %msg.decode(u'utf-8')
         else:
@@ -168,38 +178,52 @@ class Model(dict):
 
 
     def loadAsserted(self):
-        self.log("Clearing graph ...")
+        """
+        Load the asserted data.
 
+        The asserted data is the data that was entered by the user. It corresponds
+        to the data of the jsonld files:
+         - the metamodel jsonld files, created by converting the ontologies (in .ttl format)
+           into jsonld
+        """
+        self.log("========================= Loading asserted data ========================= ")
+
+        self.log("Clearing graph ...")
         CLEAR_GRAPH()
 
-        self.log("Loading asserted (in %s)" %self['config']['jsonld_dir'])
+        self.log("Loading minimal context ...")
+        LOAD_MINIMAL_CONTEXT()
 
+        self.log("Loading asserted  data (in %s) ..." %self['config']['jsonld_dir'])
+
+        # get the list of files to read (i.e. to "load" in memory)
         fileNames = FIND_FILES(self['config']['jsonld_dir'], '*.jsonld')
 
-        global CACHE
-
+        # read each file
         for fileName in fileNames:
             self.log("Reading %s..." %fileName)
             f = file(fileName, mode='r')
             GET_GRAPH().parse(fileName, format="json-ld")
             f.close()
 
+        # ok done!
         self.log("========================= All asserted data has been read ========================= ")
-
-        LOG_CONTEXT()
-
-        self["problems"] = { "violations" : [] }
-
-        LOG("Load asserted done.")
 
 
     def loadInferred(self):
-        LOG("Loading inferred ...")
+        """
+        Load the inferred data.
 
+        Inferred data is produced by a reasoner (a rules engine).
+        This step is not needed for showing the common views or for generating source code,
+        it is only needed for verification and analaysis.
+        """
+        self.log("========================= Loading inferred data ========================= ")
+
+        # get a list of the files to read
         fileNames = FIND_FILES(self['config']['inferred_dir'], '*.jsonld')
 
-        global CACHE
-
+        # read each file
         for fileName in fileNames:
             self.log("Reading %s..." %fileName)
             f = file(fileName, mode='r')
@@ -208,74 +232,76 @@ class Model(dict):
 
         self.log("========================= All inferred data has been read ========================= ")
 
-        LOG_CONTEXT()
 
-        self["problems"] = { "violations" : [] }
+    def updateDataset(self, repoName=None):
+        """
+        Update the dataset.
 
-        LOG("Load inferred done.")
+        This means:
+         - update the used directories, based on the chosen repository name
+         - list the useful files in those directories
+         - re-create the trees (the expandable menus on the left side of the web pages)
+         - reset the state of the checbboxes of the dataset page
 
+        @param repoName: the name of the chosen repository, as determined by the config.ini.
+        """
+        # if no repoName is specified, then we use the default repository:
+        if repoName is None:
+            repo = configuration.DEFAULT_REPOSITORY
+            self.log("Updating dataset to the default repository: %s" %(repo['comment']))
+        else:
+            repo = configuration.REPOSITORIES[repoName]
+            self.log("Updating dataset to repository: %s" %(repo['comment']))
 
-    def updateDataset(self, defaultRepoName):
-        repo = configuration.REPOSITORIES[defaultRepoName]
-        self.log("Updating dataset to %s (%s)" %(repo['comment'], repo['location']))
-        self["config"]["ontologies_dir"] = repo['location']
-        ontologiesDir = self["config"]["ontologies_dir"]
-        jsonldDir = self["config"]["jsonld_dir"]
-        self["dataset"]["metamodels"] = { "coffee" : dataset.findFiles(os.path.join(ontologiesDir, "coffee", "metamodels"), "*.coffee"),
-                                          "ttl"    : dataset.findFiles(os.path.join(ontologiesDir, "ttl"   , "metamodels"), "*.ttl"),
-                                          "jsonld" : dataset.findFiles(os.path.join(jsonldDir, "metamodels"), "*.jsonld") }
-        self["dataset"]["models"]     = { "coffee" : dataset.findFiles(os.path.join(ontologiesDir, "coffee", "models")    , "*.coffee"),
-                                          "jsonld" : dataset.findFiles(os.path.join(jsonldDir, "models")    , "*.jsonld") }
-        self["dataset"]["run_models"]["tree"] = dataset.getJsTree(os.path.join(ontologiesDir, "coffee", "models")    , "*.coffee")
+        # update the directories in the configuration
+        self["config"]["ontologies_dir"] = repo["ontologies_dir"]
+        self["config"]["coffee_dir"]     = repo["coffee_dir"]
+        self["config"]["generated_dir"]  = repo['generated_dir']
+        self["config"]["models_dir"]     = os.path.join(repo["coffee_dir"], "models")
+        self["config"]["metamodels_dir"] = os.path.join(repo["coffee_dir"], "metamodels")
+        self["config"]["jsonld_dir"]     = os.path.join(configuration.DEFAULT_REPOSITORY["generated_dir"], repo["name"], "jsonld")
+        self["config"]["inferred_dir"]   = os.path.join(configuration.DEFAULT_REPOSITORY["generated_dir"], repo["name"], "inferred")
+        self["config"]["plcopen_dir"]    = os.path.join(configuration.DEFAULT_REPOSITORY["generated_dir"], repo["name"], "plcopen")
+        self["config"]["pyuaf_dir"]      = os.path.join(configuration.DEFAULT_REPOSITORY["generated_dir"], repo["name"], "pyuaf")
+        self["config"]["cache_dir"]      = os.path.join(configuration.DEFAULT_REPOSITORY["generated_dir"], repo["name"], "cache")
 
-        self["models"] = dataset.getJsTree(os.path.join(ontologiesDir, "coffee", "models"), "*.coffee")
+        # create the generated dirs if they don't exist yet
+        for key in ["jsonld_dir", "inferred_dir", "plcopen_dir", "pyuaf_dir"]:
+            if not os.path.exists(self["config"][key]):
+                os.makedirs(self["config"][key])
 
+        # find the files in the directories
+        self["dataset"]["ontologies"] = { "ttl"    : dataset.findFiles(self["config"]["ontologies_dir"], "*.ttl") }
+        self["dataset"]["metamodels"] = { "coffee" : dataset.findFiles(self["config"]["metamodels_dir"], "*.coffee"),
+                                          "jsonld" : dataset.findFiles(os.path.join(self["config"]["jsonld_dir"], "metamodels"), "*.jsonld") }
+        self["dataset"]["models"]     = { "coffee" : dataset.findFiles(self["config"]["models_dir"], "*.coffee"),
+                                          "jsonld" : dataset.findFiles(os.path.join(self["config"]["jsonld_dir"], "models"), "*.jsonld") }
 
-    def createDataset(self):
-        self["dataset"]["output"] = ""
-        self.log("Creating dataset")
-
-        plcopenDir = self["config"]["plcopen_dir"]
-        ontologiesDir = self["config"]["ontologies_dir"]
-        jsonldDir = self["config"]["jsonld_dir"]
-
-        self["dataset"]["thread_running"] = False
-        self["dataset"]["metamodels"] = { "coffee" : dataset.findFiles(os.path.join(ontologiesDir, "coffee", "metamodels"), "*.coffee"),
-                                          "ttl"    : dataset.findFiles(os.path.join(ontologiesDir, "ttl"   , "metamodels"), "*.ttl"),
-                                          "jsonld" : dataset.findFiles(os.path.join(jsonldDir, "metamodels"), "*.jsonld") }
-        self["dataset"]["models"]     = { "coffee" : dataset.findFiles(os.path.join(ontologiesDir, "coffee", "models")    , "*.coffee"),
-                                          "jsonld" : dataset.findFiles(os.path.join(jsonldDir, "models")    , "*.jsonld") }
-
-
-        self["dataset"]["main_checkboxes"] = [ "run_metamodels",
-                                               "run_models",
-                                               "run_inferences",
-                                               "load_asserted",
-                                               "load_inferred",
-                                               "generate_plcopen",
-                                               "save_cache"  ]
-
+        # deselect the main checkboxes
         for checkbox in self["dataset"]["main_checkboxes"]:
             self["dataset"][checkbox] = { "checked" : False }
 
+        # create the tree menus
+        self["dataset"]["run_models"]["tree"] = dataset.getJsTree(self["config"]["models_dir"], "*.coffee")
+        self["dataset"]["generate_plcopen"]["tree"] = dataset.getJsTree(self["config"]["plcopen_dir"], "*.xml")
+        self["dataset"]["generate_pyuaf"]["tree"] = dataset.getJsTree(self["config"]["pyuaf_dir"], "*.xml")
+        self["models"] = dataset.getJsTree(self["config"]["models_dir"], "*.coffee")
+
+        # create the repository checbboxes, and select the current one
         self["dataset"]["repository_checkboxes"] = []
         for (name,details) in configuration.REPOSITORIES.items():
             self["dataset"]["repository_checkboxes"].append(name)
-            self["dataset"][name] = { "checked" : (name == configuration.DEFAULT_REPOSITORY["name"]),
+            self["dataset"][name] = { "checked" : (name == repoName),
                                       "name"    : name,
-                                      "location": details["location"],
                                       "comment" : details["comment"] }
 
 
-        self["dataset"]["run_models"]["tree"] = dataset.getJsTree(os.path.join(ontologiesDir, "coffee", "models")    , "*.coffee")
-        self["dataset"]["generate_plcopen"]["tree"] = dataset.getJsTree(plcopenDir, "*.xml")
-
-        #self["dataset"]["load_asserted"]["tree"] = dataset.getJsTree(os.path.join(ontologiesDir, "jsonld", "models")    , "*.jsonld")
-        #for fileName in self["dataset"]["models"]["coffee"]:
-        #    self["dataset"]["run_models"]["models"][fileName] = { "checked" : False }
-
     def datasetGetCheckedFilenames(self, jstree):
-        # return: filenames
+        """
+        Get the filenames of the files that are selected (by their checkbox).
+
+        @return: a list of filenames
+        """
         ret = []
         for item in jstree:
             if item['type'] == 'file':
@@ -285,18 +311,30 @@ class Model(dict):
                 ret += self.datasetGetCheckedFilenames(item['children'])
         return ret
 
-    def datasetSetChecked(self, set, relPathString, checked):
+    def datasetSetChecked(self, treeName, relPathString, checked):
+        """
+        Set the given relative path of the given tree to checked or unchecked.
 
+        @param treeName: the tree name
+        @param relPathString: the relative path of the element of the tree
+        @param checked: either True to set checked, False to set unchecked.
+        """
         # remove the leading /
         if relPathString[0] == '/':
             relPathString = relPathString[1:]
 
         relPathParts = relPathString.split('/')
 
-        self.datasetSetJsTreeChecked( self["dataset"][set]["tree"], relPathParts, checked )
+        self.datasetSetJsTreeChecked( self["dataset"][treeName]["tree"], relPathParts, checked )
 
 
     def datasetSetJsTreeChecked(self, tree, relPath, checked):
+        """
+        Same as datasetSetChecked, only this time for a JsTree
+        (a file tree based on a javascript extension).
+
+        See datasetSetChecked.
+        """
         currentText = relPath[0]
         remainingPath = relPath[1:]
 
@@ -304,48 +342,73 @@ class Model(dict):
             if item['text'] == currentText:
                 if len(remainingPath) == 0:
                     item['state']['selected'] = checked
-                    print item['_filename_'] + " = " + str(checked)
+                    DEBUG( item['_filename_'] + " = " + str(checked) )
                 else:
                     # go to child nodes
                     if item.has_key('children'):
                         self.datasetSetJsTreeChecked(item['children'], remainingPath, checked)
 
     def getCacheFileName(self):
-        return os.path.join(PROJECT_DIR, 'cache', 'cache.pickle')
+        """
+        Get the path of the cache file.
+        """
+        return os.path.join(self["config"]["cache_dir"], 'cache.pickle')
 
     def saveCache(self):
+        """
+        Save the CACHE (a dictionary) to disk.
+        """
         global CACHE
-        print("Now saving the cache...")
+        INFO("Now saving the cache...")
         f = open(self.getCacheFileName(), 'w')
         pickle.dump(CACHE, f, pickle.HIGHEST_PROTOCOL)
         f.close()
-        print("The cache has been saved.")
+        INFO("The cache has been saved.")
+
 
     def loadCache(self):
+        """
+        Read the CACHE (a dictionary) from disk.
+        """
         global CACHE
-        print("Now loading the cache...")
+        INFO("Now loading the cache...")
         f = open(self.getCacheFileName(), 'r')
         CACHE = pickle.load(f)
         f.close()
-        print("The cache has been loaded.")
+        INFO("The cache has been loaded.")
 
-
-
-    ####################################################### sys ########################################################
 
     def problems_show_violations(self, violations):
+        """
+        Store constraint violations (spin:Constraint instances) in the Model.
+        """
         self["problems"]["violations"] = violations
 
 
-
+###################################################################################################
+# create a global instance of the Model, named M
 M = Model()
+###################################################################################################
 
 
+# =================================================================================================
 class UserSpaces(dict):
+    """
+    The UserSpaces class represents a dictionary that holds user-specific information such as
+    the view currently shown, and the current state of the tree menus.
+    """
+
     def __init__(self):
+        """
+        Create a new userspace.
+        """
         dict.__init__(self)
 
+
     def addUser(self, userId):
+        """
+        Add a new user to the user spaces.
+        """
         self[userId] = dict(
             models = dict(
                 shown_file = None
@@ -382,24 +445,43 @@ class UserSpaces(dict):
             )
         )
 
-        for project in mercator_sys.getProjects(CACHE):
+        projects = ontomanager.sys.getProjects(CACHE)
+        for project in projects:
             self[userId]["sys"]["tree"][project] = { '__opened__'   : False,
                                                      '__opened_before__' : False }
 
-        for lib in soft.getLibraries(CACHE):
+        libs = soft.getLibraries(CACHE)
+        for lib in libs:
             self[userId]["soft"]["tree"][lib] = { '__opened__'   : False,
                                                   '__opened_before__' : False }
-        for cfg in elec.getMainConfigurations(CACHE):
+
+        cfgs = elec.getMainConfigurations(CACHE)
+        for cfg in cfgs:
             self[userId]["elec"]["tree"][cfg] = { '__opened__'   : False,
                                                   '__opened_before__' : False }
 
 
-
-
     def getUser(self, request):
+        """
+        Get the user id from a request.
+        """
         return request.authenticated_userid
 
+
     def show(self, request, category):
+        """
+        Show a view for a particular user.
+
+        A view can have a category, e.g. an electric motor instance can be shown
+         - in the category 'elec' (resulting in the template elec/MotorInstance.mako)
+         - or in the category 'sys' (resulting in the template sys/design.mako)
+         - or in the category 'browse' (resulting in the template browse.mako).
+
+        All categories can be seen in allviews.py.
+
+        @param request: the HTTP request
+        @param category: the name of the category ('elec', 'sys', 'soft', ...)
+        """
         global M
         global CACHE
 
@@ -411,7 +493,7 @@ class UserSpaces(dict):
             self[user][category]["show"]["type"]  = typeToShow
             self[user][category]["show"]["qname"] = None
         else:
-            print("Showing %s/%s for %s" %(category, typeToShow, qname))
+            INFO("Showing %s/%s for %s" %(category, typeToShow, qname))
             try:
                 node = generic.getDefaultNode(CACHE, qname)
                 newCategory, newType = node.show(category, typeToShow)
@@ -420,29 +502,33 @@ class UserSpaces(dict):
 
                 # handle special cases
                 if category == "soft" and typeToShow == "library":
-                    global generateXmlNsThreadBusy
-                    node["xml_code"] = soft.getCode(qname, soft.GET_FILEPATH(M["config"]["plcopen_dir"], qname, "xml"), busyUpdating=generateXmlNsThreadBusy)
-                    node["xml_process_busy"] = generateXmlNsThreadBusy
-                    global generatePyuafNsThreadBusy
-                    node["pyuaf_code"] = soft.getCode(qname,soft.GET_FILEPATH(M["config"]["pyuaf_dir"], qname, "py"), busyUpdating=generatePyuafNsThreadBusy)
-                    node["pyuaf_process_busy"] = generatePyuafNsThreadBusy
+                    global BUSY_GenerateXmlNsThread
+                    node["xml_code"] = soft.getCode(qname, soft.GET_FILEPATH(M["config"]["plcopen_dir"], qname, "xml"), busyUpdating=BUSY_GenerateXmlNsThread)
+                    node["xml_process_busy"] = BUSY_GenerateXmlNsThread
+                    global BUSY_generatePyuafNsThreadBusy
+                    node["pyuaf_code"] = soft.getCode(qname,soft.GET_FILEPATH(M["config"]["pyuaf_dir"], qname, "py"), busyUpdating=BUSY_generatePyuafNsThreadBusy)
+                    node["pyuaf_process_busy"] = BUSY_generatePyuafNsThreadBusy
             except Exception, e:
                 LOG("Failed to show %s/%s for %s: %s %s" %(category, typeToShow, qname, type(e), str(e)))
                 self[user][category]["show"]["type"]  = None
                 self[user][category]["show"]["qname"] = None
 
+
     def models_show_file(self, request):
+        """
+        Show the contents of a file (e.g. a model or metamodel).
+        """
         global M
         try:
             user   = self.getUser(request)
             relPathString = request.POST["models_tree_clicked"]
-            print("models_show_file: %s" %relPathString)
+            INFO("models_show_file: %s" %relPathString)
             self[user]["models"]["shown_file"] = {  "path"     : relPathString,
                                                     "uri"      : "",
                                                     "prefix"   : "",
                                                     "contents" : "" }
 
-            fullPathString = M['config']['ontologies_dir'] + "/coffee/models" + relPathString
+            fullPathString = M['config']['models_dir'] + relPathString
             f = file(fullPathString)
             self[user]["models"]["shown_file"]["contents"] = f.read().decode(u'utf-8')
 
@@ -458,7 +544,11 @@ class UserSpaces(dict):
             LOG("models_show_file: %s" %e)
             self[user]["models"]["shown_file"] = None
 
+
     def models_show_ontology(self, request):
+        """
+        Show the contents of an ontology.
+        """
         global M
         try:
             user   = self.getUser(request)
@@ -477,6 +567,9 @@ class UserSpaces(dict):
 
 
     def models_show_source(self, request):
+        """
+        Show the contents of the source code of an ontology.
+        """
         try:
             user   = self.getUser(request)
             number = request.params.get('show_source')
@@ -488,13 +581,20 @@ class UserSpaces(dict):
             LOG("models_show_source: %s" %e)
             self[user]["models"]["shown_source"] = None
 
+
     def query_submit(self, request):
+        """
+        Submit a query.
+        """
         global CACHE
         queryText = request.POST["query"]
         user      = self.getUser(request)
 
         self[user]['query']['query'] = queryText.strip()
+
         try:
+            INFO("Executing free query '%s'" %queryText)
+
             self[user]['query']['results'] = QUERY(queryText)
 
             for row in self[user]['query']['results']:
@@ -502,21 +602,25 @@ class UserSpaces(dict):
                     if IS_URI(result):
                         node = generic.getDefaultNode(CACHE, URI_TO_QNAME(result))
 
+            INFO(" --> #results: %d" %len(self[user]['query']['results']))
 
         except Exception, e:
             self[user]['query']['results'] = e
 
 
     def open(self, request, category):
+        """
+        Open a tree branch.
+        """
         global CACHE
 
         user = self.getUser(request)
         type = request.params.get('open')
         pathStr = request.params.get('path')
 
-        print "pathStr: %s" %pathStr
+        DEBUG("pathStr: %s" %pathStr)
         path = pathStr.split('::')
-        print "path: %s" %path
+        DEBUG("path: %s" %path)
         for i in xrange(len(path)):
             path[i] = urllib.unquote(path[i])
         subtree = util.getFromDict(self[user][category]["tree"], path)
@@ -533,7 +637,7 @@ class UserSpaces(dict):
                 expansion = ''
                 node = generic.getDefaultNode(CACHE, qname)
                 node.expand(category, type, expansion, qname)
-                print node
+                DEBUG(node)
                 for item in node['views'][category][type]["expansions"]:
                     newDict[item] = { '__opened__' : False, '__opened_before__' : False }
             elif len(path) > 1:
@@ -548,11 +652,14 @@ class UserSpaces(dict):
                     raise Exception("Path %s does not hold a QName and an expansion!" %path)
 
             util.setInDict(self[user][category]["tree"], path, newDict)
-        pprint.pprint(self[user][category]["tree"])
+        if do_DEBUG():
+            pprint.pprint(self[user][category]["tree"])
 
 
     def close(self, request, category):
-
+        """
+        Close a tree branch.
+        """
         user = self.getUser(request)
         pathStr = request.params.get('path')
 
@@ -563,37 +670,50 @@ class UserSpaces(dict):
         subtree = util.getFromDict(self[user][category]["tree"], path)
         subtree['__opened__'] = False
         util.setInDict(self[user][category]["tree"], path, subtree)
-        pprint.pprint(self[user][category]["tree"])
+        if do_DEBUG():
+            pprint.pprint(self[user][category]["tree"])
 
 
     def expand(self, category, type, expansion, qname):
+        """
+        Expand an "expansion" of a node.
+
+        Expansions are lists of properties. E.g. a software class node may
+        have expansions called 'variables' and 'methods'. Expanding may take
+        quite some time, because queries will be executed (unless they were
+        executed and cached before).
+
+        @param category: name of the view category, e.g. 'elec', 'sys', 'soft'. See allviews.py.
+        @param type: type of the view, e.g. 'Motor' (from category elec), 'Design' (from category sys), ...
+        @param qname: qname of the node which expansions must be expanded.
+        """
         global CACHE
         if (qname is None) or (qname == ""):
             raise Exception("Argument 'qname' needs to be provided!")
         else:
-            print("Expanding %s/%s[%s] for %s" %(category, type, expansion, qname))
+            DEBUG("Expanding %s/%s[%s] for %s" %(category, type, expansion, qname))
             node = generic.getDefaultNode(CACHE, qname)
             node.expand(category, type, expansion)
 
-    def collapse(self, category, type, expansion, qname):
-        global CACHE
-        if (qname is None) or (qname == ""):
-            raise Exception("Argument 'qname' needs to be provided!")
-        else:
-            print("Collapsing %s/%s[%s] for %s" %(category, type, expansion, qname))
-            node = generic.getDefaultNode(CACHE, qname)
-            node.collapse(category, type, expansion)
 
-
+###################################################################################################
+# create a global instance of the UserSpaces, named U, and add the users of the config.ini
 U = UserSpaces()
 for userName in USERS:
     U.addUser(userName)
+###################################################################################################
 
 
 
 @view_config(route_name='default', renderer='ontomanager:templates/home.mako', permission='view')
 @view_config(route_name='home', renderer='ontomanager:templates/home.mako', permission='view')
+# =================================================================================================
 def home_view(request):
+    """
+    A user requested the home view.
+    """
+    INFO("VIEW: Home")
+    global U
 
     if 'logout.submitted' in request.params:
         headers = forget(request)
@@ -602,13 +722,21 @@ def home_view(request):
 
     response = buildResponse(request, "Home")
 
-    homeFolder = os.path.join(PROJECT_DIR, 'home', response['user_id'])
-    if os.path.exists(homeFolder):
-
-        homeFiles = os.listdir(homeFolder)
-        homeFiles.sort()
-    else:
-        homeFiles = []
+    # find out which files of the user's home directory must be shown
+    homeFiles = []
+    try:
+        homeDir = HOMES[response['user_id']]
+        if os.path.exists(homeDir):
+            INFO("Home directory found: %s" %homeDir)
+            contents = os.listdir(homeDir)
+            for item in contents:
+                if os.path.isfile(item):
+                    homeFiles.append(item)
+            homeFiles.sort()
+        else:
+            INFO("Home directory %s does not exist!" %homeDir)
+    except KeyError:
+        INFO("No home directory configured")
 
     response['home_files'] = homeFiles
 
@@ -617,7 +745,12 @@ def home_view(request):
 
 
 @view_config(route_name='models', renderer='ontomanager:templates/models.mako', permission='view')
+# =================================================================================================
 def models_view(request):
+    """
+    A user requested the Models view.
+    """
+    INFO("VIEW: Models")
     global U
 
     if request.params.get('show_ontology') is not None:
@@ -633,39 +766,57 @@ def models_view(request):
 
 
 @view_config(route_name='cache', renderer='ontomanager:templates/cache.mako', permission='edit')
+# =================================================================================================
 def cache_view(request):
+    """
+    A user requested the Cache view.
+    """
+    INFO("VIEW: Cache")
+    # the cache is already available via the global model, nothing to do
     global M
     return M
 
+
 @view_config(route_name='config', renderer='ontomanager:templates/config.mako', permission='edit')
+# =================================================================================================
 def config_view(request):
+    """
+    A user requested the Config view.
+    """
+    INFO("VIEW: Config")
     return buildResponse(request, 'Config')
 
+
 @view_config(route_name='dataset', renderer='ontomanager:templates/dataset.mako', permission='edit')
+# =================================================================================================
 def dataset_view(request):
+    """
+    A user requested the Dataset view.
+    """
+    INFO("VIEW: Dataset")
     global M
 
     if request.POST.has_key('opening'):
-        print "OPENING"
+        INFO("OPENING")
 
     for checkbox in M["dataset"]["main_checkboxes"]:
         if request.POST.has_key("%s_checked" %checkbox):
             checked = ( str(request.POST["%s_checked" %checkbox]).lower() == 'true' )
             M["dataset"][checkbox]["checked"] = checked
-            print("Checkbox %s state has changed to %s" %(checkbox, checked))
+            INFO("Checkbox %s state has changed to %s" %(checkbox, checked))
 
     for checkbox in M["dataset"]["repository_checkboxes"]:
         if request.POST.has_key("%s_checked" %checkbox):
             checked = ( str(request.POST["%s_checked" %checkbox]).lower() == 'true' )
             M["dataset"][checkbox]["checked"] = checked
-            print("Checkbox %s state has changed to %s" %(checkbox, checked))
+            INFO("Checkbox %s state has changed to %s" %(checkbox, checked))
             # the other checkboxes must be the opposite
             for otherCheckbox in M["dataset"]["repository_checkboxes"]:
                 if otherCheckbox != checkbox:
                     M["dataset"][otherCheckbox]["checked"] = not checked
-                    print("Checkbox %s state has changed to %s" %(otherCheckbox, not checked))
+                    INFO("Checkbox %s state has changed to %s" %(otherCheckbox, not checked))
             if checked:
-                M.updateDataset(defaultRepoName=checkbox)
+                M.updateDataset(repoName=checkbox)
                 url = request.route_url('dataset')
                 return HTTPFound(location=url)
 
@@ -674,18 +825,18 @@ def dataset_view(request):
         if request.POST.has_key("%s_tree_unchecked" %checkbox):
             relPathString = request.POST["%s_tree_unchecked" %checkbox]
             M.datasetSetChecked(checkbox, relPathString, False)
-            print("%s%s is now unchecked" %(checkbox, relPathString))
+            INFO("%s%s is now unchecked" %(checkbox, relPathString))
         if request.POST.has_key("%s_tree_checked" %checkbox):
             relPathString = request.POST["%s_tree_checked" %checkbox]
             M.datasetSetChecked(checkbox, relPathString, True)
-            print("%s%s is now checked" %(checkbox, relPathString))
+            INFO("%s%s is now checked" %(checkbox, relPathString))
 
 
     if request.POST.has_key("submit"):
         if request.POST["submit"] == "Start processing":
 
-            global processDatasetThreadBusy
-            if not processDatasetThreadBusy:
+            global BUSY_processDatasetThreadBusy
+            if not BUSY_processDatasetThreadBusy:
                 t = ProcessDatasetThread(request, M)
                 t.start()
 
@@ -706,7 +857,12 @@ def dataset_view(request):
 
 
 @view_config(route_name='problems', renderer='ontomanager:templates/problems.mako', permission='view')
+# =================================================================================================
 def problems_view(request):
+    """
+    A user requested the Problems view.
+    """
+    INFO("VIEW: Problems")
     global M
 
     if request.params.get('reset') is not None:
@@ -718,7 +874,12 @@ def problems_view(request):
 
 
 @view_config(route_name='browse', renderer='ontomanager:templates/browse.mako', permission='view')
+# =================================================================================================
 def browse_view(request):
+    """
+    A user requested the Browse view.
+    """
+    INFO("VIEW: Browse")
     global U
 
     if request.params.get('show') is not None:
@@ -732,7 +893,12 @@ def browse_view(request):
 
 
 @view_config(route_name='sys', renderer='ontomanager:templates/sys/sys.mako', permission='view')
+# =================================================================================================
 def sys_view(request):
+    """
+    A user requested the Sys view.
+    """
+    INFO("VIEW: Sys")
 
     global U
     if request.params.get('open') is not None:
@@ -749,7 +915,12 @@ def sys_view(request):
 
 
 @view_config(route_name='mech', renderer='ontomanager:templates/mech/mech.mako', permission='view')
+# =================================================================================================
 def mech_view(request):
+    """
+    A user requested the Mech view.
+    """
+    INFO("VIEW: Mech")
 
     global M
 
@@ -768,74 +939,297 @@ def mech_view(request):
     return buildResponse(request, 'Mechanics')
 
 
+
+
+@view_config(route_name='elec', renderer='ontomanager:templates/elec/elec.mako', permission='view')
+# =================================================================================================
+def electronics_view(request):
+    """
+    A user requested the Elec view.
+    """
+    INFO("VIEW: Elec")
+    global U
+
+    if request.params.get('show') is not None:
+        U.show(request, "elec")
+    if request.params.get('open') is not None:
+        U.open(request, "elec")
+    if request.params.get('close') is not None:
+        U.close(request, "elec")
+
+    return buildResponse(request, 'Electronics')
+
+
+
+@view_config(route_name='soft', renderer='ontomanager:templates/soft/soft.mako', permission='view')
+# =================================================================================================
+def software_view(request):
+    """
+    A user requested the Soft view.
+    """
+    INFO("VIEW: Soft")
+    global U
+    global M
+
+    if request.params.get('show') is not None:
+        U.show(request, "soft")
+    if request.params.get('open') is not None:
+        U.open(request, "soft")
+    if request.params.get('close') is not None:
+        U.close(request, "soft")
+
+    if request.POST.has_key("submit"):
+
+        DEBUG(request.POST)
+
+        ns = request.POST["ns"]
+
+        if request.POST["submit"] == "Generate PLCopen XML":
+
+            global BUSY_GenerateXmlNsThread
+            if not BUSY_GenerateXmlNsThread:
+                t = GenerateXmlNsThread(request, M)
+                t.start()
+
+            url = request.route_url('soft')
+            return HTTPFound(location=url + "?show=library;qname=%s" %ns)
+
+        if request.POST["submit"] == "Download PLCopen XML":
+
+            nsName = ns.split(":",1)[1]
+
+            filePath = soft.GET_FILEPATH(M["config"]["plcopen_dir"], ns, "xml")
+            if os.path.exists(filePath):
+                INFO("Sending file %s" %filePath)
+                response = FileResponse(filePath, request=request, content_type="text/xml")
+                response.content_disposition = 'attachment; filename="%s.xml"' %nsName
+                return response
+            else:
+                INFO("File %s not found on server" %filePath)
+                return HTTPNotFound("File %s not found on server" %filePath)
+
+
+        if request.POST["submit"] == "Generate pyUAF code":
+
+            global BUSY_generatePyuafNsThreadBusy
+            if not BUSY_generatePyuafNsThreadBusy:
+                t = GeneratePyuafNsThread(request, M)
+                t.start()
+
+            url = request.route_url('soft')
+            return HTTPFound(location=url + "?show=library;qname=%s" %ns)
+
+        if request.POST["submit"] == "Download pyUAF code":
+
+            nsName = ns.split(":",1)[1]
+
+            filePath = soft.GET_FILEPATH(M["config"]["pyuaf_dir"], ns, "py")
+            if os.path.exists(filePath):
+                INFO("Sending file %s" %filePath)
+                response = FileResponse(filePath, request=request, content_type="text/plain")
+                response.content_disposition = 'attachment; filename="%s.py"' %nsName
+                return response
+            else:
+                INFO("File %s not found on server" %filePath)
+                return HTTPNotFound("File %s not found on server" %filePath)
+
+    return buildResponse(request, 'Software')
+
+
+@view_config(route_name='query', renderer='ontomanager:templates/query.mako', permission='query')
+# =================================================================================================
+def query_view(request):
+    """
+    A user requested the Query view.
+    """
+    INFO("VIEW: Query")
+    global U
+
+    if request.POST.has_key("submit"):
+        U.query_submit(request)
+
+    return buildResponse(request, 'Query')
+
+@view_config(route_name='org', renderer='ontomanager:templates/org/org.mako')
+# =================================================================================================
+def org_view(request):
+    """
+    A user requested the Org view.
+    """
+    INFO("VIEW: Org")
+    global U
+
+    if request.params.get('show') is not None:
+        U.show(request, "org")
+
+    return buildResponse(request, 'Org')
+
+
+
+@view_config(route_name='login', renderer='ontomanager:templates/login.mako')
+@forbidden_view_config(renderer='ontomanager:templates/login.mako')
+# =================================================================================================
+def login(request):
+    """
+    A user requested the Login view.
+    """
+    INFO("VIEW: Login")
+    login_url = request.route_url('login')
+    referrer = request.url
+    if referrer == login_url:
+        referrer = '/' # never use the login form itself as came_from
+    came_from = request.params.get('came_from', referrer)
+    message = ''
+    login = ''
+    password = ''
+    if 'form.submitted' in request.params:
+        login = request.params['login']
+        password = request.params['password']
+        if not (login in USERS.keys()):
+            message = "Unknown username"
+        elif USERS.get(login) == password:
+            headers = remember(request, login)
+            return HTTPFound(location = '/',
+                             headers = headers)
+        else:
+            message = 'Invalid password'
+
+
+
+    INFO("==========")
+    INFO("Session created: %s" %request.session.created)
+    INFO("Session new: %s" %request.session.new)
+    INFO("Cookies: %s" %request.cookies)
+
+    response = buildResponse(request, "")
+    response['authentication'] = dict( message = message,
+                                       url = request.application_url + '/login',
+                                       came_from = came_from,
+                                       login = login,
+                                       password = password
+                                      )
+    return response
+
+
+@view_config(route_name='logout')
+# =================================================================================================
+def logout(request):
+    """
+    A user requested the Logout view.
+    """
+    INFO("VIEW: Logout")
+    headers = forget(request)
+    return HTTPFound(location = request.route_url('login'),
+                     headers = headers)
+
+
+
+
+###################################################################################################
+# create some global flags to see if a particular thread is running or not
+# (quick and dirty implementation, should be replaced by locks, of course)
+BUSY_GenerateXmlNsThread       = False
+BUSY_generatePyuafNsThreadBusy = False
+BUSY_processDatasetThreadBusy  = False
+###################################################################################################
+
+
+# =================================================================================================
 class GenerateXmlNsThread(threading.Thread):
+    """
+    A thread to generate PLCOpen XML files.
+    """
 
     def __init__(self, request, model):
+        """
+        Create a thread instance.
+        """
         threading.Thread.__init__(self)
         self.request = request
         self.ns = request.POST["ns"] # qname
         self.model = model
 
     def run(self):
-        global generateXmlNsThreadBusy
+        """
+        The overridden run() method.
+        """
+        global BUSY_GenerateXmlNsThread
         global CACHE
-        generateXmlNsThreadBusy = True
+
+        # flag the thread as busy
+        BUSY_GenerateXmlNsThread = True
+
         try:
             if self.ns is not None and self.request is not None:
-                print("GenerateXmlNsThread Starting...")
+                INFO("GenerateXmlNsThread Starting...")
                 node = generic.getDefaultNode(CACHE, self.ns)
                 soft.show_library(node)
                 code = render('ontomanager:templates/soft/export_plcopen.mako', { 'project' : self.ns, 'CACHE' : CACHE } , request=self.request)
-                print code
                 soft.writeCode(code, self.ns, soft.GET_FILEPATH(self.model["config"]["plcopen_dir"], self.ns, "xml"))
         finally:
-            print("GenerateXmlNsThread Done")
-            generateXmlNsThreadBusy = False
+            INFO("GenerateXmlNsThread Done")
+
+            # flag the thread as not busy anymore
+            BUSY_GenerateXmlNsThread = False
 
         self.request.POST.clear()
         software_view(self.request)
 
-generateXmlNsThreadBusy = False
 
+# =================================================================================================
 class GeneratePyuafNsThread(threading.Thread):
+    """
+    A thread to generate PyUAF python files.
+    """
 
     def __init__(self, request, model):
+        """
+        Create a thread instance.
+        """
         threading.Thread.__init__(self)
         self.request = request
         self.ns = request.POST["ns"] # qname
         self.model = model
 
+
     def run(self):
-        global generatePyuafNsThreadBusy
+        """
+        The overridden run() method.
+        """
+        global BUSY_generatePyuafNsThreadBusy
         global CACHE
-        generatePyuafNsThreadBusy = True
+
+        # flag the thread as busy
+        BUSY_generatePyuafNsThreadBusy = True
+
         try:
             if self.ns is not None and self.request is not None:
-                print("GeneratePyuafNsThread Starting...")
+                INFO("GeneratePyuafNsThread Starting...")
                 node = generic.getDefaultNode(CACHE, self.ns)
                 soft.show_library(node)
                 code = render('ontomanager:templates/soft/export_pyuaf.mako', { 'project' : self.ns, 'CACHE' : CACHE } , request=self.request)
 
-
                 importPartStart = code.find('# === imports ===')
                 newCode = code[importPartStart:] + code[:importPartStart]
 
-
-
                 soft.writeCode(newCode, self.ns, soft.GET_FILEPATH(self.model["config"]["pyuaf_dir"], self.ns, "py"))
         finally:
-            print("GeneratePyuafNsThread Done")
-            generatePyuafNsThreadBusy = False
+            INFO("GeneratePyuafNsThread Done")
+
+            # flag the thread as not busy anymore
+            BUSY_generatePyuafNsThreadBusy = False
 
         self.request.POST.clear()
         software_view(self.request)
 
-generatePyuafNsThreadBusy = False
 
-
+# =================================================================================================
 class ProcessDatasetThread(threading.Thread):
 
     def __init__(self, request, model):
+        """
+        Create a thread instance.
+        """
         threading.Thread.__init__(self)
         global U
         self.request = request
@@ -843,10 +1237,16 @@ class ProcessDatasetThread(threading.Thread):
         self.user = U.getUser(request)
 
         self.ontologiesDir = self.model["config"]["ontologies_dir"]
-        self.jsonldDir = self.model["config"]["jsonld_dir"]
+        self.coffeeDir     = self.model["config"]["coffee_dir"]
+        self.metamodelsDir = self.model["config"]["metamodels_dir"]
+        self.jsonldDir     = self.model["config"]["jsonld_dir"]
+
 
     def log(self, msg, newLine=True):
-        print msg
+        """
+        Log a message to the logging system and to the web browser.
+        """
+        INFO(msg)
         if newLine:
             msg = b'\n%s' %msg.decode(u'utf-8')
         else:
@@ -854,54 +1254,73 @@ class ProcessDatasetThread(threading.Thread):
 
         self.model["dataset"]["output"] += msg
 
-    def logTitle(self, title):
-        self.log("====================================================================================================", newLine=False)
+    def logHeading(self, title, newLine=True):
+        """
+        Log a big header message
+        """
+        self.log("====================================================================================================", newLine=newLine)
         self.log(title)
         self.log("====================================================================================================")
 
+
+    def logError(self, msg):
+        """
+        Log an error message
+        """
+        ERROR(msg)
+        self.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", newLine=False)
+        self.log(msg)
+        self.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+
     def run(self):
-        global processDatasetThreadBusy
+        """
+        The overridden run() method.
+        """
+        global BUSY_processDatasetThreadBusy
         global CACHE
         global U
-        processDatasetThreadBusy = True
+
+        self.logHeading("Processing is started", newLine=False)
+
+        # flag the thread as busy
+        BUSY_processDatasetThreadBusy = True
+
         self.model["dataset"]["thread_running"] = True
+
         try:
-            print("ProcessDatasetThread Starting...")
+            INFO("ProcessDatasetThread Starting...")
 
             # erase the output
             self.model["dataset"]["output"] = u""
 
-            # # update the ontologies_dir
-            # for repoName in self.model["dataset"]["repository_checkboxes"]:
-            #     if self.model["dataset"][repoName]["checked"]:
-            #         location = configuration.REPOSITORIES[repoName]["location"]
-            #         comment  = configuration.REPOSITORIES[repoName]["comment"]
-            #         self.logTitle("Data source: %s (%s)" %(comment, location))
-            #         self.model["config"]["ontologies_dir"] = location
-            #         self.ontologiesDir = location
-            #         break
-
             if self.model["dataset"]["run_metamodels"]["checked"]:
-                self.logTitle("Running metamodels")
+                self.log("Running metamodels")
+
+                outputDir = os.path.join(self.jsonldDir , "metamodels")
+
+                # make sure the output directory exists
+                if not os.path.exists(outputDir):
+                    os.makedirs(outputDir)
+
                 rdfconvert.convert(
-                    inputFilesOrDirs = [ os.path.join(self.ontologiesDir, "ttl"   , "metamodels") ],
+                    inputFilesOrDirs = [ self.ontologiesDir ],
                     inputFormat      = "n3",
                     inputExtensions  = [".ttl"],
-                    outputDir        = os.path.join(self.jsonldDir , "metamodels"),
+                    outputDir        = outputDir,
                     outputFormat     = "json-ld",
                     outputExt        = ".jsonld",
                     recursive        = True,
                     overwrite        = True,
-                    loggingCb        = self.log,
-                    logLevel         = rdfconvert.LOGLEVEL_INFO)
+                    loggingCb        = self.log)
 
 
             if self.model['dataset']['run_models']['checked']:
                 filenames = self.model.datasetGetCheckedFilenames(self.model['dataset']['run_models']['tree'])
                 for filename in filenames:
-                    iPath = os.path.join(self.ontologiesDir, "coffee")
-                    IPath = os.path.join(self.jsonldDir)
-                    oPath = os.path.join(self.jsonldDir)
+                    iPath = self.coffeeDir
+                    IPath = self.jsonldDir
+                    oPath = self.jsonldDir
                     command = "%s %s -s -a -t -i %s -I %s -o %s -f" %(configuration.COFFEE, filename, iPath, IPath, oPath)
 
                     self.log("============================ starting process ==========================")
@@ -928,16 +1347,11 @@ class ProcessDatasetThread(threading.Thread):
                         self.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! processes finished with exit code %d !!!!!!!!!!!!!!!!!!!!!!!!!!!!" %popen.returncode)
 
 
-                    # while popen.poll() is None:
-                    #     (stdout, stderr) = popen.communicate()
-                    #     newLines = stdout.split('\n')
-                    #     for line in newLines:
-                    #         self.log(line)
             if self.model['dataset']['load_asserted']['checked']:
                 self.model.loadAsserted()
                 global CACHE
-                CACHE = {}
                 global U
+                CACHE = {}
                 U = UserSpaces()
                 for userName in USERS:
                     U.addUser(userName)
@@ -971,169 +1385,17 @@ class ProcessDatasetThread(threading.Thread):
             if self.model["dataset"]["save_cache"]["checked"]:
                 self.model.saveCache()
 
+            self.logHeading("Processing is finished")
+
         except Exception, e:
-            print("ProcessDatasetThread ended with error: %s" %e)
+            self.logError("Processing data ended with error: %s" %e)
         finally:
-            print("ProcessDatasetThread Done")
-            processDatasetThreadBusy = False
+            INFO("ProcessDatasetThread Done")
+
+            # flag the thread as not busy anymore
+            BUSY_processDatasetThreadBusy = False
             self.model["dataset"]["thread_running"] = False
 
         self.request.POST.clear()
         dataset_view(self.request)
 
-
-processDatasetThreadBusy = False
-
-
-
-
-@view_config(route_name='elec', renderer='ontomanager:templates/elec/elec.mako', permission='view')
-def electronics_view(request):
-    global U
-
-    if request.params.get('show') is not None:
-        U.show(request, "elec")
-    if request.params.get('open') is not None:
-        U.open(request, "elec")
-    if request.params.get('close') is not None:
-        U.close(request, "elec")
-
-    return buildResponse(request, 'Electronics')
-
-
-
-@view_config(route_name='soft', renderer='ontomanager:templates/soft/soft.mako', permission='view')
-def software_view(request):
-    global U
-    global M
-
-    if request.params.get('show') is not None:
-        U.show(request, "soft")
-    if request.params.get('open') is not None:
-        U.open(request, "soft")
-    if request.params.get('close') is not None:
-        U.close(request, "soft")
-
-    if request.POST.has_key("submit"):
-
-        print request.POST
-
-        ns = request.POST["ns"]
-
-        if request.POST["submit"] == "Generate PLCopen XML":
-
-            global generateXmlNsThreadBusy
-            if not generateXmlNsThreadBusy:
-                t = GenerateXmlNsThread(request, M)
-                t.start()
-
-            url = request.route_url('soft')
-            return HTTPFound(location=url + "?show=library;qname=%s" %ns)
-
-        if request.POST["submit"] == "Download PLCopen XML":
-
-            nsName = ns.split(":",1)[1]
-
-            filePath = soft.GET_FILEPATH(M["config"]["plcopen_dir"], ns, "xml")
-            if os.path.exists(filePath):
-                print "Sending file %s" %filePath
-                response = FileResponse(filePath, request=request, content_type="text/xml")
-                response.content_disposition = 'attachment; filename="%s.xml"' %nsName
-                return response
-            else:
-                print "File %s not found on server" %filePath
-                return HTTPNotFound("File %s not found on server" %filePath)
-
-
-        if request.POST["submit"] == "Generate pyUAF code":
-
-            global generatePyuafNsThreadBusy
-            if not generatePyuafNsThreadBusy:
-                t = GeneratePyuafNsThread(request, M)
-                t.start()
-
-            url = request.route_url('soft')
-            return HTTPFound(location=url + "?show=library;qname=%s" %ns)
-
-        if request.POST["submit"] == "Download pyUAF code":
-
-            nsName = ns.split(":",1)[1]
-
-            filePath = soft.GET_FILEPATH(M["config"]["pyuaf_dir"], ns, "py")
-            if os.path.exists(filePath):
-                print "Sending file %s" %filePath
-                response = FileResponse(filePath, request=request, content_type="text/plain")
-                response.content_disposition = 'attachment; filename="%s.py"' %nsName
-                return response
-            else:
-                print "File %s not found on server" %filePath
-                return HTTPNotFound("File %s not found on server" %filePath)
-
-    return buildResponse(request, 'Software')
-
-
-@view_config(route_name='query', renderer='ontomanager:templates/query.mako', permission='query')
-def query_view(request):
-    global U
-
-    if request.POST.has_key("submit"):
-        U.query_submit(request)
-
-    return buildResponse(request, 'Query')
-
-@view_config(route_name='org', renderer='ontomanager:templates/org/org.mako')
-def org_view(request):
-    global U
-
-    if request.params.get('show') is not None:
-        U.show(request, "org")
-
-    return buildResponse(request, 'Org')
-
-
-
-@view_config(route_name='login', renderer='ontomanager:templates/login.mako')
-@forbidden_view_config(renderer='ontomanager:templates/login.mako')
-def login(request):
-    login_url = request.route_url('login')
-    referrer = request.url
-    if referrer == login_url:
-        referrer = '/' # never use the login form itself as came_from
-    came_from = request.params.get('came_from', referrer)
-    message = ''
-    login = ''
-    password = ''
-    if 'form.submitted' in request.params:
-        login = request.params['login']
-        password = request.params['password']
-        if not (login in USERS.keys()):
-            message = "Unknown username"
-        elif USERS.get(login) == password:
-            headers = remember(request, login)
-            return HTTPFound(location = '/',
-                             headers = headers)
-        else:
-            message = 'Invalid password'
-
-
-
-    print("==========")
-    print request.session
-    print request.session.created
-    print request.session.new
-    print request.cookies
-
-    response = buildResponse(request, "")
-    response['authentication'] = dict( message = message,
-                                       url = request.application_url + '/login',
-                                       came_from = came_from,
-                                       login = login,
-                                       password = password
-                                      )
-    return response
-
-@view_config(route_name='logout')
-def logout(request):
-    headers = forget(request)
-    return HTTPFound(location = request.route_url('login'),
-                     headers = headers)

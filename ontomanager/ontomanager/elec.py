@@ -1,44 +1,90 @@
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_LITERAL, LOG, os
+"""
+Callback functions for the views of the 'elec' category.
+"""
+
+from triplestore import QUERY, INFO
 import generic
-import pprint
 
 
-# ========================================================= LIBRARY ====================================================
+# ======================================================== CONFIGURATIONS ===================================================
+
 
 def getMainConfigurations(cache):
+    """
+    Expand the configurations of a node, that are not contained by another configuration.
+    """
+    INFO("elec.getMainConfigurations()")
     return generic.getInstances(cache = cache, className = "elec:Configuration", filterNotExists = "?x cont:contains ?instance")
 
+
 def getConfigurations(cache):
+    """
+    Expand the configurations of a node.
+    """
+    INFO("elec.getConfigurations()")
     return generic.getInstances(cache = cache, className = "elec:Configuration")
 
 
 def show_configuration(node, args=None):
+    """
+    Show the 'configuration' view of the 'elec' category.
+    """
+    INFO("elec.show_configuration(%s)" %node['qname'])
+
     node.expand("elec", "configuration", visible=False)
 
-    for expansion in ["I/O modules", "circuit breakers", "power supplies", "motors", "drives", "terminals", "wires", "connectors", "sensors", "actuators", "switches", "cables", "cable assemblies", "sub-configurations", "other devices" ]:
+    for expansion in ["I/O modules",
+                      "circuit breakers",
+                      "power supplies",
+                      "motors",
+                      "drives",
+                      "terminals",
+                      "wires",
+                      "connectors",
+                      "sensors",
+                      "actuators",
+                      "switches",
+                      "cables",
+                      "cable assemblies",
+                      "sub-configurations",
+                      "other devices"]:
         for item in node[expansion]:
             node.cache[item].show("elec")
 
 
 def getSubConfigurations(cache, qname):
-    LOG("getSubConfigurations(%s)" %(qname))
+    """
+    Expand the subconfigurations of a node.
+    """
+    INFO("elec.getSubConfigurations(%s)" %(qname))
     return generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:Configuration")
-
-# ======================================================== CONFIGURATIONS ===================================================
 
 
 def getOwningConfigurations(cache, qname):
-    LOG("getOwningConfigurations(%s)" %(qname))
+    """
+    Expand the owning configurations of a node.
+    """
+    INFO("elec.getOwningConfigurations(%s)" %(qname))
     return generic.getRelated(cache, subject=qname, property="((^sys:realizes)|(sys:isRealizedBy))/((^cont:contains|cont:isContainedBy)+)", restriction="elec:Configuration", filterNotExists = "?x cont:contains ?result")
+
 
 # ======================================================== TERMINALS ===================================================
 
 
 def getTerminals(cache, qname):
-    LOG("getTerminals(%s)" %(qname))
+    """
+    Expand the terminals of a node.
+    """
+    INFO("elec.getTerminals(%s)" %(qname))
     return generic.getRelated(cache, subject=qname, property="cont:contains|elec:hasTerminal", restriction="elec:Terminal")
 
+
 def show_Terminal(node, args=None):
+    """
+    Show the 'Terminal' view of the 'elec' category.
+    """
+    INFO("elec.show_Terminal(%s)" %node['qname'])
+
     generic.fillFields(node, optionals={ 'symbol' : 'elec:hasSymbol', 'owner' : '^elec:hasTerminal' })
 
     if node['owner'] is not None:
@@ -49,7 +95,13 @@ def show_Terminal(node, args=None):
     for connection in node["connections"]:
         node.cache[connection].show("elec")
 
+
 def show_TerminalInstance(node, args=None):
+    """
+    Show the 'TerminalInstance' view of the 'elec' category.
+    """
+    INFO("elec.elec.show_TerminalInstance(%s)" %node['qname'])
+
     generic.fillFields(node, optionals={ 'symbol' : 'elec:hasSymbol' , 'owner' : '^elec:hasTerminal' , 'realizes' : 'sys:realizes' })
 
     if node['owner'] is not None:
@@ -67,7 +119,10 @@ def show_TerminalInstance(node, args=None):
 
 
 def getConnections(cache, qname):
-    LOG("getConnections(%s)" %(qname))
+    """
+    Expand the "direct" connections of a node.
+    """
+    INFO("elec.getConnections(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="elec:isConnectedTo|^elec:isConnectedTo")
@@ -79,7 +134,10 @@ def getConnections(cache, qname):
 
 
 def getAllConnections(cache, qname):
-    LOG("getAllConnections(%s)" %(qname))
+    """
+    Expand the (in)direct connections of a node.
+    """
+    INFO("elec.getAllConnections(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="elec:isConnectedTo+|^elec:isConnectedTo+")
@@ -89,27 +147,49 @@ def getAllConnections(cache, qname):
 
     return resultQNames
 
+
 # ======================================================= FITS ===================================================
 
+
 def getFits(cache, qname):
-    LOG("getFits(%s)" %(qname))
+    """
+    Expand the fitting connectors of a node.
+    """
+    INFO("elec.getFits(%s)" %(qname))
     return generic.getRelated(cache, subject=qname, property="elec:isJoinedWith|^elec:isJoinedWith")
+
 
 # ======================================================= CONNECTORS ===================================================
 
+
 def show_Gender(node, args=None):
+    """
+    Show the 'Gender' view of the 'elec' category.
+    """
     pass
 
+
 def show_Channel(node, args=None):
+    """
+    Show the 'Channel' view of the 'elec' category.
+    """
     pass
 
 
 def getConnectors(cache, qname):
-    LOG("getConnectors(%s)" %(qname))
+    """
+    Expand the connectors of a node.
+    """
+    INFO("soft.getConnectors(%s)" %(qname))
 
     return generic.getRelated(cache, subject=qname, property="cont:contains|elec:hasConnector", restriction="elec:Connector")
 
+
 def show_ConnectorType(node, args=None):
+    """
+    Show the 'ConnectorType' view of the 'elec' category.
+    """
+    INFO("elec.show_ConnectorType(%s)" %node['qname'])
 
     node.expand("elec", "ConnectorType", visible=False)
 
@@ -140,7 +220,12 @@ def show_ConnectorType(node, args=None):
     for fit in node["fits"]:
         node.cache[fit].show("elec")
 
+
 def show_ConnectorInstance(node, args=None):
+    """
+    Show the 'ConnectorInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_ConnectorInstance(%s)" %node['qname'])
 
     node.expand("elec", "ConnectorInstance", visible=False)
 
@@ -152,12 +237,15 @@ def show_ConnectorInstance(node, args=None):
     for wire in node["wires"]:
         node.cache[wire].show("elec")
 
+
 # =========================================================== PINS =====================================================
 
 
 def getPins(cache, qname):
-
-    LOG("getPins(%s)" %(qname))
+    """
+    Expand the pins of a node.
+    """
+    INFO("soft.getPins(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains|elec:hasPin", restriction="elec:Pin")
@@ -168,6 +256,10 @@ def getPins(cache, qname):
     return resultQNames
 
 def show_Pin(node, args=None):
+    """
+    Show the 'Pin' view of the 'elec' category.
+    """
+    INFO("elec.show_Pin(%s)" %node['qname'])
 
     node.expand("elec", "Pin", visible=False)
 
@@ -181,6 +273,10 @@ def show_Pin(node, args=None):
         node.cache[connection].show("elec")
 
 def show_PinInstance(node, args=None):
+    """
+    Show the 'PinInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_PinInstance(%s)" %node['qname'])
 
     node.expand("elec", "PinInstance", visible=False)
 
@@ -204,8 +300,10 @@ def show_PinInstance(node, args=None):
 
 
 def getWires(cache, qname):
-
-    LOG("getWires(%s)" %(qname))
+    """
+    Expand the wires of a node.
+    """
+    INFO("soft.getWires(%s)" %(qname))
 
     # unsorted list:
     resultQNames =  generic.getRelated(cache, subject=qname, property="cont:contains|elec:hasWire", restriction="elec:Wire", sortedByNumber=True)
@@ -217,6 +315,10 @@ def getWires(cache, qname):
     return resultQNames
 
 def show_Wire(node, args=None):
+    """
+    Show the 'Wire' view of the 'elec' category.
+    """
+    INFO("elec.show_Wire(%s)" %node['qname'])
 
     node.expand("elec", "Wire", visible=False)
 
@@ -236,6 +338,10 @@ def show_Wire(node, args=None):
 
 
 def show_WireInstance(node, args=None):
+    """
+    Show the 'WireInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_WireInstance(%s)" %node['qname'])
 
     node.expand("elec", "WireInstance", visible=False)
 
@@ -250,8 +356,6 @@ def show_WireInstance(node, args=None):
     if node['connectsTo'] is not None:
         generic.getDefaultNode(node.cache, node['connectsTo']).show("elec")
 
-
-
     for color in node["colors"]:
         node.cache[color].show("colors")
     for connection in node["connections"]:
@@ -263,11 +367,18 @@ def show_WireInstance(node, args=None):
 
 
 def getCables(cache, qname):
-    LOG("getCables(%s)" %(qname))
+    """
+    Expand the cables of a node.
+    """
+    INFO("soft.getCables(%s)" %(qname))
 
     return generic.getRelated(cache, subject=qname, property="cont:contains|elec:hasCable", restriction="elec:Cable")
 
 def show_CableType(node, args=None):
+    """
+    Show the 'CableType' view of the 'elec' category.
+    """
+    INFO("elec.show_CableType(%s)" %node['qname'])
 
     node.expand("elec", "CableType", visible=False)
 
@@ -293,6 +404,10 @@ def show_CableType(node, args=None):
         node.cache[wire].show("elec")
 
 def show_CableInstance(node, args=None):
+    """
+    Show the 'CableInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_CableInstance(%s)" %node['qname'])
 
     node.expand("elec", "CableInstance", visible=False)
 
@@ -307,7 +422,10 @@ def show_CableInstance(node, args=None):
 
 
 def getChannels(cache, qname):
-    LOG("getChannels(%s)" %(qname))
+    """
+    Expand the channels of a node.
+    """
+    INFO("soft.getChannels(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains|elec:hasChannel", restriction="elec:Channel", sortedByNumber=True)
@@ -318,6 +436,10 @@ def getChannels(cache, qname):
     return resultQNames
 
 def show_Channel(node, args=None):
+    """
+    Show the 'Channel' view of the 'elec' category.
+    """
+    INFO("elec.show_Channel(%s)" %node['qname'])
 
     node.expand("elec", "Channel", visible=False)
 
@@ -329,7 +451,10 @@ def show_Channel(node, args=None):
 
 
 def getIoModuleInstances(cache, qname):
-    LOG("getIOModuleInstances(%s)" %(qname))
+    """
+    Expand the I/O module instances of a node.
+    """
+    INFO("soft.getIOModuleInstances(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:IoModuleInstance")
@@ -342,6 +467,11 @@ def getIoModuleInstances(cache, qname):
     return resultQNames
 
 def show_IoModuleInstance(node, args=None):
+    """
+    Show the 'IoModuleInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_IoModuleInstance(%s)" %node['qname'])
+
     generic.fillFields(node,
                        mandatories={ 'man_type' : 'man:hasType' },
                        optionals   = { 'interface'    : 'sys:hasInterface', 'symbol' : 'elec:hasSymbol' })
@@ -366,19 +496,24 @@ def show_IoModuleInstance(node, args=None):
 
 
 def getIoModuleTypes(cache, qname):
-    LOG("getIOModuleTypes(%s)" %(qname))
+    """
+    Expand the I/O module types of a node.
+    """
+    INFO("soft.getIOModuleTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:IoModuleType")
 
-    #for resultQName in resultQNames:
-    #    resultNode = cache[resultQName]
-    #    resultNode.show("elec")
-
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_IoModuleType(node, args=None):
+    """
+    Show the 'IoModuleType' view of the 'elec' category.
+    """
+    INFO("elec.show_IoModuleType(%s)" %node['qname'])
+
     generic.fillFields(node,
                        mandatories = { 'id'           : 'man:hasId',
                                        'manufacturer' : 'man:isManufacturedBy' },
@@ -412,7 +547,10 @@ def show_IoModuleType(node, args=None):
 
 
 def getDriveInstances(cache, qname):
-    LOG("getDriveInstances(%s)" %(qname))
+    """
+    Expand the drive instances of a node.
+    """
+    INFO("soft.getDriveInstances(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:DriveInstance")
@@ -420,7 +558,13 @@ def getDriveInstances(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_DriveInstance(node, args=None):
+    """
+    Show the 'DriveInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_DriveInstance(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'} )
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
@@ -444,7 +588,10 @@ def show_DriveInstance(node, args=None):
 
 
 def getDriveTypes(cache, qname):
-    LOG("getDriveTypes(%s)" %(qname))
+    """
+    Expand the drive types of a node.
+    """
+    INFO("soft.getDriveTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:DriveType")
@@ -452,7 +599,13 @@ def getDriveTypes(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_DriveType(node, args=None):
+    """
+    Show the 'DriveType' view of the 'elec' category.
+    """
+    INFO("elec.show_DriveType(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
@@ -490,7 +643,10 @@ def show_DriveType(node, args=None):
 
 
 def getSensorInstances(cache, qname):
-    LOG("getSensorInstances(%s)" %(qname))
+    """
+    Expand the sensor instances of a node.
+    """
+    INFO("soft.getSensorInstances(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:SensorInstance")
@@ -499,6 +655,11 @@ def getSensorInstances(cache, qname):
     return resultQNames
 
 def show_SensorInstance(node, args=None):
+    """
+    Show the 'SensorInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_SensorInstance(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
@@ -518,12 +679,14 @@ def show_SensorInstance(node, args=None):
         node.cache[cableAssembly].show("elec")
 
 
-
 # ======================================================== Sensor types ===================================================
 
 
 def getSensorTypes(cache, qname):
-    LOG("getSensorTypes(%s)" %(qname))
+    """
+    Expand the sensor types of a node.
+    """
+    INFO("soft.getSensorTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:SensorType")
@@ -531,7 +694,13 @@ def getSensorTypes(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_SensorType(node, args=None):
+    """
+    Show the 'SensorType' view of the 'elec' category.
+    """
+    INFO("elec.show_SensorType(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
@@ -565,18 +734,14 @@ def show_SensorType(node, args=None):
         node.cache[cableAssembly].show("elec")
 
 
-
-
-
-
-
-
-
 # ======================================================== Actuators ===================================================
 
 
 def getActuatorInstances(cache, qname):
-    LOG("getActuatorInstances(%s)" %(qname))
+    """
+    Expand the actuator instances of a node.
+    """
+    INFO("soft.getActuatorInstances(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:ActuatorInstance")
@@ -584,7 +749,13 @@ def getActuatorInstances(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_ActuatorInstance(node, args=None):
+    """
+    Show the 'ActuatorInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_ActuatorInstance(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
@@ -604,12 +775,14 @@ def show_ActuatorInstance(node, args=None):
         node.cache[cableAssembly].show("elec")
 
 
-
 # ======================================================== Actuator types ===================================================
 
 
 def getActuatorTypes(cache, qname):
-    LOG("getActuatorTypes(%s)" %(qname))
+    """
+    Expand the actuator types of a node.
+    """
+    INFO("soft.getActuatorTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:ActuatorType")
@@ -617,7 +790,13 @@ def getActuatorTypes(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_ActuatorType(node, args=None):
+    """
+    Show the 'ActuatorType' view of the 'elec' category.
+    """
+    INFO("elec.show_ActuatorType(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
@@ -656,7 +835,10 @@ def show_ActuatorType(node, args=None):
 
 
 def getPowerSupplyInstances(cache, qname):
-    LOG("getPowerSupplyInstances(%s)" %(qname))
+    """
+    Expand the power supply instances of a node.
+    """
+    INFO("soft.getPowerSupplyInstances(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:PowerSupplyInstance")
@@ -664,7 +846,13 @@ def getPowerSupplyInstances(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_PowerSupplyInstance(node, args=None):
+    """
+    Show the 'PowerSupplyInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_PowerSupplyInstance(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
@@ -684,12 +872,14 @@ def show_PowerSupplyInstance(node, args=None):
         node.cache[cableAssembly].show("elec")
 
 
-
 # ======================================================== PowerSupply types ===================================================
 
 
 def getPowerSupplyTypes(cache, qname):
-    LOG("getPowerSupplyTypes(%s)" %(qname))
+    """
+    Expand the power supply types of a node.
+    """
+    INFO("soft.getPowerSupplyTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:PowerSupplyType")
@@ -697,7 +887,13 @@ def getPowerSupplyTypes(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_PowerSupplyType(node, args=None):
+    """
+    Show the 'PowerSupplyType' view of the 'elec' category.
+    """
+    INFO("elec.show_PowerSupplyType(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
@@ -735,7 +931,10 @@ def show_PowerSupplyType(node, args=None):
 
 
 def getCableAssemblyInstances(cache, qname):
-    LOG("getCableAssemblyInstances(%s)" %(qname))
+    """
+    Expand the cable assembly instances of a node.
+    """
+    INFO("soft.getCableAssemblyInstances(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:CableAssemblyInstance")
@@ -743,7 +942,13 @@ def getCableAssemblyInstances(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_CableAssemblyInstance(node, args=None):
+    """
+    Show the 'CableAssemblyInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_CableAssemblyInstance(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
@@ -759,7 +964,10 @@ def show_CableAssemblyInstance(node, args=None):
 
 
 def getCableAssemblyTypes(cache, qname):
-    LOG("getCableAssemblyTypes(%s)" %(qname))
+    """
+    Expand the cable assembly types of a node.
+    """
+    INFO("soft.getCableAssemblyTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:CableAssemblyType")
@@ -767,7 +975,13 @@ def getCableAssemblyTypes(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_CableAssemblyType(node, args=None):
+    """
+    Show the 'CableAssemblyType' view of the 'elec' category.
+    """
+    INFO("elec.show_CableAssemblyType(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
@@ -796,7 +1010,10 @@ def show_CableAssemblyType(node, args=None):
 
 
 def getMotorInstances(cache, qname):
-    LOG("getMotorInstances(%s)" %(qname))
+    """
+    Expand the motor instances of a node.
+    """
+    INFO("soft.getMotorInstances(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:MotorInstance")
@@ -805,6 +1022,11 @@ def getMotorInstances(cache, qname):
     return resultQNames
 
 def show_MotorInstance(node, args=None):
+    """
+    Show the 'MotorInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_MotorInstance(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
@@ -824,12 +1046,14 @@ def show_MotorInstance(node, args=None):
         node.cache[cableAssembly].show("elec")
 
 
-
 # ======================================================== Motor types ===================================================
 
 
 def getMotorTypes(cache, qname):
-    LOG("getMotorTypes(%s)" %(qname))
+    """
+    Expand the motor types of a node.
+    """
+    INFO("soft.getMotorTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:MotorType")
@@ -837,7 +1061,13 @@ def getMotorTypes(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_MotorType(node, args=None):
+    """
+    Show the 'MotorType' view of the 'elec' category.
+    """
+    INFO("elec.show_MotorType(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
@@ -875,7 +1105,10 @@ def show_MotorType(node, args=None):
 
 
 def getSwitchInstances(cache, qname):
-    LOG("getSwitchInstances(%s)" %(qname))
+    """
+    Show the 'MotorType' view of the 'elec' category.
+    """
+    INFO("soft.getSwitchInstances(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:SwitchInstance")
@@ -883,7 +1116,13 @@ def getSwitchInstances(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_SwitchInstance(node, args=None):
+    """
+    Show the 'SwitchInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_SwitchInstance(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
@@ -903,12 +1142,14 @@ def show_SwitchInstance(node, args=None):
         node.cache[cableAssembly].show("elec")
 
 
-
 # ======================================================== Switch types ===================================================
 
 
 def getSwitchTypes(cache, qname):
-    LOG("getSwitchTypes(%s)" %(qname))
+    """
+    Expand the switch types of a node.
+    """
+    INFO("soft.getSwitchTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:SwitchType")
@@ -916,7 +1157,13 @@ def getSwitchTypes(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_SwitchType(node, args=None):
+    """
+    Show the 'SwitchType' view of the 'elec' category.
+    """
+    INFO("elec.show_SwitchType(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
@@ -949,11 +1196,15 @@ def show_SwitchType(node, args=None):
     for cableAssembly in node["cable assemblies"]:
         node.cache[cableAssembly].show("elec")
 
+
 # ======================================================== Switches ===================================================
 
 
 def getOtherDeviceInstances(cache, qname):
-    LOG("getDeviceInstances(%s)" %(qname))
+    """
+    Expand the device instances of a node.
+    """
+    INFO("soft.getDeviceInstances(%s)" %(qname))
 
     # unsorted list:
     otherDevices   = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:DeviceInstance")
@@ -967,7 +1218,13 @@ def getOtherDeviceInstances(cache, qname):
     # return the sorted list of expressions:
     return otherDevices
 
+
 def show_DeviceInstance(node, args=None):
+    """
+    Show the 'DeviceInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_DeviceInstance(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'man_type' : 'man:hasType' }, optionals={'symbol' : 'elec:hasSymbol'})
     generic.getDefaultNode(node.cache, node['man_type']).show('elec')
 
@@ -992,7 +1249,10 @@ def show_DeviceInstance(node, args=None):
 
 
 def getDeviceTypes(cache, qname):
-    LOG("getDeviceTypes(%s)" %(qname))
+    """
+    Expand the device types of a node.
+    """
+    INFO("soft.getDeviceTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:DeviceType")
@@ -1000,7 +1260,13 @@ def getDeviceTypes(cache, qname):
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_DeviceType(node, args=None):
+    """
+    Show the 'DeviceType' view of the 'elec' category.
+    """
+    INFO("elec.show_DeviceType(%s)" %node['qname'])
+
     generic.fillFields(node, mandatories={ 'id'           : 'man:hasId',
                                            'manufacturer' : 'man:isManufacturedBy' })
     generic.getDefaultNode(node.cache, node['manufacturer']).show()
@@ -1034,31 +1300,28 @@ def show_DeviceType(node, args=None):
         node.cache[cableAssembly].show("elec")
 
 
-
-
-
-
-
-
-
-
 # ======================================================== I/O ===================================================
 
 
 def getCircuitBreakerInstances(cache, qname):
-    LOG("getCircuitBreakerInstances(%s)" %(qname))
+    """
+    Expand the circuit breaker instances of a node.
+    """
+    INFO("soft.getCircuitBreakerInstances(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:CircuitBreakerInstance")
 
-    #for resultQName in resultQNames:
-    #    resultNode = cache[resultQName]
-    #    resultNode.show("elec")
-
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_CircuitBreakerInstance(node, args=None):
+    """
+    Show the 'CircuitBreakerInstance' view of the 'elec' category.
+    """
+    INFO("elec.show_CircuitBreakerInstance(%s)" %node['qname'])
+
     generic.fillFields(node,
                        mandatories={ 'man_type' : 'man:hasType' },
                        optionals   = { 'interface'    : 'sys:hasInterface', 'symbol' : 'elec:hasSymbol' })
@@ -1083,19 +1346,24 @@ def show_CircuitBreakerInstance(node, args=None):
 
 
 def getCircuitBreakerTypes(cache, qname):
-    LOG("getCircuitBreakerTypes(%s)" %(qname))
+    """
+    Expand the circuit breaker types of a node.
+    """
+    INFO("soft.getCircuitBreakerTypes(%s)" %(qname))
 
     # unsorted list:
     resultQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="elec:CircuitBreakerType")
 
-    #for resultQName in resultQNames:
-    #    resultNode = cache[resultQName]
-    #    resultNode.show("elec")
-
     # return the sorted list of expressions:
     return resultQNames
 
+
 def show_CircuitBreakerType(node, args=None):
+    """
+    Show the 'CircuitBreakerType' view of the 'elec' category.
+    """
+    INFO("elec.show_CircuitBreakerType(%s)" %node['qname'])
+
     generic.fillFields(node,
                        mandatories = { 'id'           : 'man:hasId',
                                        'manufacturer' : 'man:isManufacturedBy' })

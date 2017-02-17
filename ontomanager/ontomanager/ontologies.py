@@ -1,18 +1,28 @@
-__author__ = 'wimpe'
+"""
+Some helper functions to process the ontologies.
+"""
 
+import os
+import fnmatch
 
 from rdflib import Graph, RDF, OWL
 
-import os, fnmatch
 
 def findFiles(directory, pattern):
+    """
+    Find files with the given pattern (e.g. '*.ttl') in the given directory.
+    """
     for root, dirs, files in os.walk(directory):
         for basename in files:
             if fnmatch.fnmatch(basename, pattern):
                 filename = os.path.join(root, basename)
                 yield filename
 
+
 def getSourceContents(fileName):
+    """
+    Read the contents of a source code file.
+    """
     try:
         f = file(fileName)
         contents = f.read()
@@ -21,7 +31,11 @@ def getSourceContents(fileName):
     except Exception, e:
         return "Error: %s" %(fileName, e)
 
+
 def getOntologies(dir):
+    """
+    Get all ontologies.
+    """
     ret = []
     ret += getMetaModels(dir)
     ret += getModels(dir)
@@ -29,6 +43,9 @@ def getOntologies(dir):
 
 
 def getMetaModels(dir):
+    """
+    Get all metamodels.
+    """
     fileNames = findFiles(os.path.join(dir, "ttl", "metamodels"), "*.ttl")
 
     d = {}
@@ -54,7 +71,9 @@ def getMetaModels(dir):
 
 
 def extractUriAndPrefixFromCoffeeModel(contents):
-
+    """
+    Read a coffeescript Model, and extract its URI and prefix.
+    """
     lines = contents.split('\n')
     for line in lines:
         l = line.strip()
@@ -68,6 +87,9 @@ def extractUriAndPrefixFromCoffeeModel(contents):
 
 
 def getModels(dir):
+    """
+    Get all models.
+    """
     fileNames = findFiles(os.path.join(dir, "coffee", "models"), "*.coffee")
 
     d = {}
@@ -97,8 +119,4 @@ def getModels(dir):
         f.close()
 
     return sorted(d.values(), key=lambda x: x["uri"])
-
-
-
-
 

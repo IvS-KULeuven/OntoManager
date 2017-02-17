@@ -3,7 +3,6 @@
 
 <%
     powerSupplyType = CACHE[U["elec"]["show"]["qname"]]
-
 %>
 
 

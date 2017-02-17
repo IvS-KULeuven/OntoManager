@@ -55,8 +55,6 @@
 % else:
 
 
-
-
     <h5 class="extraspace">File contents:</h5>
 
     % if code["code"] is None:

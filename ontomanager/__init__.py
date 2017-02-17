@@ -1,9 +1,8 @@
 from pyramid.config import Configurator
-
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
-from configuration import groupfinder
+from ontomanager.configuration import groupfinder
 
 import rootfactory
 
@@ -11,17 +10,17 @@ from pyramid.session import UnencryptedCookieSessionFactoryConfig
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
     """
-    authn_policy = AuthTktAuthenticationPolicy(
-        'sosecret', callback=groupfinder, hashalg='sha512')
+    This function returns a Pyramid WSGI application.
+    """
+    authn_policy = AuthTktAuthenticationPolicy('sosecret', callback=groupfinder, hashalg='sha512')
     authz_policy = ACLAuthorizationPolicy()
 
-    my_session_factory = UnencryptedCookieSessionFactoryConfig('itsaseekreet')
+    sessionFactory = UnencryptedCookieSessionFactoryConfig('itsaseekreet')
 
     config = Configurator(settings=settings,
                           root_factory='ontomanager.rootfactory.RootFactory',
-                          session_factory = my_session_factory)
+                          session_factory = sessionFactory)
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
 
@@ -52,4 +51,5 @@ def main(global_config, **settings):
     config.add_route('soft', '/soft')
     config.add_route('org', '/org')
     config.scan()
+
     return config.make_wsgi_app()

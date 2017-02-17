@@ -1,13 +1,16 @@
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI
-import rdflib
-import pprint
-from util import Node
-from register import REGISTRY
+"""
+Callback functions for the views of the 'browse' category.
+"""
 
-#from rdflib.extras.infixowl import Class, Individual, manchesterSyntax, classOrIdentifier
+from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, INFO
+import rdflib
 
 
 def show_browse(node, args=None):
+    """
+    Show the 'browse' view of the 'browse' category.
+    """
+    INFO("browse.show_browse(%s)" %node['qname'])
 
     results = QUERY("""
         SELECT DISTINCT ?predicate ?object
@@ -42,17 +45,7 @@ def show_browse(node, args=None):
                              "qname"   : predicate,
                              "objects" : [ object ] }
 
-            # # in case of some known types, add the manchester syntax
-            # uri = rdflib.term.URIRef(QNAME_TO_URI(node['qname']))
-            # if predicate == "rdf:type":
-            #     d[predicate]["manchester"] = [manchesterSyntax(classOrIdentifier(s), GRAPH) for s in Individual( uri , graph=GRAPH).type ]
-            # elif predicate == "owl:equivalentClass":
-            #     d[predicate]["manchester"] = [manchesterSyntax(classOrIdentifier(s), GRAPH) for s in Class( uri , graph=GRAPH).equivalentClass ]
-            # elif predicate == "rdfs:subClassOf":
-            #     d[predicate]["manchester"] = [manchesterSyntax(classOrIdentifier(s), GRAPH) for s in Class( uri , graph=GRAPH).subClassOf]
         else:
             d[predicate]["objects"].append( object )
 
-
     node["results"] = sorted(d.values(), key=lambda x: x["qname"])
-

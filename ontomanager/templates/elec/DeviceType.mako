@@ -9,8 +9,6 @@
 %>
 
 
-
-
 <h1>Device type ${misc.render_view_link(deviceType, "title")}</h1>
 
 ${misc.render_comment_below_title(deviceType)}
@@ -27,7 +25,6 @@ ${elec_misc.render_device_type_summary(deviceType)}
 <h3>Layout</h3>
 
 ${elec_misc.render_device_type_layout(deviceType)}
-
 
 
 <!-- ============================================== Cables =======================================================  -->

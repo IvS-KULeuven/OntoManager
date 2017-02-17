@@ -1,20 +1,33 @@
+"""
+In this module, we'll build the registry.
+
+The registry registers all views: it associates an RDF class (such as dev:design, soft:Variable, ...)
+with:
+ - a view (consisting of a category and type)
+ - a function that must be called to show this view (e.g. sys.show_design, soft.show_variable)
+ - a list of [expansionName,expansionFunction]
+"""
+
 __author__ = 'wimpe'
 
-from queries import sys, browse, soft, elec, org, man, colors
-from queries.register import REGISTRY, RegAND
+import sys, browse, soft, elec, org, man, colors
+from register import REGISTRY
 
 
+# browse
 REGISTRY.registerView( "browse" , "resource"    , "rdfs:Resource"           , browse.show_browse  )
 REGISTRY.registerView( "browse" , "class"       , "owl:Class"               , browse.show_browse  )
 REGISTRY.registerView( "browse" , "thing"       , "owl:Thing"               , browse.show_browse  )
-# organizations
+
+# org
 REGISTRY.registerView( "org"    , "Organization"     , "org:Organization"             , org.show_Organization    ,   [ ["manufactured"   , man.getManufactured    ] ] )
 REGISTRY.registerView( "org"    , "Manufacturer"     , "man:Manufacturer"             , org.show_Manufacturer    ,   [ ["manufactured"   , man.getManufactured    ] ] )
-REGISTRY.registerView( "colors"    , "Color"     , "colors:Color"             , colors.show_Color ,   [] )
+REGISTRY.registerView( "colors" , "Color"            , "colors:Color"                 , colors.show_Color        ,   [] )
 
-REGISTRY.registerView(  "sys"   , "Realization" , "sys:Realization"         , sys.show_Realization,   [ ["realizes"       , sys.getRealizes        ] ] )
+# sys
+REGISTRY.registerView( "sys"    , "Realization" , "sys:Realization"         , sys.show_Realization,   [ ["realizes"       , sys.getRealizes        ] ] )
 REGISTRY.registerView( "sys"    , "project"     , "dev:Project"             , sys.show_project    ,   [ ["concepts"       , sys.getConcepts         ] ] )
-REGISTRY.registerView(  "sys"   , "concept"     , "dev:Concept"             , sys.show_concept    ,   [ ["requirements"   , sys.getRequirements     ],
+REGISTRY.registerView( "sys"    , "concept"     , "dev:Concept"             , sys.show_concept    ,   [ ["requirements"   , sys.getRequirements     ],
                                                                                                         ["states"         , sys.getStates           ],
                                                                                                         ["properties"     , sys.getProperties       ],
                                                                                                         ["constraints"    , sys.getConstraints      ],

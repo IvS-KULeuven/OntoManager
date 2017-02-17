@@ -4,7 +4,6 @@ ${layoutExpressions(node["expressions"], scope, html=html, indent=indent)}\
 </%def>
 
 
-
 <%def name="layoutExpressions(expressions, scope, html=True, indent='', more='    ')">\
     %if isinstance(expressions, list):
         %for e in expressions:
@@ -17,7 +16,6 @@ ${layoutExpressions(CACHE[e], scope, html=html, indent=indent)};
 ${layoutExpression(expressions, scope, html=html, indent=indent)}\
     %endif
 </%def>
-
 
 
 <%def name="layoutExpression(e, scope, html=True, indent='', more='    ')">\
@@ -67,22 +65,16 @@ ${node['value']}\
 
         scopeLine = [ item['qname'] for item in scope ]
 
-        print("getPrefixAndPath(dest=%s, scope=%s) ..." %(dest['qname'], scopeLine))
-
         for head in scope:
-
-            print("head: %s" %head['qname'])
 
             destQName = dest["qname"]
 
             if "soft:EnumerationItem" in dest["classes"]:
-                print("ok - enum")
                 return None, [ dest["item_of"], destQName ]
 
 
             if head.has_key("extends") and dest.has_key("points_to_type"):
                 if head["extends"] == dest["points_to_type"] != None:
-                    print("ok - extends")
                     return "SUPER", []
 
             try:
@@ -110,9 +102,6 @@ ${node['value']}\
 
     def getPathToSubVariable(cache, dest, head):
 
-        print("getPathToSubVariable(dest=%s, head=%s)" %(dest['qname'], head['qname']))
-##        print(pprint.pformat(dest))
-
         destQName = dest["qname"]
         headQName = head["qname"]
 
@@ -126,7 +115,6 @@ ${node['value']}\
             raise EOFError()
 
         memberOfQNames = dest["member_of"]
-        print(pprint.pformat(memberOfQNames))
 
         p = None
         for memberOfQName in memberOfQNames:

@@ -2,6 +2,18 @@ import unittest
 
 from pyramid import testing
 
+TESTQUERY = """SELECT ?company ?companyName ?m ?id ?comment (COUNT(?instance) AS ?count)
+WHERE {
+    ?m        rdf:type             elec:IoModuleType .
+    ?m        man:hasId            ?id .
+    ?m        man:isManufacturedBy ?company .
+    ?company  org:hasLongName      ?companyName  .
+    ?instance sys:realizes         ?m .
+    OPTIONAL { ?m rdfs:comment ?comment }
+}
+GROUP BY ?id
+ORDER BY ASC(?id)"""
+
 
 class ViewTests(unittest.TestCase):
     def setUp(self):
@@ -9,9 +21,3 @@ class ViewTests(unittest.TestCase):
 
     def tearDown(self):
         testing.tearDown()
-
-    def test_my_view(self):
-        from .views import my_view
-        request = testing.DummyRequest()
-        info = my_view(request)
-        self.assertEqual(info['project'], 'OntoManager')

@@ -4,7 +4,6 @@
 
 <%
     cable = CACHE[U["elec"]["show"]["qname"]]
-
     cableType = CACHE[cable["man_type"]]
 %>
 

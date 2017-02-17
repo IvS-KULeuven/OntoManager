@@ -1,12 +1,11 @@
-import rdflib
-
-from rdflib import Graph, RDF, OWL, ConjunctiveGraph
-
-import os, fnmatch
-import json
+import os
+import fnmatch
 
 
 class Ontology:
+    """
+    A class that represents an ontology, with a given URI and owl:imports.
+    """
     def __init__(self, uri):
         self.uri = uri
         self.imports = []
@@ -15,8 +14,10 @@ class Ontology:
         self.imports.append(uri)
 
 
-
 def findFiles(directory, pattern):
+    """
+    Find the files in a given directory with a given pattern (e.g. '*.jsonld').
+    """
     for root, dirs, files in os.walk(directory):
         for basename in files:
             if fnmatch.fnmatch(basename, pattern):
@@ -25,6 +26,9 @@ def findFiles(directory, pattern):
 
 
 def getFileTree(dir, pattern):
+    """
+    Get a tree of files.
+    """
     tree = []
     matches = False
 
@@ -58,16 +62,19 @@ def getFileTree(dir, pattern):
     return matches, tree
 
 
-
 def getJsTree(abspath, pattern):
+    """
+    Get a tree of files, for use with the javascript extension of the templates.
+    """
     matches, tree = getFileTree(abspath, pattern)
     jsTree = convertToJsTree(abspath, '', tree)
     return jsTree
 
 
-
 def convertToJsTree(abspath,relpath, tree):
-
+    """
+    Convert a "simple" tree of files into a tree of files, for use with the javascript extension of the templates.
+    """
     ret = []
 
     for item in tree:
@@ -82,8 +89,6 @@ def convertToJsTree(abspath,relpath, tree):
             d['id'] = relpath + "/" + item
             d['_filename_'] = os.path.join(abspath, item)
             d['state'] = { 'selected' : False }
-
-
 
         elif isinstance(item, dict):
             # the item is a folder with a single key:value pair

@@ -1,11 +1,30 @@
 __author__ = 'wimpe'
 from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_URI
 from util import Node
+from logging import INFO, DEBUG
+
 
 def getDefaultNode(cache, qname):
+    """
+    Get a Node with default information, or get the node from the cache if available.
+
+    The default information of a node includes:
+     - its qname
+     - its label
+     - its uri
+     - its comment
+     - its ontoscript counter
+     - its RDF classes (a list of qnames)
+
+    All nodes contain the default information
+     + optional other slots (filled by the show_... callbacks mentioned in allviews.py)
+     + optional expansions (filled by the get... callbacks mentioned in allviews.py)
+    """
     try:
         node = cache[qname]
     except:
+        INFO("    Get default node for %s" %qname)
+
         results = QUERY("""
             SELECT DISTINCT ?label ?comment ?counter ?rdfClass
             WHERE {
@@ -22,6 +41,8 @@ def getDefaultNode(cache, qname):
                 uri             = QNAME_TO_URI(qname),
                 cache           = cache)
 
+        rdfClasses = [] # only for logging
+
         for label, comment, counter, rdfClass in results:
             if label is not None:
                 node["label"] = label.toPython()
@@ -32,6 +53,9 @@ def getDefaultNode(cache, qname):
             if rdfClass is not None:
                 rdfClassQName = URI_TO_QNAME(rdfClass)
                 node.registerClass(rdfClassQName)
+                rdfClasses.append(rdfClassQName)
+
+        INFO("     --> label '%s', counter %d, rdfClasses %s" %(node["label"], node["counter"], rdfClasses))
 
         node.registerClass("rdfs:Resource")
 
@@ -43,10 +67,16 @@ def getDefaultNode(cache, qname):
 
 
 def getInstances(cache, className, filterNotExists=None):
+    """
+    Get the instances of a class.
+    """
+    INFO("    Get instances of %s" %className)
+
     if filterNotExists is None:
         filterNotExistsLine = ""
     else:
         filterNotExistsLine = "FILTER NOT EXISTS { %s }" %filterNotExists
+
     results = QUERY("""
         SELECT DISTINCT ?instance ?label ?comment ?counter ?rdfClass
         WHERE {
@@ -78,12 +108,18 @@ def getInstances(cache, className, filterNotExists=None):
         if rdfClass is not None:
             d[qname].registerClass(URI_TO_QNAME(rdfClass.toPython()))
 
+    keysStr = ""
+    for key in d.keys():
+        keysStr += (key + " ")
+
+    INFO("     --> " + keysStr)
+
     for qname, node in d.items():
 
         node.registerKnownViews()
 
         if not cache.has_key(qname):
-            print "Caching %s" %qname
+            DEBUG("Caching %s" %qname)
             cache[qname] = node
 
     # return a list of QNames
@@ -95,6 +131,10 @@ def getInstances(cache, className, filterNotExists=None):
 
 
 def getRelated(cache, subject, property, restriction=None, remove=None,  sortedByNumber=False, filterNotExists=None):
+    """
+    Get the related individuals of an individual.
+    """
+    INFO("    Get related %s of %s" %(property, subject))
 
     extraVariables = ""
 
@@ -155,6 +195,11 @@ def getRelated(cache, subject, property, restriction=None, remove=None,  sortedB
             else:
                 d[resultQName]["number"] = None
 
+    keysStr = ""
+    for key in d.keys():
+        keysStr += (key + " ")
+
+    INFO("     --> " + keysStr)
 
     for resultQName, resultNode in d.items():
         resultNode.registerKnownViews()
@@ -178,7 +223,13 @@ def getRelated(cache, subject, property, restriction=None, remove=None,  sortedB
 
 
 def fillFields(node, mandatories={}, optionals={}):
+    """
+    Fill some mandatory and/or optional fields of a node.
+    """
     subject = node['qname']
+
+    INFO("    Fill these fields of %s: mandatories=%s, optionals=%s" %(subject, mandatories.keys(), optionals.keys()))
+
     selectLine = ""
     wherePart = ""
 
@@ -196,12 +247,17 @@ def fillFields(node, mandatories={}, optionals={}):
             %s
         }
         """ %(selectLine, wherePart)
+
     results = QUERY(query)
 
     if len(results) == 0:
         raise Exception("No results for query:\n%s" %query)
 
+
+    infoStr = "     --> mandatories ["
+
     for result in results:
+        # the mandatories
         for i in xrange(len(mandatories)):
             key = mandatories.keys()[i]
             try:
@@ -211,6 +267,12 @@ def fillFields(node, mandatories={}, optionals={}):
                     node.cache[subject][key] = result[i].toPython()
             except:
                 node.cache[subject][key] = None
+
+            if i > 0: infoStr += ","
+            infoStr += node.cache[subject][key]
+
+        infoStr += "], optionals ["
+
         for i in xrange(len(optionals)):
             key = optionals.keys()[i]
             try:
@@ -222,9 +284,19 @@ def fillFields(node, mandatories={}, optionals={}):
             except:
                 node.cache[subject][key] = None
 
+            if i > 0: infoStr += ","
+            infoStr += node.cache[subject][key]
+
+        infoStr += "]"
+
+    INFO(infoStr)
 
 
 def fillNumber(node, optional=False):
+    """
+    Fill out the number of a container item (according to the containers ontology).
+    """
+    INFO("    Fill number of %s")
 
     node["number"] = None
 
@@ -235,5 +307,8 @@ def fillNumber(node, optional=False):
         }
         """ %node["qname"])
 
+
     for (number,) in results:
         node["number"] = int(number.toPython())
+
+    INFO("     --> %s" %node["number"])

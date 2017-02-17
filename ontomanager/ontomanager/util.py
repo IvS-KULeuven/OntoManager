@@ -1,11 +1,22 @@
-__author__ = 'wimpe'
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI
+"""
+Module containing some utility functions.
+"""
+
+from logging import DEBUG, INFO
 from register import REGISTRY
 import pprint
 
+
+###################################################################################################
+# a global instance of a pretty printer
 PPRINTER = pprint.PrettyPrinter(depth=6)
+###################################################################################################
+
 
 def getFromDict(dataDict, mapList):
+    """
+    Get a value in a dictionary.
+    """
     try:
         return reduce(lambda d, k: d[k], mapList, dataDict)
     except KeyError, e:
@@ -16,8 +27,15 @@ def getFromDict(dataDict, mapList):
         raise
 
 def setInDict(dataDict, mapList, value):
+    """
+    Set a value in a dictionary.
+    """
     getFromDict(dataDict, mapList[:-1])[mapList[-1]] = value
 
+
+
+###################################################################################################
+# example of a Node
 __example__ = """
 Node "cover:concept"
  |_qname
@@ -48,8 +66,18 @@ Node "cover:concept"
  |_browse_results                  = [ ... ]
 """
 
+###################################################################################################
+
+
 class Node(dict):
+    """
+    A Node represents a node in the graph: an RDF resource.
+    """
+
     def __init__(self, qname, uri, label="", counter=-1, comment="", cache={}):
+        """
+        Create a new node using its qname, uri, label, counter, and comment.
+        """
         dict.__init__(self)
         self["qname"]       = qname
         self["uri"]         = str(uri)
@@ -63,12 +91,17 @@ class Node(dict):
         self.cache = cache
 
 
-
-
     def log(self, msg):
-        print("%s : %s" %(self['qname'], msg))
+        """
+        Simple low-level log function.
+        """
+        DEBUG("%s : %s" %(self['qname'], msg))
+
 
     def updateDefaultViews(self):
+        """
+        Set the default view, based on the views order.
+        """
         for category in self["views"].keys():
             for orderedCategory, orderedType in self["views_order"]:
                 if orderedCategory == category:
@@ -77,6 +110,9 @@ class Node(dict):
 
 
     def updateViewsOrder(self):
+        """
+        Re-order the views.
+        """
         self.log("Updating the views order")
         viewsOrder = []
 
@@ -94,17 +130,29 @@ class Node(dict):
         self.log("New views order: %s" %viewsOrder)
         self.updateDefaultViews()
 
+
     def registerClass(self, qname):
+        """
+        Register a new RDF class.
+        """
         self.log("Registering class %s" %qname)
 
         if qname not in self["classes"]:
             self["classes"].append(qname)
 
+
     def registerKnownViews(self):
+        """
+        Register a known view for this node.
+        """
         for view in REGISTRY.getViewsForClasses(self['classes']):
             self.registerViewIfNeeded(view["category"], view["type"], view["priority"])
 
+
     def registerViewIfNeeded(self, category, type, priority=-1):
+        """
+        Register a known view for this node, if it wasn't already registered.
+        """
         self.log("Registering view %s/%s with priority=%d" %(category, type, priority))
         alreadyRegistered = False
         if self["views"].has_key(category):
@@ -129,7 +177,11 @@ class Node(dict):
 
             self.updateViewsOrder()
 
+
     def show(self, category=None, type=None, args=None):
+        """
+        Show the node (call the show_... callback function if needed).
+        """
         if (category is None) or (category == ''):
             self.log("Showing default view")
 
@@ -158,11 +210,24 @@ class Node(dict):
 
 
     def writeToStdOut(self):
+        """
+        Simply write the node to the stdout, as a nicely formatted string.
+        """
         PPRINTER.pprint(self)
 
 
-    def expand(self, category=None, type=None, expansion=None, visible=True):
-        # self.log("Expanding category=%s type=%s expansion=%s visible=%s" %(category, type, expansion, visible))
+    def expand(self, category=None, type=None, expansion=None):
+        """
+        Expand the expansion(s) of the node.
+
+        If the category is not given, then the default view will be expanded.
+        If the category is given but the type is not given, then the first
+        view of the given category is expanded.
+        If both category and type is given, but a specific expansion is not
+        given, then all expansions of the given view are expanded.
+        Else, expand the given expansion of the given view type of the given
+        view category.
+        """
         if (category is None) or (category == ""):
             self.log("Expanding default view")
 
@@ -173,7 +238,7 @@ class Node(dict):
                 raise Exception("Cannot expand default view: no view registered!")
 
             # expand it
-            self.expand(category=defaultCategory, type=defaultType, expansion=expansion, visible=visible)
+            self.expand(category=defaultCategory, type=defaultType, expansion=expansion)
         else:
             if not self["views"].has_key(category):
                 raise Exception("Cannot expand category %s: unknown category!" %category)
@@ -182,7 +247,7 @@ class Node(dict):
                 self.log("Expanding default view for %s" %category)
                 for currentCategory, currentType in self["views_order"]:
                     if category == currentCategory:
-                        return self.expand(category = currentCategory, type = currentType, expansion=expansion, visible=visible)
+                        return self.expand(category = currentCategory, type = currentType, expansion=expansion)
             else:
                 if not self["views"][category].has_key(type):
                     self.writeToStdOut()
@@ -201,13 +266,12 @@ class Node(dict):
                                 self[expansion] = []
 
                         # set the top-level expansion,
-                        if visible:
-                            self["views"][category][type]["expanded"] = True
+                        self["views"][category][type]["expanded"] = True
 
                         # expand all expansions without showing;
                         if not self["views"][category][type]["expanded_before"]:
                             for currentExpansion in self["views"][category][type]["expansions"]:
-                                self.expand(category=category, type=type, expansion=currentExpansion, visible=False)
+                                self.expand(category=category, type=type, expansion=currentExpansion)
                             self["views"][category][type]["expanded_before"] = True
                     else:
                         self.log("%s/%s is not expandable" %(category,type))
@@ -222,48 +286,8 @@ class Node(dict):
                         self["views"][category][type]["expanded_%s_before" %expansion] = True
                         REGISTRY.callExpansionIfNeeded(category, type, expansion, self)
 
-                    if visible:
-                        self["views"][category][type]["expanded_%s" %expansion] = True
+                    self["views"][category][type]["expanded_%s" %expansion] = True
 
 
         self.log("Expansion is finished.")
 
-
-    def collapse(self, category=None, type=None, expansion=None):
-        # self.log("Collapsing category=%s type=%s expansion=%s" %(category, type, expansion))
-        if (category is None) or (category == ""):
-            self.log("Collapsing default view")
-
-            # determine the default view
-            if self["views_order"] > 0:
-                defaultCategory, defaultType = self["views_order"][0]
-            else:
-                raise Exception("Cannot collapse default view: no view registered!")
-
-            # collapse it
-            self.collapse(category=defaultCategory, type=defaultType, expansion=expansion)
-        else:
-            if not self["views"].has_key(category):
-                raise Exception("Cannot collapse category %s: unknown category!" %category)
-
-            if (type is None) or (type == ""):
-                self.log("Collapsing default view for %s" %category)
-                for currentCategory, currentType in self["views_order"]:
-                    if category == currentCategory:
-                        return self.collapse(category = currentCategory, type = currentType, expansion=expansion)
-            else:
-                if not self["views"][category].has_key(type):
-                    raise Exception("Cannot collapse %s/%s: type %s is unknown!" %(category, type, type))
-
-                if (expansion is None) or (expansion == ''):
-                    self.log("Now collapsing %s/%s" %(category,type))
-                    # set the top-level expansion,
-                    self["views"][category][type]["expanded"] = False
-                else:
-                    self.log("Now collapsing %s/%s[%s]" %(category,type,expansion))
-
-                    if not self.has_key(expansion):
-                        raise Exception("Cannot collapse %s/%s[%s]: expansion %s is unknown!" %(category, type, expansion, expansion))
-
-                    self["views"][category][type]["expanded_%s" %expansion] = False
-        self.log("Collapsing is finished.")

@@ -1,7 +1,16 @@
+"""
+Functions to read the constraint violations from the knowledge base.
+"""
+
 from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, URI_TO_IDENTIFIER
 import pprint
 
 def getAllConstraintViolations():
+    """
+    Get a list of all constraint violations.
+
+    @return: a list of dictionaries.
+    """
     results = QUERY("""
         SELECT DISTINCT ?root ?rootLabel ?rootCounter ?value ?level ?label
         WHERE {
@@ -43,6 +52,5 @@ def getAllConstraintViolations():
                     d[hash]["level"] = level.toPython()
                 except:
                     pass
-
 
     return sorted(d.values(), key=lambda x: x["root"]["counter"])

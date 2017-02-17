@@ -11,7 +11,6 @@
 
 
 
-
 <h1>Cable assembly type ${misc.render_view_link(cableAssemblyType, "title")}</h1>
 
 ${misc.render_comment_below_title(cableAssemblyType)}

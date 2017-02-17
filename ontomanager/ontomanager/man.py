@@ -1,12 +1,16 @@
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_LITERAL, LOG, os
+"""
+Callback functions for the views of the 'man' category.
+"""
+from triplestore import INFO
 import generic
-import pprint
 
 
 # ====================================================== Manufactured ==================================================
 
 
 def getManufactured(cache, qname):
-    LOG("getConnectors(%s)" %(qname))
-
+    """
+    Expand the manufactured items of a node.
+    """
+    INFO("man.getManufactured(%s)" %(qname))
     return generic.getRelated(cache, subject=qname, property="^man:isManufacturedBy")

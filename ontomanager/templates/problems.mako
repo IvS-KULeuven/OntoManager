@@ -1,14 +1,5 @@
 <%inherit file="base_layout.mako"/>
 
-<%!
-    #import sys
-    #import os
-    #sys.path.append("../queries")
-    #print os.path.abspath("../queries")
-    #from triplestore import PARSE_FOR_URI
-    #${PARSE_FOR_URI(label)}
-%>
-
 <%block name="contents">
 
     <% violations = M['problems']['violations'] %>

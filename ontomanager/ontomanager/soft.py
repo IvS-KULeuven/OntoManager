@@ -1,16 +1,37 @@
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_LITERAL, LOG, os
+"""
+Callback functions for the views of the 'soft' category.
+"""
+
 import generic
 import pprint
+import os
 
+from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_LITERAL
+from logging import INFO, ERROR
+
+
+# ========================================================= Read and write code ====================================================
 
 
 def GET_FILEPATH(dir, library, ext):
+    """
+    Get the path of a software library with the given extension in the given directory.
+
+    @param dir: path to the directory
+    @param library: qname of the library
+    @param ext: filename extension (without dot, e.g. 'xml' or 'py')
+    """
     return os.path.join(dir, "%s.%s" %(library.split(':',1)[1].lower(), ext))
 
 
 def getCode(library, filePath, busyUpdating):
-    # library = a Qname
+    """
+    Get the code of a given file.
 
+    @param library: qname of the library
+    @param filePath: path to the filename
+    @param busyUpdating: True if the file reading is busy, and the contents of the file should not be returned yet.
+    """
     ret = {}
     ret["contents"] = None
     ret["status"] = "File has not been read yet"
@@ -18,13 +39,9 @@ def getCode(library, filePath, busyUpdating):
     f = None
     filePathExists = False
 
-    libName = library.split(":",1)[1]
-
     if busyUpdating:
         ret["status"] = "Busy updating ..."
-
     else:
-
         if filePath is not None:
             filePathExists = os.path.exists(filePath)
             if filePathExists:
@@ -52,20 +69,22 @@ def getCode(library, filePath, busyUpdating):
             try:
                 f.close()
             except Exception, e:
-                LOG("Could not close the file: %s" %e)
+                ERROR("Could not close the file: %s" %e)
 
 
     return ret
 
 
 def writeCode(code, library, filePath):
-    # library = a Qname
+    """
+    Write the code to a given file.
+
+    @param code: the source code, as a big string
+    @param library: qname of the library
+    @param filePath: path of the filen to write
+    """
 
     f = None
-    filePathExists = False
-
-    libName = library.split(":",1)[1]
-
 
     if filePath is not None:
         try:
@@ -83,18 +102,27 @@ def writeCode(code, library, filePath):
         try:
             f.close()
         except Exception, e:
-            LOG("Could not close the file: %s" %e)
-
-
+            ERROR("Could not close the file: %s" %e)
 
 
 # ========================================================= LIBRARY ====================================================
 
+
 def getLibraries(cache): # returns: list of Nodes
+    """
+    Find the libraries in the KB.
+    """
+    INFO("soft.getLibraries()")
+
     return generic.getInstances(cache = cache, className = "soft:Library")
 
 
 def show_library(node, args=None):
+    """
+    Show the 'library' view of the 'soft' category.
+    """
+    INFO("soft.show_library(%s)" %node['qname'])
+
     node.expand("soft", "library", visible=False)
 
     for ns in node["namespaces"]:
@@ -109,11 +137,22 @@ def show_library(node, args=None):
 
 # ======================================================== NAMESPACE ===================================================
 
+
 def getNamespaces(cache, qname):
+    """
+    Expand the namespaces of a node.
+    """
+    INFO("soft.getNamespaces(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "cont:contains|(^cont:isContainedBy)", restriction="soft:Namespace")
 
 
 def show_namespace(node, args=None):
+    """
+    Show the 'namespace' view of the 'soft' category.
+    """
+    INFO("soft.show_namespace(%s)" %node['qname'])
+
     node.expand("soft", "namespace", visible=False)
 
     for ns in node["namespaces"]:
@@ -129,6 +168,11 @@ def show_namespace(node, args=None):
 # ========================================================= LINKS =====================================================
 
 def getLinks(cache, qname):
+    """
+    Expand the links of a node.
+    """
+    INFO("soft.getLinks(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "sys:isInterfacedWith | ^sys:isInterfacedWith")
 
 
@@ -136,10 +180,20 @@ def getLinks(cache, qname):
 
 
 def getMemberOf(cache, qname):
+    """
+    Get the node of which this node is a member of.
+    """
+    INFO("soft.getMemberOf(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "(^soft:hasVariable) | (^soft:hasAttribute) | (^iec61131:hasInputVariable) | (^iec61131:hasOutputVariable) | (^iec61131:hasInOutVariable) | (^iec61131:hasLocalVariable) | (^soft:hasCallable) | (^iec61131:hasMethod) | (^iec61131:hasMethodInstance)")
 
 
 def show_plc_method(node, args=None):
+    """
+    Show the 'plc_method' view of the 'soft' category.
+    """
+    INFO("soft.show_plc_method(%s)" %node['qname'])
+
     show_type(node)
     node.expand("soft", "plc_method", visible=False)
 
@@ -161,9 +215,20 @@ def show_plc_method(node, args=None):
 
 
 def getFBs(cache, qname):
+    """
+    Expand the function blocks of a node.
+    """
+    INFO("soft.getFBs(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "cont:contains|(^cont:isContainedBy)", restriction="iec61131:FunctionBlock")
 
+
 def show_fb(node, args=None):
+    """
+    Show the 'fb' (function block) view of the 'soft' category.
+    """
+    INFO("soft.show_fb(%s)" %node['qname'])
+
     show_type(node)
     node.expand("soft", "fb", visible=False)
 
@@ -178,22 +243,45 @@ def show_fb(node, args=None):
 
 
 def getStructs(cache, qname):
+    """
+    Expand the structs of a node.
+    """
+    INFO("soft.getStructs(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "cont:contains|(^cont:isContainedBy)", restriction="iec61131:Struct")
 
+
 def show_struct(node, args=None):
+    """
+    Show the 'struct' view of the 'soft' category.
+    """
+    INFO("soft.show_struct(%s)" %node['qname'])
+
     show_type(node)
     node.expand("soft", "struct", visible=False)
 
     for attr in node["attributes"]:
         node.cache[attr].show("soft")
 
+
 # ========================================================= ENUM =======================================================
 
 
 def getEnums(cache, qname):
+    """
+    Expand the enumerations of a node.
+    """
+    INFO("soft.getEnums(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "cont:contains|(^cont:isContainedBy)", restriction="soft:Enumeration")
 
+
 def show_enum(node, args=None):
+    """
+    Show the 'enum' view of the 'soft' category.
+    """
+    INFO("soft.show_enum(%s)" %node['qname'])
+
     show_type(node)
     node.expand("soft", "enum", visible=False)
 
@@ -201,14 +289,24 @@ def show_enum(node, args=None):
         node.cache[ns].show("soft", "enum_item")
 
 
-
 # ====================================================== ENUM ITEM =====================================================
 
 
 def getEnumItems(cache, qname):
+    """
+    Expand the enumeration items of a node.
+    """
+    INFO("soft.getEnumItems(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "cont:contains", restriction="soft:EnumerationItem")
 
+
 def show_enum_item(node, args=None):
+    """
+    Show the 'enum_item' view of the 'soft' category.
+    """
+    INFO("soft.show_enum_item(%s)" %node['qname'])
+
     generic.fillNumber(node, optional=True)
     node["item_of"] = generic.getRelated(node.cache, node["qname"], "(^cont:contains)|(cont:isContainedBy)")[0]
     node.cache[node["item_of"]].show("soft", "enum")
@@ -216,11 +314,22 @@ def show_enum_item(node, args=None):
 
 # ====================================================== ATTRIBUTE =====================================================
 
+
 def getAttributes(cache, qname):
+    """
+    Expand the attributes of a node.
+    """
+    INFO("soft.getAttributes(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "soft:hasAttribute")
 
 
 def show_attribute(node, args=None):
+    """
+    Show the 'attribute' view of the 'soft' category.
+    """
+    INFO("soft.show_attribute(%s)" %node['qname'])
+
     node.expand("soft", "attribute", visible=False)
 
     show_variable(node)
@@ -228,35 +337,67 @@ def show_attribute(node, args=None):
 # ====================================================== ARGUMENTS =====================================================
 
 def getArguments(cache, qname):
+    """
+    Expand the arguments of a node.
+    """
+    INFO("soft.getArguments(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "soft:hasArgument")
 
 
 def show_argument(node, args=None):
+    """
+    Show the 'argument' view of the 'soft' category.
+    """
+    INFO("soft.show_argument(%s)" %node['qname'])
+
     node.expand("soft", "argument", visible=False)
 
     show_variable(node)
 
 
-
 # ====================================================== INTERFACE =====================================================
 
+
 def getInterfaceVariables(cache, qname):
+    """
+    Expand the interface variables of a node.
+    """
+    INFO("soft.getInterfaceVariables(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "soft:hasVariable")
 
 
 def show_Interface(node, args=None):
+    """
+    Show the 'Interface' view of the 'soft' category.
+    """
+    INFO("soft.show_Interface(%s)" %node['qname'])
+
     node.expand("soft", "Interface", visible=False)
 
     for v in node["variables"]:
         node.cache[v].show("soft")
 
+
 # ====================================================== INTERFACE INSTANCE =====================================================
 
+
 def getInterfaceInstanceVariables(cache, qname):
+    """
+    Expand the interface instance variables of a node.
+    """
+    INFO("soft.getInterfaceInstanceVariables(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "sys:hasElement")
 
 
 def show_InterfaceInstance(node, args=None):
+    """
+    Show the 'InterfaceInstance' view of the 'soft' category.
+    """
+    INFO("soft.show_InterfaceInstance(%s)" %node['qname'])
+
     node.expand("soft", "InterfaceInstance", visible=False)
 
     for v in node["variables"]:
@@ -267,7 +408,12 @@ def show_InterfaceInstance(node, args=None):
 
 
 def show_primitive(node, args=None):
+    """
+    Show the 'primitive' view of the 'soft' category.
+    """
+    INFO("soft.show_InterfaceInstance(%s)" %node['qname'])
 
+    # extra query to get the string value or numeric value
     results = QUERY("""
         SELECT DISTINCT ?value
         WHERE {
@@ -284,24 +430,57 @@ def show_primitive(node, args=None):
 
 # ====================================================== VARIABLE ======================================================
 
+
 def getInputVariables(cache, qname):
+    """
+    Expand the IEC 61131-3 input variables of a node.
+    """
+    INFO("soft.getInputVariables(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "iec61131:hasInputVariable", remove="(soft:extends+)/iec61131:hasInputVariable")
 
+
 def getOutputVariables(cache, qname):
+    """
+    Expand the IEC 61131-3 output variables of a node.
+    """
+    INFO("soft.getOutputVariables(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "iec61131:hasOutputVariable", remove="(soft:extends+)/iec61131:hasOutputVariable")
 
+
 def getInOutVariables(cache, qname):
+    """
+    Expand the IEC 61131-3 in-out variables of a node.
+    """
+    INFO("soft.getInOutVariables(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "iec61131:hasInOutVariable", remove="(soft:extends+)/iec61131:hasInOutVariable")
 
+
 def getLocalVariables(cache, qname):
+    """
+    Expand the IEC 61131-3 local variables of a node.
+    """
+    INFO("soft.getLocalVariables(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "iec61131:hasLocalVariable", remove="(soft:extends+)/iec61131:hasLocalVariable")
 
+
 def getMethods(cache, qname):
+    """
+    Expand the IEC 61131-3 methods of a node.
+    """
+    INFO("soft.getMethods(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "iec61131:hasMethod | iec61131:hasMethodInstance", remove="(soft:extends+)/(iec61131:hasMethod | iec61131:hasMethodInstance)")
 
 
 def show_variable(node, args=None):
-    LOG("show_variable(%s)" %(node["qname"]))
+    """
+    Show the 'variable' view of the 'soft' category.
+    """
+    INFO("soft.show_variable(%s)" %node['qname'])
 
     node["type"]            = None
     node["points_to_type"]  = None
@@ -356,15 +535,24 @@ def show_variable(node, args=None):
     #    node.cache[member].show("soft")
 
 
-
 # ===================================================== QUALIFIER ======================================================
 
 
 def getQualifiers(cache, qname):
+    """
+    Expand the qualifiers of a node.
+    """
+    INFO("soft.getQualifiers(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "soft:hasQualifier")
 
 
 def show_qualifier(node, args=None):
+    """
+    Show the 'qualifier' view of the 'soft' category.
+    """
+    INFO("soft.show_qualifier(%s)" %node['qname'])
+
     results = QUERY("""
         SELECT DISTINCT ?symbol ?value
         WHERE {
@@ -384,10 +572,16 @@ def show_qualifier(node, args=None):
         if value is not None:
             node["value"] = value.toPython()
 
+
 # ===================================================== OPERATOR ======================================================
 
 
 def show_operator(node, args=None):
+    """
+    Show the 'operator' view of the 'soft' category.
+    """
+    INFO("soft.show_operator(%s)" %node['qname'])
+
     results = QUERY("""
         SELECT DISTINCT ?symbol
         WHERE {
@@ -403,15 +597,24 @@ def show_operator(node, args=None):
             node["plc_symbol"] = symbol.toPython()
 
 
-
 # ===================================================== TYPE ======================================================
 
 
 def getTypes(cache, qname):
+    """
+    Expand the types of a node.
+    """
+    INFO("soft.getTypes(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "soft:hasType | (^soft:isTypeOf)")
 
 
 def show_type(node, args=None):
+    """
+    Show the 'type' view of the 'soft' category.
+    """
+    INFO("soft.show_type(%s)" %node['qname'])
+
     results = QUERY("""
         SELECT DISTINCT ?implementation ?symbol ?extends ?returnType
         WHERE {
@@ -447,26 +650,49 @@ def show_type(node, args=None):
             node["returnType"] = returnTypeQName
             generic.getDefaultNode(node.cache, returnTypeQName).show("soft")
 
+
 # ====================================================== INSTANCE ======================================================
 
 
 def getInstances(cache, qname):
+    """
+    Expand the instances of a node.
+    """
+    INFO("soft.getInstances(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "soft:isTypeOf", restriction="soft:Type")
+
 
 # ====================================================== MEMBER ======================================================
 
 
 def getMembers(cache, qname):
+    """
+    Expand the direct members of a node.
+    """
+    INFO("soft.getMembers(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "soft:hasVariable")
 
+
 def getAllMembers(cache, qname):
+    """
+    Expand the direct and indirect members of a node.
+    """
+    INFO("soft.getAllMembers(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "soft:hasVariable*")
+
 
 # ====================================================== IMPLEMENTATION ================================================
 
 
-
 def show_implementation(node, args=None):
+    """
+    Show the 'implementation' view of the 'soft' category.
+    """
+    INFO("soft.show_implementation(%s)" %node['qname'])
+
     node.expand("soft", "implementation", visible=False)
 
     for expr in node["expressions"]:
@@ -477,6 +703,11 @@ def show_implementation(node, args=None):
 
 
 def show_call(node, args=None):
+    """
+    Show the 'call' view of the 'soft' category.
+    """
+    INFO("soft.show_call(%s)" %node['qname'])
+
     node.expand("soft", "call", visible=False)
 
     calls = generic.getRelated(node.cache, node["qname"], "soft:calls")
@@ -492,6 +723,11 @@ def show_call(node, args=None):
 
 
 def getAssignments(cache, qname):
+    """
+    Expand the assignments of a node.
+    """
+    INFO("soft.getAssignments(%s)" %(qname))
+
     return generic.getRelated(cache, qname, "expr:hasAssignment", sortedByNumber=True)
 
 
@@ -500,6 +736,9 @@ def getAssignments(cache, qname):
 
 
 class ContextItem:
+    """
+    Helper class: an item of the context, determined by a prefix and URI.
+    """
     def __init__(self, entry, uri):
         self.entry = entry
         self.uri = str(uri)
@@ -513,7 +752,10 @@ class ContextItem:
 
 
 def getImplementationExpressions(cache, qname):
-    LOG("getImplementationExpressions(%s)" %(qname))
+    """
+    Expand the implementation expressions of a node.
+    """
+    INFO("soft.getImplementationExpressions(%s)" %(qname))
 
     # unsorted list:
     itemQNames = generic.getRelated(cache, subject=qname, property="cont:contains", sortedByNumber=True)
@@ -525,8 +767,12 @@ def getImplementationExpressions(cache, qname):
     # return the sorted list of expressions:
     return itemQNames
 
+
 def getExpressions(cache, qname):
-    LOG("getPlcExpressions(%s)" %(qname))
+    """
+    Expand the expressions of a node.
+    """
+    INFO("soft.getExpressions(%s)" %(qname))
 
     # unsorted list:
     expressionQNames = generic.getRelated(cache, subject=qname, property="cont:contains", restriction="expr:Expression", sortedByNumber=True)
@@ -538,11 +784,16 @@ def getExpressions(cache, qname):
     # return the sorted list of expressions:
     return expressionQNames
 
+
 # ======================================================= IF THEN ======================================================
 
 
-
 def show_if_then(node, args=None):
+    """
+    Show the 'if_then' view of the 'soft' category.
+    """
+    INFO("soft.show_if_then(%s)" %node['qname'])
+
 
     results = QUERY("""
         SELECT DISTINCT ?if ?then ?else
@@ -578,7 +829,12 @@ def show_if_then(node, args=None):
 
 # ================================================== BINARY OPERATION ==================================================
 
+
 def show_binary_op(node, args=None):
+    """
+    Show the 'binary_op' view of the 'soft' category.
+    """
+    INFO("soft.show_binary_op(%s)" %node['qname'])
 
     results = QUERY("""
         SELECT DISTINCT ?operator ?left ?right
@@ -608,6 +864,10 @@ def show_binary_op(node, args=None):
 
 
 def show_unary_op(node, args=None):
+    """
+    Show the 'unary_op' view of the 'soft' category.
+    """
+    INFO("soft.show_unary_op(%s)" %node['qname'])
 
     results = QUERY("""
         SELECT DISTINCT ?operator ?operand
@@ -632,10 +892,12 @@ def show_unary_op(node, args=None):
         operandNode.show("soft")
 
 
-
-
 def getMemberPath(startUri, endUri):
-    LOG("getMemberPath(%s, %s)" %(startUri,endUri))
+    """
+    Get the path to a member..
+    """
+    INFO("soft.getMemberPath(%s,%s)" %(startUri,endUri))
+
     startUri = str(startUri)
     endUri = str(endUri)
 
@@ -662,7 +924,11 @@ def getMemberPath(startUri, endUri):
 
 
 def getCommonVariablesOfContext(variableUri, contextUri):
-    LOG("getCommonVariablesOfContext(%s, %s)" %(variableUri,contextUri))
+    """
+    Get the common variables of a given variable and a given context.
+    """
+    INFO("soft.getCommonVariablesOfContext(%s,%s)" %(variableUri,contextUri))
+
     ret = []
     results = QUERY("""
         SELECT DISTINCT ?member
@@ -676,24 +942,12 @@ def getCommonVariablesOfContext(variableUri, contextUri):
     return ret
 
 
-# def getCommonVariablesOfType(variableUri, contextUris):
-#     LOG("getCommonVariablesOfType(%s, %s)" %(variableUri,contextUris))
-#     ret = []
-#     for contextUri in contextUris:
-#         results = QUERY("""
-#             SELECT DISTINCT ?member
-#             WHERE {
-#                 ?type soft:hasCallable <%s> .
-#                 ?type soft:hasVariable ?member .
-#                 ?member (soft:hasVariable)* <%s> .
-#             }
-#             """ %(contextUri, variableUri))
-#         for (member, ) in results:
-#             ret.append(member.toPython())
-#     return ret
-
 def getEnumPath(variableUri):
-    LOG("getEnumOfEnumItem(%s)" %variableUri)
+    """
+    Get the path to an enumeration.
+    """
+    INFO("soft.getEnumPath(%s)" %(variableUri))
+
     results = QUERY("""
         SELECT DISTINCT ?enum ?label
         WHERE {
@@ -712,6 +966,11 @@ def getEnumPath(variableUri):
 
 
 def getExpressionString(ex):
+    """
+    Get a string serialization of the given expression.
+    """
+    INFO("soft.getExpressionString(%s)" %(ex))
+
     if IS_LITERAL(ex):
         v = ex.toPython()
         if isinstance(v, str) or isinstance(v, unicode):
@@ -726,9 +985,10 @@ def getExpressionString(ex):
         return str(ex)
 
 
-
-
 def isPlcFb(type):
+    """
+    Ask if the given type is an IEC 61131-3 function block
+    """
     result = QUERY("""
         ASK WHERE {
             %s rdf:type/rdfs:subClassOf* iec61131:FunctionBlock .
@@ -738,6 +998,9 @@ def isPlcFb(type):
 
 
 def isPlcStruct(type):
+    """
+    Ask if the given type is an IEC 61131-3 struct
+    """
     result = QUERY("""
         ASK WHERE {
             %s rdf:type/rdfs:subClassOf* iec61131:Struct .
@@ -746,12 +1009,12 @@ def isPlcStruct(type):
     return bool(result)
 
 def isPlcEnum(type):
+    """
+    Ask if the given type is an IEC 61131-3 enum
+    """
     result = QUERY("""
         ASK WHERE {
             %s rdf:type/rdfs:subClassOf* iec61131:Enum .
         }
         """ %type)
     return bool(result)
-
-
-

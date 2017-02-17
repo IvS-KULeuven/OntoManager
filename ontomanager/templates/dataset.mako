@@ -14,7 +14,7 @@
     <h2>Select data source</h2>
 
     % for checkboxName in dataset["repository_checkboxes"]:
-         <div tooltip='${dataset[checkboxName]['location']}'><h3><input type="radio" id="checkbox_repo_${checkboxName}" name="repos" />${dataset[checkboxName]['comment']}</h3></div>
+         <h3><input type="radio" id="checkbox_repo_${checkboxName}" name="repos" />${dataset[checkboxName]['comment']}</h3>
     % endfor
 
     <br/>
@@ -67,28 +67,6 @@
     <h3><input type="checkbox" id="checkbox_load_asserted" /> Load asserted data</h3>
 
     <div id="load_asserted_tree"></div>
-##
-##    <script type="application/javascript" language="JavaScript">
-##    <%
-##        import json
-##        jsonTree = json.dumps(dataset["load_asserted"]["tree"])
-##    %>
-##    $('#load_asserted_tree')
-##    .jstree({
-##        'plugins':["checkbox", "types"],
-##        'core' : {
-##            'data' : ${jsonTree | n}
-##        },//"checkbox": { //"two_state": true, //"whole_node" : false //,//"keep_selected_style" : false},
-##        "types" :
-##        {
-##           "file"   :  { 'icon' : "${request.static_url('ontomanager:static/document_16x16.png')}" },
-##           "folder" :  { 'icon' : "${request.static_url('ontomanager:static/folder_open_yellow_16x16.png')}" }
-##        }
-##
-##    })
-##    .on( 'select_node.jstree', function(e, data) { $.post("dataset", { "load_asserted_tree_checked" : data.node.id } ); })
-##    .on( 'deselect_node.jstree', function(e, data) { $.post("dataset", { "load_asserted_tree_unchecked" : data.node.id } ); });
-##    </script>
 
     <h3><input type="checkbox" id="checkbox_load_inferred" /> Load inferred data</h3>
 

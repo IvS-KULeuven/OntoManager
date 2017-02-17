@@ -264,11 +264,7 @@ ${arg["label"]}\
 
             <div id="hidden"><xmp id="xmlcontent">${iec61131.xml_pou_functionBlock(show['content'])}</xmp></div>
 
-
-
     % endif
-
-
 
 
       <div id="xmleditor"></div>

@@ -4,7 +4,6 @@
 
 <%
     connector = CACHE[U["elec"]["show"]["qname"]]
-
     connectorType = CACHE[connector["man_type"]]
 %>
 

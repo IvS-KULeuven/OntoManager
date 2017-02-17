@@ -2,7 +2,6 @@
 
 <%inherit file="../base_layout.mako"/>
 
-
 <%block name="contents">
 
 

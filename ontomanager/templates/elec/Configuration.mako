@@ -11,7 +11,6 @@
         import pprint
         pp = pprint.PrettyPrinter(indent=4)
 
-
         shown = []
 
         pngPath = "static/models/elec/%s.png" %cfg["qname"]
@@ -72,9 +71,6 @@
     % endif
 
     <%
-        #raise Exception("---" + str(cfg.keys()))
-        #raise Exception(cfg.has_key('circuit breakers'))
-
         try:
             cb = cfg['circuit breakers']
         except Exception, e:

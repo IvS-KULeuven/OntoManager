@@ -9,7 +9,6 @@
 
 <%
     cableAssembly = CACHE[U["elec"]["show"]["qname"]]
-
     cableAssemblyType = CACHE[cableAssembly["man_type"]]
 %>
 
