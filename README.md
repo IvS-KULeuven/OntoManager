@@ -34,8 +34,8 @@ To execute Ontoscript models, you need to install the following:
 
 * coffee-script
 
-    # for example, on Fedora:
     sudo dnf install coffee-script
+    # in the above line, dnf is the package manager for fedora
     # this should automatically install Node.js (package 'nodejs'), as well.
 
 * (Optional) inference engine
