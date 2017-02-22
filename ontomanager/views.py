@@ -646,7 +646,7 @@ class UserSpaces(dict):
                 qname = path[-1]
                 expansion = ''
                 node = generic.getDefaultNode(CACHE, qname)
-                node.expand(category, type, expansion, qname)
+                node.expand(category, type, expansion)
                 DEBUG(node)
                 for item in node['views'][category][type]["expansions"]:
                     newDict[item] = { '__opened__' : False, '__opened_before__' : False }
@@ -655,7 +655,7 @@ class UserSpaces(dict):
                     qname = path[-2]
                     expansion = path[-1]
                     node = generic.getDefaultNode(CACHE, qname)
-                    node.expand(category, type, expansion, qname)
+                    node.expand(category, type, expansion)
                     for item in node[expansion]:
                         newDict[item] = { '__opened__' : False, '__opened_before__' : False }
                 else:
