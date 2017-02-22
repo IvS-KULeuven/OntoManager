@@ -269,7 +269,7 @@ def fillFields(node, mandatories={}, optionals={}):
                 node.cache[subject][key] = None
 
             if i > 0: infoStr += ","
-            infoStr += node.cache[subject][key]
+            infoStr += str(node.cache[subject][key])
 
         infoStr += "], optionals ["
 
@@ -285,7 +285,7 @@ def fillFields(node, mandatories={}, optionals={}):
                 node.cache[subject][key] = None
 
             if i > 0: infoStr += ","
-            infoStr += node.cache[subject][key]
+            infoStr += str(node.cache[subject][key])
 
         infoStr += "]"
 

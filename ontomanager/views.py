@@ -522,6 +522,7 @@ class UserSpaces(dict):
                 LOG("Failed to show %s/%s for %s: %s %s" %(category, typeToShow, qname, type(e), str(e)))
                 self[user][category]["show"]["type"]  = None
                 self[user][category]["show"]["qname"] = None
+                raise
 
 
     def models_show_file(self, request):
