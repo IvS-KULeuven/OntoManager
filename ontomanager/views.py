@@ -370,6 +370,8 @@ class Model(dict):
         """
         global CACHE
         INFO("Now saving the cache...")
+        if not os.path.exists(self["config"]["cache_dir"]):
+            os.makedirs(self["config"]["cache_dir"])
         f = open(self.getCacheFileName(), 'w')
         pickle.dump(CACHE, f, pickle.HIGHEST_PROTOCOL)
         f.close()
