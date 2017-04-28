@@ -20,7 +20,7 @@ Check if you can log into OntoManager:
 
 #. Make a VPN connection
 
-#. Surf to the OntoManager URL (e.g. http://machine:8080 )
+#. Surf to the OntoManager URL (e.g. http://goya:8080 )
 
 #. Log in with your credentials. These credentials are specified in the ``ontomanager/config/config.ini`` file.
 
