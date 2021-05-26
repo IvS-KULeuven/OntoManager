@@ -3,7 +3,8 @@ This module is required for running the generated PyUAF code.
 """
 
 import pyuaf
-from pyuaf.util import Address, NodeId, QualifiedName, RelativePathElement
+from pyuaf.util import Address#, NodeId#, QualifiedName, RelativePathElement
+from asyncua import ua
 
 class OpcUaNode:
     """
@@ -28,7 +29,7 @@ class OpcUaNode:
         else:
             parentAddress = self.__opcua_parent__.ADR()
         
-        return Address(parentAddress, [RelativePathElement(QualifiedName(self.__opcua_name__, self.__opcua_ns__))])
+        return Address(parentAddress, [ua.RelativePathElement(ua.QualifiedName(self.__opcua_name__, self.__opcua_ns__))])
 
     def INFO(self):
         return self.__opcua_info__

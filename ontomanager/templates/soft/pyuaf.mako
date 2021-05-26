@@ -23,10 +23,9 @@
     imported = [] # keep a list of the imported library names
 %>\
 # This file (${libName}.py) was automatically generated at ${timeNow} -- do not edit manually!
-import opcuanode
-import pyuaf
-from opcuanode import OpcUaNode
-
+import opcua.models.opcuanode
+from opcua.models.opcuanode import OpcUaNode
+from asyncua import ua
 
 # === ENUMs ====
 
@@ -131,32 +130,32 @@ ${typeLibName}.${node['label']}\
 <%def name="pyuaf_getDataType(node, libName, imported)">\
 <%
     conversion = {
-        u'expr:t_string'    : 'pyuaf.util.primitives.String',
-        u'expr:t_bool'      : 'pyuaf.util.primitives.Boolean',
-        u'expr:t_uint8'     : 'pyuaf.util.primitives.Byte',
-        u'expr:t_int8'      : 'pyuaf.util.primitives.SByte',
-        u'expr:t_uint16'    : 'pyuaf.util.primitives.Int16',
-        u'expr:t_int16'     : 'pyuaf.util.primitives.UInt16',
-        u'expr:t_uint32'    : 'pyuaf.util.primitives.Int32',
-        u'expr:t_int32'     : 'pyuaf.util.primitives.UInt32',
-        u'expr:t_uint64'    : 'pyuaf.util.primitives.Int64',
-        u'expr:t_int64'     : 'pyuaf.util.primitives.UInt64',
-        u'expr:t_float'     : 'pyuaf.util.primitives.Float',
-        u'expr:t_double'    : 'pyuaf.util.primitives.Double',
-        u'iec61131:STRING'    : 'pyuaf.util.primitives.String',
-        u'iec61131:BOOL'      : 'pyuaf.util.primitives.Boolean',
-        u'iec61131:BYTE'     : 'pyuaf.util.primitives.Byte',
-        u'iec61131:SINT'      : 'pyuaf.util.primitives.SByte',
-        u'iec61131:INT'    : 'pyuaf.util.primitives.Int16',
-        u'iec61131:WORD'     : 'pyuaf.util.primitives.UInt16',
-        u'iec61131:UINT'     : 'pyuaf.util.primitives.UInt16',
-        u'iec61131:DINT'    : 'pyuaf.util.primitives.Int32',
-        u'iec61131:UDINT'     : 'pyuaf.util.primitives.UInt32',
-        u'iec61131:DWORD'     : 'pyuaf.util.primitives.UInt32',
-        u'iec61131:LINT'    : 'pyuaf.util.primitives.Int64',
-        u'iec61131:ULINT'     : 'pyuaf.util.primitives.UInt64',
-        u'iec61131:REAL'     : 'pyuaf.util.primitives.Float',
-        u'iec61131:LREAL'    : 'pyuaf.util.primitives.Double'
+        u'expr:t_string'    : 'ua.VariantType.String',
+        u'expr:t_bool'      : 'ua.VariantType.Boolean',
+        u'expr:t_uint8'     : 'ua.VariantType.Byte',
+        u'expr:t_int8'      : 'ua.VariantType.SByte',
+        u'expr:t_uint16'    : 'ua.VariantType.Int16',
+        u'expr:t_int16'     : 'ua.VariantType.UInt16',
+        u'expr:t_uint32'    : 'ua.VariantType.Int32',
+        u'expr:t_int32'     : 'ua.VariantType.UInt32',
+        u'expr:t_uint64'    : 'ua.VariantType.Int64',
+        u'expr:t_int64'     : 'ua.VariantType.UInt64',
+        u'expr:t_float'     : 'ua.VariantType.Float',
+        u'expr:t_double'    : 'ua.VariantType.Double',
+        u'iec61131:STRING'    : 'ua.VariantType.String',
+        u'iec61131:BOOL'      : 'ua.VariantType.Boolean',
+        u'iec61131:BYTE'     : 'ua.VariantType.Byte',
+        u'iec61131:SINT'      : 'ua.VariantType.SByte',
+        u'iec61131:INT'    : 'ua.VariantType.Int16',
+        u'iec61131:WORD'     : 'ua.VariantType.UInt16',
+        u'iec61131:UINT'     : 'ua.VariantType.UInt16',
+        u'iec61131:DINT'    : 'ua.VariantType.Int32',
+        u'iec61131:UDINT'     : 'ua.VariantType.UInt32',
+        u'iec61131:DWORD'     : 'ua.VariantType.UInt32',
+        u'iec61131:LINT'    : 'ua.VariantType.Int64',
+        u'iec61131:ULINT'     : 'ua.VariantType.UInt64',
+        u'iec61131:REAL'     : 'ua.VariantType.Float',
+        u'iec61131:LREAL'    : 'ua.VariantType.Double'
     }
 %>\
 % if conversion.has_key(node['qname']):
