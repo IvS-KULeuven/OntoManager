@@ -2,7 +2,7 @@
 Callback functions for the views of the 'browse' category.
 """
 
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, INFO
+from .triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, INFO
 import rdflib
 
 
@@ -40,7 +40,7 @@ def show_browse(node, args=None):
             object = { "type"    : "unknown",
                        "content" : ob }
 
-        if predicate not in d.keys():
+        if predicate not in list(d.keys()):
             d[predicate] = { "uri"     : predicateUri,
                              "qname"   : predicate,
                              "objects" : [ object ] }
@@ -48,4 +48,4 @@ def show_browse(node, args=None):
         else:
             d[predicate]["objects"].append( object )
 
-    node["results"] = sorted(d.values(), key=lambda x: x["qname"])
+    node["results"] = sorted(list(d.values()), key=lambda x: x["qname"])

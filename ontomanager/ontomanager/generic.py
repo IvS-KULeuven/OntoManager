@@ -1,7 +1,8 @@
 __author__ = 'wimpe'
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_URI
-from util import Node
-from logging import INFO, DEBUG
+from .triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_URI
+from .util import Node
+from .logging import INFO, DEBUG, LOG
+from pyparsing import ParseException
 
 
 def getDefaultNode(cache, qname):
@@ -20,7 +21,7 @@ def getDefaultNode(cache, qname):
      + optional other slots (filled by the show_... callbacks mentioned in allviews.py)
      + optional expansions (filled by the get... callbacks mentioned in allviews.py)
     """
-    try:
+    try:   
         node = cache[qname]
     except:
         INFO("    Get default node for %s" %qname)
@@ -93,7 +94,7 @@ def getInstances(cache, className, filterNotExists=None):
     for uri, label, comment, counter, rdfClass in results:
         qname = URI_TO_QNAME(uri)
 
-        if not d.has_key(qname):
+        if qname not in d:
             d[qname] = Node(
                         qname           = qname,
                         uri             = uri.toPython(),
@@ -109,22 +110,22 @@ def getInstances(cache, className, filterNotExists=None):
             d[qname].registerClass(URI_TO_QNAME(rdfClass.toPython()))
 
     keysStr = ""
-    for key in d.keys():
+    for key in list(d.keys()):
         keysStr += (key + " ")
 
     INFO("     --> " + keysStr)
 
-    for qname, node in d.items():
+    for qname, node in list(d.items()):
 
         node.registerKnownViews()
 
-        if not cache.has_key(qname):
+        if qname not in cache:
             DEBUG("Caching %s" %qname)
             cache[qname] = node
 
     # return a list of QNames
     ret = [] # list of qnames
-    resultNodes =  sorted(d.values(), key=lambda x: x["counter"])
+    resultNodes =  sorted(list(d.values()), key=lambda x: x["counter"])
     for resultNode in resultNodes:
         ret.append(resultNode['qname'])
     return ret
@@ -175,7 +176,7 @@ def getRelated(cache, subject, property, restriction=None, remove=None,  sortedB
     for result in results:
         resultQName = URI_TO_QNAME(result[0])
 
-        if resultQName not in d.keys():
+        if resultQName not in list(d.keys()):
             d[resultQName] = Node(uri             = result[0].toPython(),
                                   qname           = resultQName,
                                   cache           = cache)
@@ -196,21 +197,21 @@ def getRelated(cache, subject, property, restriction=None, remove=None,  sortedB
                 d[resultQName]["number"] = None
 
     keysStr = ""
-    for key in d.keys():
+    for key in list(d.keys()):
         keysStr += (key + " ")
 
     INFO("     --> " + keysStr)
 
-    for resultQName, resultNode in d.items():
+    for resultQName, resultNode in list(d.items()):
         resultNode.registerKnownViews()
-        if not cache.has_key(resultQName):
+        if resultQName not in cache:
             cache[resultQName] = d[resultQName]
 
     # return a list of QNames
     ret = [] # list of qnames
 
     # first sort by 'counter' key:
-    resultNodes =  sorted(d.values(), key=lambda x: x['counter'])  # entries with None will be put first in the sorted list
+    resultNodes =  sorted(list(d.values()), key=lambda x: x['counter'])  # entries with None will be put first in the sorted list
 
     # then, if necessary, sort by number:
     if sortedByNumber:
@@ -228,16 +229,16 @@ def fillFields(node, mandatories={}, optionals={}):
     """
     subject = node['qname']
 
-    INFO("    Fill these fields of %s: mandatories=%s, optionals=%s" %(subject, mandatories.keys(), optionals.keys()))
+    INFO("    Fill these fields of %s: mandatories=%s, optionals=%s" %(subject, list(mandatories.keys()), list(optionals.keys())))
 
     selectLine = ""
     wherePart = ""
 
-    for key,value in mandatories.items():
+    for key,value in list(mandatories.items()):
         selectLine += " ?%s" %key
         wherePart += "%s %s ?%s .\n" %(subject, value, key)
 
-    for key,value in optionals.items():
+    for key,value in list(optionals.items()):
         selectLine += " ?%s" %key
         wherePart += "OPTIONAL { %s %s ?%s } .\n" %(subject, value, key)
 
@@ -258,8 +259,8 @@ def fillFields(node, mandatories={}, optionals={}):
 
     for result in results:
         # the mandatories
-        for i in xrange(len(mandatories)):
-            key = mandatories.keys()[i]
+        for i in range(len(mandatories)):
+            key = list(mandatories.keys())[i]
             try:
                 if IS_URI(result[i]):
                     node.cache[subject][key] = URI_TO_QNAME(result[i].toPython())
@@ -273,8 +274,8 @@ def fillFields(node, mandatories={}, optionals={}):
 
         infoStr += "], optionals ["
 
-        for i in xrange(len(optionals)):
-            key = optionals.keys()[i]
+        for i in range(len(optionals)):
+            key = list(optionals.keys())[i]
             try:
                 j = len(mandatories) + i
                 if IS_URI(result[j]):

@@ -2,7 +2,7 @@
 Functions to read the constraint violations from the knowledge base.
 """
 
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, URI_TO_IDENTIFIER
+from .triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, URI_TO_IDENTIFIER
 import pprint
 
 def getAllConstraintViolations():
@@ -28,7 +28,7 @@ def getAllConstraintViolations():
         root = URI_TO_QNAME(rootUri)
         hash = "%s-%s" %(root, label)
 
-        if hash not in d.keys():
+        if hash not in list(d.keys()):
 
             d[hash] = {  "root" : { "uri"     : rootUri.toPython(),
                                     "qname"   : root,
@@ -53,4 +53,4 @@ def getAllConstraintViolations():
                 except:
                     pass
 
-    return sorted(d.values(), key=lambda x: x["root"]["counter"])
+    return sorted(list(d.values()), key=lambda x: x["root"]["counter"])

@@ -28,7 +28,7 @@ def getSourceContents(fileName):
         contents = f.read()
         f.close()
         return contents
-    except Exception, e:
+    except Exception as e:
         return "Error: %s" %(fileName, e)
 
 
@@ -58,7 +58,7 @@ def getMetaModels(dir):
         if len(ontologies) == 1:
             uri = str(ontologies[0])
 
-            if not d.has_key(uri):
+            if uri not in d:
                 d[uri] = { "type"     : "metamodel",
                            "uri"      : uri,
                            "sources"  : [],
@@ -67,7 +67,7 @@ def getMetaModels(dir):
             d[uri]["sources"].append( { "type" : "ttl",
                                         "file" : fileName } )
 
-    return sorted(d.values(), key=lambda x: x["uri"])
+    return sorted(list(d.values()), key=lambda x: x["uri"])
 
 
 def extractUriAndPrefixFromCoffeeModel(contents):
@@ -95,19 +95,19 @@ def getModels(dir):
     d = {}
 
     for fileName in fileNames:
-        print fileName
+        print(fileName)
         f = file(fileName, mode='r')
         lines = f.readlines()
         for line in lines:
             l = line.strip()
             if l[0:6] == 'MODEL ':
                 split = l[6:].rsplit(":", 1)
-                print "-->", split
+                print("-->", split)
                 if len(split) == 2:
                     uri    = split[0].strip().strip("'\"")
                     prefix = split[1].strip().strip("'\"")
 
-                    if not d.has_key(uri):
+                    if uri not in d:
                         d[uri] = { "type"     : "model",
                                    "uri"      : uri,
                                    "sources"  : [],
@@ -118,5 +118,5 @@ def getModels(dir):
                     d[uri]["prefixes"].append(prefix)
         f.close()
 
-    return sorted(d.values(), key=lambda x: x["uri"])
+    return sorted(list(d.values()), key=lambda x: x["uri"])
 

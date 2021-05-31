@@ -1,7 +1,7 @@
-import ConfigParser
+import configparser
 import os
 import sys
-import groups
+from . import groups
 
 # construct some paths
 PROJECT_DIR  = os.path.dirname(os.path.realpath(__file__))
@@ -10,20 +10,20 @@ EXAMPLE_FILE = os.path.join(PROJECT_DIR, "../config", "config_example.ini")
 
 # check if the config file exists
 if os.path.exists(CONFIG_FILE):
-    print("Reading %s" %CONFIG_FILE)
+    print(("Reading %s" %CONFIG_FILE))
 else:
     sys.exit("Expecting a configuration file: %s does not exist!\nCopy and edit example file: %s" %(CONFIG_FILE,EXAMPLE_FILE))
 
 # read the config
-c = ConfigParser.ConfigParser()
+c = configparser.ConfigParser()
 c.read(CONFIG_FILE)
 
 # get the coffeescript executable
-print "Reading the coffeescript executable:"
+print("Reading the coffeescript executable:")
 try:
     COFFEE = c.get("general", "coffee")
-    print("Coffeescript exectutable: %s" %COFFEE)
-except Exception, e:
+    print(("Coffeescript exectutable: %s" %COFFEE))
+except Exception as e:
     print("No coffeescript executable was mentioned in the configuration file (config/config.ini)")
     print("Look at the example_config.ini for an example of this entry")
     raise e
@@ -32,8 +32,8 @@ except Exception, e:
 print("Reading the LOGLEVEL:")
 try:
     LOGLEVEL = c.get("general", "loglevel")
-    print("LOGLEVEL: %s" %LOGLEVEL)
-except Exception, e:
+    print(("LOGLEVEL: %s" %LOGLEVEL))
+except Exception as e:
     print("No LOGLEVEL was mentioned in the configuration file (config/config.ini)")
     print("Look at the example_config.ini for an example of this entry")
     raise e
@@ -68,10 +68,10 @@ for section in c.sections():
             if c.getboolean(section, "query"):
                 GROUPS[name].append(groups.GROUP_QUERYING)
 
-            print "User: %s" %name
-            print " - password: %s" %USERS[name]
-            print " - groups: %s" %GROUPS[name]
-            print " - home: %s" %HOMES[name]
+            print("User: %s" %name)
+            print(" - password: %s" %USERS[name])
+            print(" - groups: %s" %GROUPS[name])
+            print(" - home: %s" %HOMES[name])
 
     # repositories
     # ============
@@ -85,11 +85,11 @@ for section in c.sections():
                 "comment"        : str(c.get(section, "comment")),
                 "name"           : str(name)
             }
-            print "Repository: %s" %name
-            print " - ontologies_dir: %s" %REPOSITORIES[name]["ontologies_dir"]
-            print " - coffee_dir: %s" %REPOSITORIES[name]["coffee_dir"]
-            print " - generated_dir: %s" %REPOSITORIES[name]["generated_dir"]
-            print " - comment: %s" %REPOSITORIES[name]["comment"]
+            print("Repository: %s" %name)
+            print(" - ontologies_dir: %s" %REPOSITORIES[name]["ontologies_dir"])
+            print(" - coffee_dir: %s" %REPOSITORIES[name]["coffee_dir"])
+            print(" - generated_dir: %s" %REPOSITORIES[name]["generated_dir"])
+            print(" - comment: %s" %REPOSITORIES[name]["comment"])
 
             if not os.path.exists(REPOSITORIES[name]["ontologies_dir"]):
                 sys.exit("Repository %s is invalid: directory %s does not exist!" %(name, REPOSITORIES[name]["ontologies_dir"]))
@@ -109,7 +109,7 @@ if DEFAULT_REPOSITORY is None:
     sys.exit("No user with repository mentioned in the config.ini!")
 
 # if there is no user 'guest' mentioned, we create this user ourselves
-if not USERS.has_key("guest"):
+if "guest" not in USERS:
     USERS["guest"] = "guest"
     GROUPS["guest"] = []
 

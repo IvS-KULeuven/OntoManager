@@ -10,8 +10,8 @@ with:
 
 __author__ = 'wimpe'
 
-import sys, browse, soft, elec, org, man, colors
-from register import REGISTRY
+from . import sys, browse, soft, elec, org, man, colors
+from .register import REGISTRY
 
 
 # browse

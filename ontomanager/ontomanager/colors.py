@@ -3,8 +3,8 @@ Callback functions for the views of the 'colors' category.
 """
 
 __author__ = 'wimpe'
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_LITERAL, INFO
-import generic
+from .triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_LITERAL, INFO
+from . import generic
 
 
 def getColors(cache, qname):

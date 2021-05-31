@@ -2,11 +2,11 @@ from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
-from ontomanager.configuration import groupfinder
+from .ontomanager.configuration import groupfinder
 
-import rootfactory
+from . import rootfactory
 
-from pyramid.session import UnencryptedCookieSessionFactoryConfig
+from pyramid.session import SignedCookieSessionFactory
 
 
 def main(global_config, **settings):
@@ -16,7 +16,7 @@ def main(global_config, **settings):
     authn_policy = AuthTktAuthenticationPolicy('sosecret', callback=groupfinder, hashalg='sha512')
     authz_policy = ACLAuthorizationPolicy()
 
-    sessionFactory = UnencryptedCookieSessionFactoryConfig('itsaseekreet')
+    sessionFactory = SignedCookieSessionFactory('itsaseekreet')
 
     config = Configurator(settings=settings,
                           root_factory='ontomanager.rootfactory.RootFactory',
