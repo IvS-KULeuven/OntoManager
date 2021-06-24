@@ -23,9 +23,9 @@
     imported = [] # keep a list of the imported library names
 %>\
 # This file (${libName}.py) was automatically generated at ${timeNow} -- do not edit manually!
-import opcua.models.opcuanode
-from opcua.models.opcuanode import OpcUaNode
-from asyncua import ua
+import mocsopcua.models.opcuanode
+from mocsopcua.models.opcuanode import OpcUaNode
+from opcua import ua
 
 # === ENUMs ====
 
