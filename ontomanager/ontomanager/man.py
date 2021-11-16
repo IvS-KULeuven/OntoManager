@@ -1,8 +1,8 @@
 """
 Callback functions for the views of the 'man' category.
 """
-from triplestore import INFO
-import generic
+from .triplestore import INFO
+from . import generic
 
 
 # ====================================================== Manufactured ==================================================

@@ -3,7 +3,7 @@ This module contains a function to convert files (or a hierarchic tree of files)
 one RDF format to another.
 """
 
-from logging import INFO, DEBUG
+from .logging import INFO, DEBUG
 from rdflib import ConjunctiveGraph
 import os
 import fnmatch

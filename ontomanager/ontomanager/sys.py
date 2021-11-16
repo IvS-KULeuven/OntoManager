@@ -2,8 +2,8 @@
 Callback functions for the views of the 'sys' category.
 """
 
-from logging import INFO
-import generic
+from .logging import INFO
+from . import generic
 
 
 # ========================================================= PROJECT ====================================================

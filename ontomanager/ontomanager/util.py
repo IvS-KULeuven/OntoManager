@@ -2,9 +2,10 @@
 Module containing some utility functions.
 """
 
-from logging import DEBUG, INFO
-from register import REGISTRY
+from .logging import DEBUG, INFO
+from .register import REGISTRY
 import pprint
+from functools import reduce
 
 
 ###################################################################################################
@@ -19,7 +20,7 @@ def getFromDict(dataDict, mapList):
     """
     try:
         return reduce(lambda d, k: d[k], mapList, dataDict)
-    except KeyError, e:
+    except KeyError as e:
         pprint.pprint("dataDict:")
         pprint.pprint(dataDict)
         pprint.pprint("mapList:")
@@ -102,7 +103,7 @@ class Node(dict):
         """
         Set the default view, based on the views order.
         """
-        for category in self["views"].keys():
+        for category in list(self["views"].keys()):
             for orderedCategory, orderedType in self["views_order"]:
                 if orderedCategory == category:
                     self["default_views"][category] = orderedType
@@ -117,8 +118,8 @@ class Node(dict):
         viewsOrder = []
 
         fullViews = []
-        for category, categoryRest in self["views"].items():
-            for type, rest in categoryRest.items():
+        for category, categoryRest in list(self["views"].items()):
+            for type, rest in list(categoryRest.items()):
                 fullViews.append([category, type, rest])
 
         fullViews.sort(key = lambda item : item[2]["view_priority"], reverse=True)
@@ -155,8 +156,8 @@ class Node(dict):
         """
         self.log("Registering view %s/%s with priority=%d" %(category, type, priority))
         alreadyRegistered = False
-        if self["views"].has_key(category):
-            if self["views"][category].has_key(type):
+        if category in self["views"]:
+            if type in self["views"][category]:
                 alreadyRegistered = True
         else:
             self["views"][category] = {}
@@ -240,7 +241,7 @@ class Node(dict):
             # expand it
             self.expand(category=defaultCategory, type=defaultType, expansion=expansion)
         else:
-            if not self["views"].has_key(category):
+            if category not in self["views"]:
                 raise Exception("Cannot expand category %s: unknown category!" %category)
 
             if (type is None) or (type == ""):
@@ -249,16 +250,16 @@ class Node(dict):
                     if category == currentCategory:
                         return self.expand(category = currentCategory, type = currentType, expansion=expansion)
             else:
-                if not self["views"][category].has_key(type):
+                if type not in self["views"][category]:
                     self.writeToStdOut()
                     raise Exception("Cannot expand %s/%s: type %s is unknown!" %(category, type, type))
 
                 if (expansion is None) or (expansion == ''):
                     self.log("Now fully expanding %s/%s" %(category,type))
 
-                    if REGISTRY.expansions[category].has_key(type):
+                    if type in REGISTRY.expansions[category]:
                         # add all expansions
-                        for expansion in REGISTRY.expansions[category][type].keys():
+                        for expansion in list(REGISTRY.expansions[category][type].keys()):
                             if not (expansion in self["views"][category][type]["expansions"]):
                                 self["views"][category][type]["expansions"].append(expansion)
                                 self["views"][category][type]["expanded_%s" %expansion] = False
@@ -279,7 +280,7 @@ class Node(dict):
                 else:
                     self.log("Now expanding %s/%s[%s]" %(category,type,expansion))
 
-                    if not self.has_key(expansion):
+                    if expansion not in self:
                         raise Exception("Cannot expand %s/%s[%s]: expansion %s is unknown!" %(category, type, expansion, expansion))
 
                     if not self["views"][category][type]["expanded_%s_before" %expansion]:

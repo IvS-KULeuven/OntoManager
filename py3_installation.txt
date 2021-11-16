@@ -1,0 +1,106 @@
+
+conda deactivate
+conda deactivate (leave base)
+
+export PATH=/software/misc:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
+
+mkdir ontomanager3
+
+cd ontomanager3
+
+python3.9 -m venv .
+
+git clone https://github.com/IvS-KULeuven/OntoManager.git
+
+cd Ontomanager
+
+git checkout py3
+
+touch requirements.txt 
+
+#in requirements.txt copy the following packages
+"""
+certifi==2020.12.5
+Chameleon==3.9.1
+chardet==4.0.0
+hupper==1.10.3
+idna==2.10
+isodate==0.6.0
+Mako==1.1.4
+MarkupSafe==2.0.1
+PasteDeploy==2.1.1
+plaster==1.0
+plaster-pastedeploy==0.7
+Pygments==2.9.0
+pyparsing==2.4.7
+pyramid==2.0
+pyramid-chameleon==0.3
+pyramid-debugtoolbar==4.9
+pyramid-mako==1.1.0
+rdflib==5.0.0
+rdflib-jsonld==0.5.0
+repoze.lru==0.7
+requests==2.25.1
+six==1.16.0
+translationstring==1.4
+urllib3==1.26.4
+venusian==3.0.0
+waitress==2.0.0
+WebOb==1.8.7
+zope.deprecation==4.4.0
+zope.interface==5.4.0
+"""
+
+bin/pip install -r requirements.txt
+
+bin/python OntoManager/setup.py install
+
+
+!!!
+Now we install other dependencies 
+!!!
+
+- Ontoscript
+  cd /home/benk/Desktop/Stage/
+  git clone https://github.com/IvS-KULeuven/Ontoscript
+
+- coffee-script
+  sudo dnf install coffee-script
+  # in the above line, dnf is the package manager for fedora
+  # this should automatically install Node.js (package 'nodejs'), as well.
+
+
+cd /home/benk/Desktop/Stage/ontomanager3
+
+# make a directory to store all generated files:
+mkdir generated
+
+# create a configuration file by copying the example configuration file:
+cp OntoManager/ontomanager/config/example_config.ini OntoManager/ontomanager/config/config.ini
+
+Then, edit the config.ini file. Set the paths of the config file to the previously configured locations, such as:
+
+"""
+[general]
+coffee = /usr/bin/coffee
+
+[user_ben]
+ontologies_dir = /home/benk/Desktop/Stage/MTCS-models/ttl/metamodels
+coffee_dir     = /home/benk/Desktop/Stage/MTCS-models/coffee
+generated_dir  = /home/benk/Desktop/Stage/generated
+comment        = "Ben's home repo"
+"""
+
+
+PYTHONPATH=/home/benk/Desktop/Stage/ontomanager3/OntoManager/ 
+NODE_PATH=/home/benk/Desktop/Stage/Ontoscript
+
+cd /home/benk/Desktop/Stage/ontomanager3
+
+source bin/activate
+
+bin/pserve OntoManager/production.ini
+(optional flag: --reload to restart the server whenever one of the python files is changed)
+
+Now you can open a web browser and surf to http://localhost:6543/
+

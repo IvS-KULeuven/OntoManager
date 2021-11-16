@@ -29,7 +29,7 @@ def LOG(text=""):
     """
     Log the given text, regardless of the loglevel.
     """
-    print("%s" %str(text))
+    print(("%s" %str(text)))
 
 
 def do_DEBUG():
@@ -46,7 +46,7 @@ def DEBUG(text=""):
     """
     global LOGLEVEL, LOGLEVEL_DEBUG
     if LOGLEVEL in [LOGLEVEL_DEBUG]:
-        print("%s" %str(text))
+        print(("%s" %str(text)))
 
 
 def INFO(text=""):
@@ -55,11 +55,11 @@ def INFO(text=""):
     """
     global LOGLEVEL, LOGLEVEL_INFO, LOGLEVEL_DEBUG
     if LOGLEVEL in [LOGLEVEL_INFO, LOGLEVEL_DEBUG]:
-        print("%s" %str(text))
+        print(("%s" %str(text)))
 
 
 def ERROR(text=""):
     """
     Log the given text as an error.
     """
-    print("!! %s" %text)
+    print(("!! %s" %text))

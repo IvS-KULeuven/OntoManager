@@ -1,7 +1,7 @@
 # python system libraries
 import subprocess
 from collections import OrderedDict
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import threading
 import pprint
 import os
@@ -16,13 +16,13 @@ from pyramid.view import view_config, forbidden_view_config
 from pyramid.security import remember, forget
 
 # ontomanager libraries
-import ontomanager
-from ontomanager import ontologies, triplestore, soft, problems, util, generic, dataset, rdfconvert, elec, logging, configuration
-from ontomanager.triplestore import GET_GRAPH, CREATE_GRAPH, FIND_FILES, CLEAR_GRAPH, LOAD_MINIMAL_CONTEXT, LOG_CONTEXT, IS_QNAME, IS_URI, URI_TO_QNAME, QUERY
-from ontomanager.register import REGISTRY
-from ontomanager.logging import INFO, DEBUG, LOG, ERROR, do_DEBUG
-from ontomanager.configuration import USERS, HOMES
-from tests import TESTQUERY
+from . import ontomanager
+from .ontomanager import ontologies, triplestore, soft, problems, util, generic, dataset, rdfconvert, elec, logging, configuration
+from .ontomanager.triplestore import GET_GRAPH, CREATE_GRAPH, FIND_FILES, CLEAR_GRAPH, LOAD_MINIMAL_CONTEXT, LOG_CONTEXT, IS_QNAME, IS_URI, URI_TO_QNAME, QUERY
+from .ontomanager.register import REGISTRY
+from .ontomanager.logging import INFO, DEBUG, LOG, ERROR, do_DEBUG
+from .ontomanager.configuration import USERS, HOMES
+from .tests import TESTQUERY
 
 # since the config has been read, we can set the loglevel
 logging.SET_LOGLEVEL(configuration.LOGLEVEL)
@@ -170,9 +170,9 @@ class Model(dict):
         """
         INFO(msg)
         if newLine:
-            msg = b'\n%s' %msg.decode(u'utf-8')
+            msg = '\n%s' %msg
         else:
-            msg = b'%s' %msg.decode(u'utf-8')
+            msg = '%s' %msg
 
         self["dataset"]["output"] += msg
 
@@ -202,7 +202,7 @@ class Model(dict):
         # read each file
         for fileName in fileNames:
             self.log("Reading %s..." %fileName)
-            f = file(fileName, mode='r')
+            f = open(fileName, mode='r')
             GET_GRAPH().parse(fileName, format="json-ld")
             f.close()
 
@@ -299,7 +299,7 @@ class Model(dict):
 
         # create the repository checbboxes, and select the current one
         self["dataset"]["repository_checkboxes"] = []
-        for (name,details) in configuration.REPOSITORIES.items():
+        for (name,details) in list(configuration.REPOSITORIES.items()):
             self["dataset"]["repository_checkboxes"].append(name)
             self["dataset"][name] = { "checked" : (name == repoName),
                                       "name"    : name,
@@ -355,7 +355,7 @@ class Model(dict):
                     DEBUG( item['_filename_'] + " = " + str(checked) )
                 else:
                     # go to child nodes
-                    if item.has_key('children'):
+                    if 'children' in item:
                         self.datasetSetJsTreeChecked(item['children'], remainingPath, checked)
 
     def getCacheFileName(self):
@@ -372,7 +372,7 @@ class Model(dict):
         INFO("Now saving the cache...")
         if not os.path.exists(self["config"]["cache_dir"]):
             os.makedirs(self["config"]["cache_dir"])
-        f = open(self.getCacheFileName(), 'w')
+        f = open(self.getCacheFileName(), 'wb')
         pickle.dump(CACHE, f, pickle.HIGHEST_PROTOCOL)
         f.close()
         INFO("The cache has been saved.")
@@ -520,7 +520,7 @@ class UserSpaces(dict):
                     global BUSY_generatePyuafNsThreadBusy
                     node["pyuaf_code"] = soft.getCode(qname,soft.GET_FILEPATH(M["config"]["pyuaf_dir"], qname, "py"), busyUpdating=BUSY_generatePyuafNsThreadBusy)
                     node["pyuaf_process_busy"] = BUSY_generatePyuafNsThreadBusy
-            except Exception, e:
+            except Exception as e:
                 LOG("Failed to show %s/%s for %s: %s %s" %(category, typeToShow, qname, type(e), str(e)))
                 self[user][category]["show"]["type"]  = None
                 self[user][category]["show"]["qname"] = None
@@ -543,17 +543,17 @@ class UserSpaces(dict):
 
             fullPathString = M['config']['models_dir'] + relPathString
             f = file(fullPathString)
-            self[user]["models"]["shown_file"]["contents"] = f.read().decode(u'utf-8')
+            self[user]["models"]["shown_file"]["contents"] = f.read().decode('utf-8')
 
             try:
                 uri, prefix = ontologies.extractUriAndPrefixFromCoffeeModel(self[user]["models"]["shown_file"]["contents"])
                 self[user]["models"]["shown_file"]["uri"] = uri
                 self[user]["models"]["shown_file"]["prefix"] = prefix
-            except Exception, e:
+            except Exception as e:
                 LOG("models_show_file: Could not extract URI and prefix: %s" %e)
 
             f.close()
-        except Exception, e:
+        except Exception as e:
             LOG("models_show_file: %s" %e)
             self[user]["models"]["shown_file"] = None
 
@@ -572,8 +572,8 @@ class UserSpaces(dict):
             defaultSource = self[user]["models"]["shown_ontology"]["ontology"]["sources"][0]
             self[user]["models"]["shown_source"] = { "number"   : 0,
                                                      "source"   : defaultSource,
-                                                     "contents" : ontologies.getSourceContents(defaultSource["file"]).decode(u'utf-8') }
-        except Exception, e:
+                                                     "contents" : ontologies.getSourceContents(defaultSource["file"]).decode('utf-8') }
+        except Exception as e:
             LOG("models_show_ontology: %s" %e)
             self[user]["models"]["shown_ontology"] = None
             self[user]["models"]["shown_source"]   = None
@@ -589,8 +589,8 @@ class UserSpaces(dict):
             source = self[user]["models"]["shown_ontology"]["ontology"]["sources"][int(number)]
             self[user]["models"]["shown_source"] = { "number"   : int(number),
                                                      "source"   : source,
-                                                     "contents" : ontologies.getSourceContents(source["file"]).decode(u'utf-8') }
-        except Exception, e:
+                                                     "contents" : ontologies.getSourceContents(source["file"]).decode('utf-8') }
+        except Exception as e:
             LOG("models_show_source: %s" %e)
             self[user]["models"]["shown_source"] = None
 
@@ -617,7 +617,7 @@ class UserSpaces(dict):
 
             INFO(" --> #results: %d" %len(self[user]['query']['results']))
 
-        except Exception, e:
+        except Exception as e:
             self[user]['query']['results'] = e
 
 
@@ -634,8 +634,8 @@ class UserSpaces(dict):
         DEBUG("pathStr: %s" %pathStr)
         path = pathStr.split('::')
         DEBUG("path: %s" %path)
-        for i in xrange(len(path)):
-            path[i] = urllib.unquote(path[i])
+        for i in range(len(path)):
+            path[i] = urllib.parse.unquote(path[i])
         subtree = util.getFromDict(self[user][category]["tree"], path)
         if subtree['__opened_before__']:
             subtree['__opened__'] = True
@@ -677,8 +677,8 @@ class UserSpaces(dict):
         pathStr = request.params.get('path')
 
         path = pathStr.split('::')
-        for i in xrange(len(path)):
-            path[i] = urllib.unquote(path[i])
+        for i in range(len(path)):
+            path[i] = urllib.parse.unquote(path[i])
 
         subtree = util.getFromDict(self[user][category]["tree"], path)
         subtree['__opened__'] = False
@@ -748,8 +748,11 @@ def home_view(request):
             homeFiles.sort()
         else:
             INFO("Home directory %s does not exist!" %homeDir)
-    except KeyError:
-        INFO("No home directory configured")
+
+    except KeyError:   
+	    INFO("No home directory configured")
+    except TypeError:   
+	    INFO("No home directory configured")    
 
     response['home_files'] = homeFiles
 
@@ -772,7 +775,7 @@ def models_view(request):
     if request.params.get('show_source') is not None:
         U.models_show_source(request)
 
-    if request.POST.has_key("models_tree_clicked"):
+    if "models_tree_clicked" in request.POST:
         U.models_show_file(request)
 
     return buildResponse(request, "Models")
@@ -809,17 +812,17 @@ def dataset_view(request):
     INFO("VIEW: Dataset")
     global M
 
-    if request.POST.has_key('opening'):
+    if 'opening' in request.POST:
         INFO("OPENING")
 
     for checkbox in M["dataset"]["main_checkboxes"]:
-        if request.POST.has_key("%s_checked" %checkbox):
+        if "%s_checked" %checkbox in request.POST:
             checked = ( str(request.POST["%s_checked" %checkbox]).lower() == 'true' )
             M["dataset"][checkbox]["checked"] = checked
             INFO("Checkbox %s state has changed to %s" %(checkbox, checked))
 
     for checkbox in M["dataset"]["repository_checkboxes"]:
-        if request.POST.has_key("%s_checked" %checkbox):
+        if "%s_checked" %checkbox in request.POST:
             checked = ( str(request.POST["%s_checked" %checkbox]).lower() == 'true' )
             M["dataset"][checkbox]["checked"] = checked
             INFO("Checkbox %s state has changed to %s" %(checkbox, checked))
@@ -835,17 +838,17 @@ def dataset_view(request):
 
 
     for checkbox in ["run_models", 'generate_plcopen', 'generate_pyuaf']:
-        if request.POST.has_key("%s_tree_unchecked" %checkbox):
+        if "%s_tree_unchecked" %checkbox in request.POST:
             relPathString = request.POST["%s_tree_unchecked" %checkbox]
             M.datasetSetChecked(checkbox, relPathString, False)
             INFO("%s%s is now unchecked" %(checkbox, relPathString))
-        if request.POST.has_key("%s_tree_checked" %checkbox):
+        if "%s_tree_checked" %checkbox in request.POST:
             relPathString = request.POST["%s_tree_checked" %checkbox]
             M.datasetSetChecked(checkbox, relPathString, True)
             INFO("%s%s is now checked" %(checkbox, relPathString))
 
 
-    if request.POST.has_key("submit"):
+    if "submit" in request.POST:
         if request.POST["submit"] == "Start processing":
 
             global BUSY_processDatasetThreadBusy
@@ -857,7 +860,7 @@ def dataset_view(request):
             return HTTPFound(location=url)
 
 
-    if request.POST.has_key("cache"):
+    if "cache" in request.POST:
         if request.POST["cache"] == "Load cache":
             M.loadCache()
         if request.POST["cache"] == "Save cache":
@@ -991,7 +994,7 @@ def software_view(request):
     if request.params.get('close') is not None:
         U.close(request, "soft")
 
-    if request.POST.has_key("submit"):
+    if "submit" in request.POST:
 
         DEBUG(request.POST)
 
@@ -1058,7 +1061,7 @@ def query_view(request):
     INFO("VIEW: Query")
     global U
 
-    if request.POST.has_key("submit"):
+    if "submit" in request.POST:
         U.query_submit(request)
 
     return buildResponse(request, 'Query')
@@ -1098,7 +1101,7 @@ def login(request):
     if 'form.submitted' in request.params:
         login = request.params['login']
         password = request.params['password']
-        if not (login in USERS.keys()):
+        if not (login in list(USERS.keys())):
             message = "Unknown username"
         elif USERS.get(login) == password:
             headers = remember(request, login)
@@ -1261,9 +1264,9 @@ class ProcessDatasetThread(threading.Thread):
         """
         INFO(msg)
         if newLine:
-            msg = b'\n%s' %msg.decode(u'utf-8')
+            msg = '\n%s' %msg
         else:
-            msg = b'%s' %msg.decode(u'utf-8')
+            msg = '%s' %msg
 
         self.model["dataset"]["output"] += msg
 
@@ -1305,7 +1308,7 @@ class ProcessDatasetThread(threading.Thread):
             INFO("ProcessDatasetThread Starting...")
 
             # erase the output
-            self.model["dataset"]["output"] = u""
+            self.model["dataset"]["output"] = ""
 
             if self.model["dataset"]["run_metamodels"]["checked"]:
                 self.log("Running metamodels")
@@ -1379,7 +1382,7 @@ class ProcessDatasetThread(threading.Thread):
                 for filePath in filenames:
                     # find the corresponding library
                     library = None
-                    for lib in U[self.user]['soft']['tree'].keys():
+                    for lib in list(U[self.user]['soft']['tree'].keys()):
                         if soft.GET_FILEPATH(self.model["config"]["plcopen_dir"], lib, "xml") == filePath:
                             library = lib
                             break
@@ -1401,7 +1404,7 @@ class ProcessDatasetThread(threading.Thread):
                 for filePath in filenames:
                     # find the corresponding library
                     library = None
-                    for lib in U[self.user]['soft']['tree'].keys():
+                    for lib in list(U[self.user]['soft']['tree'].keys()):
                         if soft.GET_FILEPATH(self.model["config"]["pyuaf_dir"], lib, "py") == filePath:
                             library = lib
                             break
@@ -1422,7 +1425,7 @@ class ProcessDatasetThread(threading.Thread):
 
             self.logHeading("Processing is finished")
 
-        except Exception, e:
+        except Exception as e:
             self.logError("Processing data ended with error: %s" %e)
         finally:
             INFO("ProcessDatasetThread Done")
