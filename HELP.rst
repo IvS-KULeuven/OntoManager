@@ -93,7 +93,7 @@ Step 3: Run the models and generate source code
    each other. If you select the top of the tree, then all down-level (required) models will be run anyhow.    The top-level software model, for the Mercator TCS, is the ``models/mtcs/softaware.coffee`` file.
 
 #. Click on the **"Start processing" button** to run the models. This takes a few minutes. If there is an error, execution will stop and you'll see some debugging info. Correct the models, and press the button again (it will re-read the models from disk).
-   
+
 #. If the models have been run successfully, you can now load them into memory: **select "Load asserted data"**. You can also select the source code files that you want to generate. Obviously, if you only changed the dome software model (``mtcs/dome/software.coffee``) then you only have to generate the ``mtcs_dome`` source code. Press the **"Start processing" button**.
 
 #. When the data has been loaded into memory (and source has been generated), you can now click on the Systems, Mechanics, Electronic, and Software tab. To download the earlier generated source code, **go to the Software tab and click on the generated library** (e.g. ``mtcs_dome``). Note that if you click on another library which hasn't been generated yet, the web page will take a few minutes to open since many queries have to be executed. You can now download the PLC code (PLCopen XML) or python code (PyUAF).
@@ -112,7 +112,7 @@ Step 4: Import the PLC code in TwinCAT
 Step 5: Copy the Python code into MOCS
 -------------------------------------------------
 
-#. Download the file (e.g. ``mtcs_dome.py``) and copy it to ``$MHOME/python/opcua/models/``.
+#. Download the file (e.g. ``mtcs_dome.py``) and copy it to ``$MHOME/python/mocsopcua/models/``.
 
 #. Commit the changes to the MOCS repository.
 
