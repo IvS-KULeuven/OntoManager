@@ -226,7 +226,7 @@ class Model(dict):
         # read each file
         for fileName in fileNames:
             self.log("Reading %s..." %fileName)
-            f = file(fileName, mode='r')
+            f = open(fileName, mode='r')
             GET_GRAPH().parse(fileName, format="json-ld")
             f.close()
 
@@ -542,8 +542,8 @@ class UserSpaces(dict):
                                                     "contents" : "" }
 
             fullPathString = M['config']['models_dir'] + relPathString
-            f = file(fullPathString)
-            self[user]["models"]["shown_file"]["contents"] = f.read().decode('utf-8')
+            f = open(fullPathString)
+            self[user]["models"]["shown_file"]["contents"] = f.read()
 
             try:
                 uri, prefix = ontologies.extractUriAndPrefixFromCoffeeModel(self[user]["models"]["shown_file"]["contents"])
