@@ -1338,7 +1338,6 @@ class ProcessDatasetThread(threading.Thread):
                     IPath = self.jsonldDir
                     oPath = self.jsonldDir
                     command = "%s %s -s -a -t -i %s -I %s -o %s -f" %(configuration.COFFEE, filename, iPath, IPath, oPath)
-
                     self.log("============================ starting process ==========================")
                     self.log(command)
                     self.log("========================================================================")
@@ -1350,10 +1349,10 @@ class ProcessDatasetThread(threading.Thread):
 
                     while True:
                         out = popen.stdout.readline()
-                        if out == '' and popen.poll() != None:
+                        if out == b'' and popen.poll() != None:
                             break
 
-                        if out != '':
+                        if out != b'':
                             self.log(out[:-1])
                             sys.stdout.flush()
 
