@@ -630,7 +630,6 @@ class UserSpaces(dict):
         user = self.getUser(request)
         type = request.params.get('open')
         pathStr = request.params.get('path')
-
         DEBUG("pathStr: %s" %pathStr)
         path = pathStr.split('::')
         DEBUG("path: %s" %path)
