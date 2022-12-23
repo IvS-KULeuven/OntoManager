@@ -41,7 +41,7 @@
                             <%
                                 resultQname = M['functions']['URI_TO_QNAME'](result)
                             %>
-                            % if CACHE.has_key(resultQname):
+                            % if resultQname in CACHE:
 
                                 ##<td>---${CACHE[resultQname]}</td>
                                 <td>${misc.render_view_link(CACHE[resultQname], contents=resultQname)}</td>

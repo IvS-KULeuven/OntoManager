@@ -221,7 +221,7 @@ ${render_default_view_link(node, contents=displayStr)} \
 
 
 <%def name="render_system_properties(node)">\
-% if node.has_key('satisfies'):
+% if 'satisfies' in node:
     % if len(node['satisfies']) > 0:
         <table class="lefttable">
             <tr>

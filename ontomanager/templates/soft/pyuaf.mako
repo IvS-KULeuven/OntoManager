@@ -158,7 +158,7 @@ ${typeLibName}.${node['label']}\
         u'iec61131:LREAL'    : 'ua.VariantType.Double'
     }
 %>\
-% if conversion.has_key(node['qname']):
+% if node['qname'] in conversion:
 ${conversion[node['qname']]}\
 % else:
 ${pyuaf_getQualifiedName(node, libName, imported)}\
@@ -171,7 +171,7 @@ ${pyuaf_getQualifiedName(node, libName, imported)}\
 <% typeNode = CACHE[node['type']] %>\
     %if (typeNode["plc_symbol"] is not None) or (u'soft:Enumeration' in typeNode['classes']): ## check for trivial type
 <%
-    if node.has_key('qualifiers'):
+    if 'qualifiers' in node:
         # activated = u'beckhoff:OPC_UA_ACTIVATE' in node['qualifiers']
         if u'beckhoff:OPC_UA_ACCESS_R' in node['qualifiers']:
             permissions = 'r'

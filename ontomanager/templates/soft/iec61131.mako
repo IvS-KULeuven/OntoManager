@@ -47,7 +47,7 @@ ${render_implementation(e, scope, html=html, indent=indent)}\
 <%def name="render_value(node, scope, html=True, indent='')">\
 <%
     import pprint
-    if not node.has_key("value"):
+    if value not in node:
         raise Exception("Error in render_value(%s): no 'value' key found!\n\nFull node:\n%s" %(node['qname'], pprint.pformat(node)))
     if node["value"] is None:
         raise Exception("Error in render_value(%s): value is None!\n\nFull node:\n%s" %(node['qname'], pprint.pformat(node)))
@@ -73,7 +73,7 @@ ${node['value']}\
                 return None, [ dest["item_of"], destQName ]
 
 
-            if head.has_key("extends") and dest.has_key("points_to_type"):
+            if "extends" in head and "points_to_type" in dest:
                 if head["extends"] == dest["points_to_type"] != None:
                     return "SUPER", []
 
@@ -92,7 +92,7 @@ ${node['value']}\
                         return None, getPathToSubVariable(cache, dest, head)
 
 
-            except EOFError, eof:
+            except EOFError as eof:
                 e = eof
 
 
@@ -111,7 +111,7 @@ ${node['value']}\
         if destQName == headQName:
             return []
 
-        if not dest.has_key("member_of"):
+        if "member_of" not in dest:
             raise EOFError()
 
         memberOfQNames = dest["member_of"]
@@ -122,7 +122,7 @@ ${node['value']}\
             try:
                 p =  getPathToSubVariable(cache, memberOf, head) + [ destQName  ]
                 break
-            except EOFError, e:
+            except EOFError as e:
                 pass
 
         if p is not None:

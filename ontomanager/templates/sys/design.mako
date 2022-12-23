@@ -134,7 +134,7 @@ ${misc.render_view_link(req)}\
             % else:
                 <td>
                 % for deriv in hReq["derived_from"]:
-                    % if CACHE[deriv].has_key("realizes"):
+                    % if "realizes" in CACHE[deriv]:
                         % if vReq["qname"] in CACHE[deriv]['realizes']:
                             &#x2199;
                         % endif

@@ -19,8 +19,8 @@
     else:
         kind = '???'
 
-    if node.has_key('label'): label = node['label']
-    if node.has_key('symbol'): symbol = node['symbol']
+    if 'label' in node: label = node['label']
+    if 'symbol' in node: symbol = node['symbol']
     if node['owner'] is not None:
         ownerNode = CACHE[node['owner']]
 
@@ -349,7 +349,7 @@ ${render_connections(instance, node['wires'])}
         pointToTypeNode = None
 
 %>\
-% if node.has_key('member_of'):
+% if 'member_of' in node:
    % if node['member_of'] is not None:
        % if len(node['member_of']) > 0:
 ${render_interface_link(CACHE[node['member_of'][0]])}.\
@@ -424,7 +424,7 @@ max-height: 1000px;
             <th>Used in</th>
             <td>${render_owning_configurations(node)}</td>
         </tr>
-        % if node.has_key("cables"):
+        % if "cables" in node:
             % if len(node['cables']) > 0:
                 <tr>
                     <th>Cables</th>
@@ -442,7 +442,7 @@ max-height: 1000px;
                 </tr>
             % endif
         % endif
-        % if node.has_key("connectors"):
+        % if "connectors" in node:
             % if len(node['connectors']) > 0:
                 <tr>
                     <th>Connectors</th>
@@ -538,7 +538,7 @@ max-height: 1000px;
                  <%
                      instance = CACHE[qname]
                      realizes = CACHE[instance['man_type']]
-                     if realizes.has_key('manufacturer'):
+                     if 'manufacturer' in realizes:
                         manufacturer = CACHE[realizes['manufacturer']]
                      else:
                         manufacturer = None
@@ -551,7 +551,7 @@ max-height: 1000px;
                     % else:
                         <td>${misc.render_view_link(manufacturer, "io_man", contents=manufacturer['long_name'])}</td>
                     % endif
-                    % if realizes.has_key('id'):
+                    % if id in realizes:
                         <td>${misc.render_view_link(realizes, "io_type_id", contents=realizes['id'])}
                     % else:
                         <td>${misc.render_view_link(realizes, "io_type_id")}
