@@ -572,7 +572,7 @@ class UserSpaces(dict):
             defaultSource = self[user]["models"]["shown_ontology"]["ontology"]["sources"][0]
             self[user]["models"]["shown_source"] = { "number"   : 0,
                                                      "source"   : defaultSource,
-                                                     "contents" : ontologies.getSourceContents(defaultSource["file"]).decode('utf-8') }
+                                                     "contents" : ontologies.getSourceContents(defaultSource["file"]) }
         except Exception as e:
             LOG("models_show_ontology: %s" %e)
             self[user]["models"]["shown_ontology"] = None
@@ -589,7 +589,7 @@ class UserSpaces(dict):
             source = self[user]["models"]["shown_ontology"]["ontology"]["sources"][int(number)]
             self[user]["models"]["shown_source"] = { "number"   : int(number),
                                                      "source"   : source,
-                                                     "contents" : ontologies.getSourceContents(source["file"]).decode('utf-8') }
+                                                     "contents" : ontologies.getSourceContents(source["file"]) }
         except Exception as e:
             LOG("models_show_source: %s" %e)
             self[user]["models"]["shown_source"] = None

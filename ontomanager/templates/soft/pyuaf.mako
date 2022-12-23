@@ -77,12 +77,24 @@ ${pyuaf_addAttribute(attr, libName, imported)}\
 
 <%def name="pyuaf_fb(node, libName, imported)">\
 <%
-    var_in    = [ CACHE[v] for v in node["var_in"] ]
-    var_out   = [ CACHE[v] for v in node["var_out"] ]
-    var_local = [ CACHE[v] for v in node["var_local"] ]
+    if "var_in" in node:
+    	var_in    = [ CACHE[v] for v in node["var_in"] ]
+    else:
+        var_in    = []
+    endif
+    if "var_out" in node:
+        var_out   = [ CACHE[v] for v in node["var_out"] ]
+    else:
+        var_out   = []
+    endif
+    if "var_local" in node:
+        var_local = [ CACHE[v] for v in node["var_local"] ]
+    else:
+        var_local = []
+    endif
     #methods   = [ CACHE[m] for m in node["methods"] ]
 %>\
-% if node["extends"] is None:
+% if "extends" not in node or node["extends"] is None:
 class ${node['label']}(OpcUaNode):
 
     def __init__(self, parent, name, ns, info):
@@ -167,7 +179,7 @@ ${pyuaf_getQualifiedName(node, libName, imported)}\
 
 
 <%def name="pyuaf_addAttribute(node, libName, imported)">\
-% if node['type'] is not None:
+% if type in node and node['type'] is not None:
 <% typeNode = CACHE[node['type']] %>\
     %if (typeNode["plc_symbol"] is not None) or (u'soft:Enumeration' in typeNode['classes']): ## check for trivial type
 <%

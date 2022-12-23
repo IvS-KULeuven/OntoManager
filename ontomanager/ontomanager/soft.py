@@ -70,7 +70,7 @@ def getCode(library, filePath, busyUpdating):
         if f is not None:
             ret["status"] = "Reading file..."
             try:
-                ret["contents"] = f.read().decode('utf-8')
+                ret["contents"] = f.read()
                 ret["status"] = "File has been read"
             except Exception as e:
                 ret["status"] = "Could not read the file: %s" %e
@@ -104,7 +104,7 @@ def writeCode(code, library, filePath):
 
     if f is not None:
         try:
-            f.write(code.encode('utf-8'))
+            f.write(code)
         except Exception as e:
             raise Exception("Could not write the file: %s" %e)
 

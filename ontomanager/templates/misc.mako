@@ -136,7 +136,7 @@ ${render_default_view_link(node, contents=displayStr)} \
                 % if len(node[expansion]) > 0 and expansion in branch.keys():
                     <%
                         isBranchOpened = branch[expansion]['__opened__']
-                        unsortedChildren = branch[expansion].keys()
+                        unsortedChildren = list(branch[expansion].keys())
                         unsortedChildren.remove('__opened__')
                         unsortedChildren.remove('__opened_before__')
                         children = []
@@ -144,7 +144,7 @@ ${render_default_view_link(node, contents=displayStr)} \
                             if item in unsortedChildren:
                                 children.append(item)
                         import urllib
-                        expansionPath = path + '::' + urllib.quote(expansion, safe='')
+                        expansionPath = path + '::' + urllib.parse.quote(expansion, safe='')
                     %>
                         <li>${render_expand_icon(category, type, expansionPath, isBranchOpened)} <i>${expansion}</i>
                         % if len(children) > 0 and isBranchOpened:
@@ -152,7 +152,7 @@ ${render_default_view_link(node, contents=displayStr)} \
                             % for subitemQName in children:
                                 <%
                                 import urllib
-                                childPath = expansionPath + '::' + urllib.quote(subitemQName, safe='')
+                                childPath = expansionPath + '::' + urllib.parse.quote(subitemQName, safe='')
                                 %>
                                 <li>${render_tree(subitemQName, branch[expansion][subitemQName], category, childPath, False, display)}</li>
                             % endfor
