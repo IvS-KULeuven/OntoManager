@@ -38,7 +38,7 @@
 % elif len(realizes) == 1:
     <h2>&#8627; realizes: ${misc.render_view_link(realizes[0])}</h2>
 % else:
-    %for i in xrange(len(realizes)):
+    %for i in range(len(realizes)):
         &#8627; realizes ${i}: ${misc.render_view_link(realizes[i])}
     %endfor
 % endif
@@ -152,7 +152,7 @@ ${misc.render_view_link(req)}\
 <h2>Parts</h2>
 
 <ul>
-%for i in xrange(len(parts)):
+%for i in range(len(parts)):
    <li> <h4>&#8627; Part: ${misc.render_view_link(parts[i])} </h4></li>
 %endfor
 </ul>

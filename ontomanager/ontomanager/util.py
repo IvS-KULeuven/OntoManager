@@ -187,7 +187,7 @@ class Node(dict):
             self.log("Showing default view")
 
             # determine the default view
-            if self["views_order"] > 0:
+            if len(self["views_order"]) > 0:
                 defaultCategory, defaultType = self["views_order"][0]
             else:
                 raise Exception("Cannot show default view: no view registered!")
@@ -233,7 +233,7 @@ class Node(dict):
             self.log("Expanding default view")
 
             # determine the default view
-            if self["views_order"] > 0:
+            if len(self["views_order"]) > 0:
                 defaultCategory, defaultType = self["views_order"][0]
             else:
                 raise Exception("Cannot expand default view: no view registered!")

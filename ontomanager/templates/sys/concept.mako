@@ -116,7 +116,7 @@ ${render_req_vs_req(concept)}
 % elif len(designs) == 1:
     <h2>&#8627; design defined for this concept: ${misc.render_view_link(designs[0])}</h2>
 % else:
-    %for i in xrange(len(designs)):
+    %for i in range(len(designs)):
         &#8627; design ${i}: ${misc.render_view_link(designs[i])}
     %endfor
 % endif
