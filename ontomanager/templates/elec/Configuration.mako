@@ -109,7 +109,11 @@
                     % else:
                         <td>${misc.render_view_link(terminal, "term_symbol")}</td>
                     % endif
-                    <td>${len(terminal['connections'])}</td>
+                    % if 'connections' in terminal:
+                        <td>${len(terminal['connections'])}</td>
+                    % else:
+                        <td>0</td>
+                    % endif
                     <td>${terminal['comment']}</td>
                 </tr>
 

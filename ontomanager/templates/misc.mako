@@ -90,16 +90,29 @@
 
 <%def name="render_view_link(node, id='', contents=None)">\
 <%
-    if len(node["views_order"]) > 0:
-        viewCategory, viewType = node["views_order"][0]
+    if "views_order" in node:
+        if len(node["views_order"]) > 0:
+            viewCategory, viewType = node["views_order"][0]
+        else:
+            viewCategory = "browse"
+            viewType     = "thing"
     else:
         viewCategory = "browse"
         viewType     = "thing"
 
     if contents is None:
-        contents = node["label"]
+        if "label" in node:
+            contents = node["label"]
+        else:
+            contents = ""
 %>\
-<a href="${viewCategory}?show=${viewType};qname=${node['qname']}">${contents}</a>\
+<% 
+    if "qname" in node:
+        qname = node['qname']
+    else: 
+        qname = ""
+%>\
+<a href="${viewCategory}?show=${viewType};qname=${qname}">${contents}</a>\
 </%def>
 
 

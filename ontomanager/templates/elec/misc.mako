@@ -21,8 +21,9 @@
 
     if 'label' in node: label = node['label']
     if 'symbol' in node: symbol = node['symbol']
-    if node['owner'] is not None:
-        ownerNode = CACHE[node['owner']]
+    if 'owner' in node:
+        if node['owner'] is not None:
+            ownerNode = CACHE[node['owner']]
 
     # now get some info about the owner node
     if ownerNode is not None:
@@ -64,7 +65,10 @@ ${kind} ${misc.render_view_link(node, id='pin_or_terminal_${node["qname"]}', con
 
 <%def name="render_connections(pinNode, wires)">\
 <%
-    connections = [ CACHE[connectionQName] for connectionQName in pinNode['connections'] ]
+    if 'connections' in pinNode:
+        connections = [ CACHE[connectionQName] for connectionQName in pinNode['connections'] ]
+    else:
+        connections = ''
 %>
 % if len(connections) == 1:
     ${render_connection(pinNode, connections[0], wires)}
@@ -131,11 +135,13 @@ ${misc.render_colorbox(colors)} ${render_pin_or_terminal(connectionNode)}
         ${node[key]}
     % elif len(connections) > 0:
         % if connections[0][key] is not None:
-            % if connections[0]['owner'] is not None:
-                <% ownerNode = CACHE[connections[0]['owner']] %>
-                ${misc.render_view_link(ownerNode, contents=connections[0][key])}
-            % else:
-                ${connections[0][key]}
+            % if 'owner' in connections[0]:
+                % if connections[0]['owner'] is not None:
+                    <% ownerNode = CACHE[connections[0]['owner']] %>
+                    ${misc.render_view_link(ownerNode, contents=connections[0][key])}
+                % else:
+                    ${connections[0][key]}
+                % endif
             % endif
         % endif
     % endif
@@ -244,7 +250,7 @@ ${render_connections(instance, node['wires'])}
             instanceNode = CACHE[instanceQName]
 
         if typeQName is None:
-            typeNode = None
+            typeNode = ""
         else:
             typeNode = CACHE[typeQName]
     %>
@@ -537,7 +543,10 @@ max-height: 1000px;
 
                  <%
                      instance = CACHE[qname]
-                     realizes = CACHE[instance['man_type']]
+                     if 'man_type' in instance:
+                        realizes = CACHE[instance['man_type']]
+                     else:
+                        realizes = []
                      if 'manufacturer' in realizes:
                         manufacturer = CACHE[realizes['manufacturer']]
                      else:
@@ -556,7 +565,11 @@ max-height: 1000px;
                     % else:
                         <td>${misc.render_view_link(realizes, "io_type_id")}
                     % endif
-                    <td>${realizes['comment']}</td>
+                    % if "comment" in realizes:
+                        <td>${realizes['comment']}</td>
+                    % else:
+                        <td></td>
+                    % endif
                     <td>${instance['comment']}</td>
                 </tr>
 

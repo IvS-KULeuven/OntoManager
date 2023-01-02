@@ -87,8 +87,9 @@ def show_Terminal(node, args=None):
 
     generic.fillFields(node, optionals={ 'symbol' : 'elec:hasSymbol', 'owner' : '^elec:hasTerminal' })
 
-    if node['owner'] is not None:
-        generic.getDefaultNode(node.cache, node['owner']).show("elec")
+    if 'owner' in node:
+        if node['owner'] is not None:
+            generic.getDefaultNode(node.cache, node['owner']).show("elec")
 
     node.expand("elec", "Terminal")
 

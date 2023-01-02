@@ -214,8 +214,8 @@ def getRelated(cache, subject, property, restriction=None, remove=None,  sortedB
     resultNodes =  sorted(list(d.values()), key=lambda x: x['counter'])  # entries with None will be put first in the sorted list
 
     # then, if necessary, sort by number:
-    if sortedByNumber:
-        resultNodes =  sorted(resultNodes, key=lambda x: x['number'])
+    #if sortedByNumber:
+    #    resultNodes = sorted(list(resultNodes), key=lambda x: x['number'])
 
     for resultNode in resultNodes:
         ret.append(resultNode['qname'])
