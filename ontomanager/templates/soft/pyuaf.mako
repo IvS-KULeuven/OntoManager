@@ -179,7 +179,7 @@ ${pyuaf_getQualifiedName(node, libName, imported)}\
 
 
 <%def name="pyuaf_addAttribute(node, libName, imported)">\
-% if type in node and node['type'] is not None:
+% if 'type' in node and node['type'] is not None:
 <% typeNode = CACHE[node['type']] %>\
     %if (typeNode["plc_symbol"] is not None) or (u'soft:Enumeration' in typeNode['classes']): ## check for trivial type
 <%
