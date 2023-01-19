@@ -48,7 +48,7 @@ ${pyuaf_fb(fb, libName, imported)}
 # === imports ===
 
 % for im in imported:
-import ${im | n}
+from . import ${im | n}
 % endfor
 
 
