@@ -17,7 +17,7 @@
 <table class="gridtable">
     <tr>
         <th>File</th>
-        % if config["files"]["generated_xml_library"].has_key(nsName):
+        % if nsName in config["files"]["generated_xml_library"]:
             <td>${config["files"]["generated_xml_library"][nsName]}</td>
         % else:
             <td></td>

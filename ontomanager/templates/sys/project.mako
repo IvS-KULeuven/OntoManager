@@ -15,7 +15,7 @@ ${misc.render_comment_below_title(project)}
 % elif len(concepts) == 1:
     <h2>&#8627; concept defined within this project: ${misc.render_view_link(concepts[0])}</h2>
 % else:
-    %for i in xrange(len(concepts)):
+    %for i in range(len(concepts)):
         &#8627; concept ${i}: ${misc.render_view_link(concepts[i])}
     %endfor
 % endif

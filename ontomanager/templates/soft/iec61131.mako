@@ -1,6 +1,8 @@
 
 <%def name="render_implementation(node, scope, html=True, indent='', more='    ')">\
+%if "expressions" in node:
 ${layoutExpressions(node["expressions"], scope, html=html, indent=indent)}\
+%endif
 </%def>
 
 
@@ -47,7 +49,7 @@ ${render_implementation(e, scope, html=html, indent=indent)}\
 <%def name="render_value(node, scope, html=True, indent='')">\
 <%
     import pprint
-    if not node.has_key("value"):
+    if "value" not in node:
         raise Exception("Error in render_value(%s): no 'value' key found!\n\nFull node:\n%s" %(node['qname'], pprint.pformat(node)))
     if node["value"] is None:
         raise Exception("Error in render_value(%s): value is None!\n\nFull node:\n%s" %(node['qname'], pprint.pformat(node)))
@@ -73,7 +75,7 @@ ${node['value']}\
                 return None, [ dest["item_of"], destQName ]
 
 
-            if head.has_key("extends") and dest.has_key("points_to_type"):
+            if "extends" in head and "points_to_type" in dest:
                 if head["extends"] == dest["points_to_type"] != None:
                     return "SUPER", []
 
@@ -92,7 +94,7 @@ ${node['value']}\
                         return None, getPathToSubVariable(cache, dest, head)
 
 
-            except EOFError, eof:
+            except EOFError as eof:
                 e = eof
 
 
@@ -111,7 +113,7 @@ ${node['value']}\
         if destQName == headQName:
             return []
 
-        if not dest.has_key("member_of"):
+        if "member_of" not in dest:
             raise EOFError()
 
         memberOfQNames = dest["member_of"]
@@ -122,7 +124,7 @@ ${node['value']}\
             try:
                 p =  getPathToSubVariable(cache, memberOf, head) + [ destQName  ]
                 break
-            except EOFError, e:
+            except EOFError as e:
                 pass
 
         if p is not None:
@@ -387,11 +389,31 @@ ${indent}</dataType>\
 <%def name="xml_pou_functionBlock(node, indent='')">\
 <%
     label  = node['label']
-    var_in    = [ CACHE[v] for v in node["var_in"] ]
-    var_out   = [ CACHE[v] for v in node["var_out"] ]
-    var_inout = [ CACHE[v] for v in node["var_inout"] ]
-    var_local = [ CACHE[v] for v in node["var_local"] ]
-    methods   = [ CACHE[m] for m in node["methods"] ]
+    if "var_in" in node:
+        var_in    = [ CACHE[v] for v in node["var_in"] ]
+    else:
+        var_in    = [ ]
+    endif
+    if "var_out" in node:
+        var_out   = [ CACHE[v] for v in node["var_out"] ]
+    else:
+        var_out   = [ ]
+    endif
+    if "var_inout" in node:
+        var_inout = [ CACHE[v] for v in node["var_inout"] ]
+    else:
+        var_inout = [ ]
+    endif
+    if "var_local" in node:
+        var_local = [ CACHE[v] for v in node["var_local"] ]
+    else:
+        var_local = [ ]
+    endif
+    if "methods" in node:
+        methods   = [ CACHE[m] for m in node["methods"] ]
+    else:
+        methods   = [ ]
+    endif
     if node["extends"] is None:
         extends = None
     else:
@@ -473,16 +495,20 @@ ${indent}</${kind}Vars>\
 
 <%def name="xml_variable(node, indent='')">\
 \
+% if address not in node:
+<variable name="${node["label"]}">
+% else:
 % if node["address"] is not None:
 <variable name="${node["label"]}" address="${node["address"]}">
 % else:
 <variable name="${node["label"]}">
 % endif
+% endif
 ${indent}  ${xml_type(node)}
-        % if node["initial_value"] is not None:
+        % if initial_value in node and node["initial_value"] is not None:
 ${indent}  <initialValue><simpleValue value="${str(node['initial_value']).upper()}" /></initialValue>
         % endif
-        % if node["qualifiers"] is not None:
+        % if qualifiers in node and node["qualifiers"] is not None:
 ${indent}  <addData>
 ${indent}    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
 ${indent}      <Attributes>
@@ -522,10 +548,10 @@ ${indent}</variable>\
 </%def>
 
 <%def name="xml_type_contents(node)">\
-    %if node["type"] is not None:
+    %if type in node and node["type"] is not None:
 <% typeNode = CACHE[node['type']] %>\
 ${xml_type_element(typeNode)}\
-    %elif node["points_to_type"] is not None:
+    %elif points_to_type in node and node["points_to_type"] is not None:
 <% typeNode = CACHE[node['points_to_type']] %>\
         %if typeNode["plc_symbol"] is not None:
 <pointer><baseType>${xml_type_element(typeNode)}</baseType></pointer>\
@@ -602,10 +628,12 @@ ${indent}</data>\
 <%def name="xml_object(obj, indent='')">\
 <Object Name="${obj['label']}">
     % if 'iec61131:FunctionBlock' in obj['classes']:
-        % for methodQName in obj['methods']:
+        % if 'methods' in obj:
+            % for methodQName in obj['methods']:
 <% method = CACHE[methodQName] %>\
 ${indent}  <Object Name="${method['label']}" />
-        % endfor
+            % endfor
+        % endif
     % endif
 ${indent}</Object>\
 </%def>

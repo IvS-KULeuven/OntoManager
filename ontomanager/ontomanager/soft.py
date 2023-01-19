@@ -2,12 +2,12 @@
 Callback functions for the views of the 'soft' category.
 """
 
-import generic
+from . import generic
 import pprint
 import os
 
-from triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_LITERAL
-from logging import INFO, ERROR
+from .triplestore import QUERY, URI_TO_QNAME, QNAME_TO_URI, IS_LITERAL
+from .logging import INFO, ERROR
 
 
 # ========================================================= Read and write code ====================================================
@@ -64,21 +64,21 @@ def getCode(library, filePath, busyUpdating):
             try:
                 f = open(filePath, 'r')
                 ret["status"] = "File has been opened"
-            except Exception, e:
+            except Exception as e:
                 ret["status"] = "Could not open the file: %s" %e
 
         if f is not None:
             ret["status"] = "Reading file..."
             try:
-                ret["contents"] = f.read().decode(u'utf-8')
+                ret["contents"] = f.read()
                 ret["status"] = "File has been read"
-            except Exception, e:
+            except Exception as e:
                 ret["status"] = "Could not read the file: %s" %e
 
         if f is not None:
             try:
                 f.close()
-            except Exception, e:
+            except Exception as e:
                 ERROR("Could not close the file: %s" %e)
 
 
@@ -99,19 +99,19 @@ def writeCode(code, library, filePath):
     if filePath is not None:
         try:
             f = open(filePath, 'w')
-        except Exception, e:
+        except Exception as e:
             raise Exception("Could not open the file: %s" %e)
 
     if f is not None:
         try:
-            f.write(code.encode('utf-8'))
-        except Exception, e:
+            f.write(code)
+        except Exception as e:
             raise Exception("Could not write the file: %s" %e)
 
     if f is not None:
         try:
             f.close()
-        except Exception, e:
+        except Exception as e:
             ERROR("Could not close the file: %s" %e)
 
 
@@ -983,7 +983,7 @@ def getExpressionString(ex):
 
     if IS_LITERAL(ex):
         v = ex.toPython()
-        if isinstance(v, str) or isinstance(v, unicode):
+        if isinstance(v, str) or isinstance(v, str):
             return "'%s'" %v
         elif str(v).lower() == "false":
             return "FALSE"

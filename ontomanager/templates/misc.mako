@@ -90,16 +90,29 @@
 
 <%def name="render_view_link(node, id='', contents=None)">\
 <%
-    if len(node["views_order"]) > 0:
-        viewCategory, viewType = node["views_order"][0]
+    if "views_order" in node:
+        if len(node["views_order"]) > 0:
+            viewCategory, viewType = node["views_order"][0]
+        else:
+            viewCategory = "browse"
+            viewType     = "thing"
     else:
         viewCategory = "browse"
         viewType     = "thing"
 
     if contents is None:
-        contents = node["label"]
+        if "label" in node:
+            contents = node["label"]
+        else:
+            contents = ""
 %>\
-<a href="${viewCategory}?show=${viewType};qname=${node['qname']}">${contents}</a>\
+<% 
+    if "qname" in node:
+        qname = node['qname']
+    else: 
+        qname = ""
+%>\
+<a href="${viewCategory}?show=${viewType};qname=${qname}">${contents}</a>\
 </%def>
 
 
@@ -136,7 +149,7 @@ ${render_default_view_link(node, contents=displayStr)} \
                 % if len(node[expansion]) > 0 and expansion in branch.keys():
                     <%
                         isBranchOpened = branch[expansion]['__opened__']
-                        unsortedChildren = branch[expansion].keys()
+                        unsortedChildren = list(branch[expansion].keys())
                         unsortedChildren.remove('__opened__')
                         unsortedChildren.remove('__opened_before__')
                         children = []
@@ -144,7 +157,7 @@ ${render_default_view_link(node, contents=displayStr)} \
                             if item in unsortedChildren:
                                 children.append(item)
                         import urllib
-                        expansionPath = path + '::' + urllib.quote(expansion, safe='')
+                        expansionPath = path + '::' + urllib.parse.quote(expansion, safe='')
                     %>
                         <li>${render_expand_icon(category, type, expansionPath, isBranchOpened)} <i>${expansion}</i>
                         % if len(children) > 0 and isBranchOpened:
@@ -152,7 +165,7 @@ ${render_default_view_link(node, contents=displayStr)} \
                             % for subitemQName in children:
                                 <%
                                 import urllib
-                                childPath = expansionPath + '::' + urllib.quote(subitemQName, safe='')
+                                childPath = expansionPath + '::' + urllib.parse.quote(subitemQName, safe='')
                                 %>
                                 <li>${render_tree(subitemQName, branch[expansion][subitemQName], category, childPath, False, display)}</li>
                             % endfor
@@ -221,7 +234,7 @@ ${render_default_view_link(node, contents=displayStr)} \
 
 
 <%def name="render_system_properties(node)">\
-% if node.has_key('satisfies'):
+% if 'satisfies' in node:
     % if len(node['satisfies']) > 0:
         <table class="lefttable">
             <tr>

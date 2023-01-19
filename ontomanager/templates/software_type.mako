@@ -134,7 +134,7 @@ ${arg["label"]}\
                 <td></td>
             </tr>
                     % endif
-            % for i in xrange(max(inCount + inOutCount, outCount + localCount) ):
+            % for i in range(max(inCount + inOutCount, outCount + localCount) ):
             <tr>
                 ## left side
                 % if i < inCount:

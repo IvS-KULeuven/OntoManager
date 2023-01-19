@@ -72,10 +72,26 @@ ${misc.render_comment_below_title(node)}
     % else:
 
         <%
-        derives     = [ CACHE[d] for d in req["derives"] ]
-        derivedFrom = [ CACHE[d] for d in req["derived_from"] ]
-        satisfiedBy = [ CACHE[s] for s in req["satisfied_by"] ]
-        declaredBy  = [ CACHE[d] for d in req["declared_by"] ]
+        if "derives" in req:
+            derives     = [ CACHE[d] for d in req["derives"] ]
+        else:
+            derives = []
+        endif
+        if "derived_from" in req:
+            derivedFrom = [ CACHE[d] for d in req["derived_from"] ]
+        else:
+            derivedFrom = []
+        endif
+        if "satisfied_by" in req:
+            satisfiedBy = [ CACHE[s] for s in req["satisfied_by"] ]
+        else:
+            satisfiedBy = []
+        endif
+        if "declared_by" in req:
+            declaredBy  = [ CACHE[d] for d in req["declared_by"] ]
+        else:
+            declaredBy = []
+        endif
         %>
 
         <tr>

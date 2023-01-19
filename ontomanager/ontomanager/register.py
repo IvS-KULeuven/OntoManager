@@ -44,9 +44,9 @@ class Registry:
                          (unless these queries were already executed and stored in the cache before!)
         @param expansions: a list of [expansionName, expansionFunction] (thus: a list of lists of 2 items).
         """
-        if not self.views.has_key(category):
+        if category not in self.views:
             self.views[category] = OrderedDict()
-        if self.views[category].has_key(type):
+        if type in self.views[category]:
             raise Exception("Trying to register view %s/%s twice!" %(category, type))
 
         self.views[category][type] = { "category"   : category,
@@ -67,8 +67,8 @@ class Registry:
         Get a list of views (dictionaries with query results) for specific classes.
         """
         ret = []
-        for category in self.views.keys():
-            for view in self.views[category].values():
+        for category in list(self.views.keys()):
+            for view in list(self.views[category].values()):
                 expression = view["expression"]
                 if isinstance(expression, str):
                     # expression is a qname
@@ -92,10 +92,10 @@ class Registry:
         @param callback: the callback function to execute to expand (i.e. to get the members for the soft:Type individual,
                          to get the wires for the elec:Cable individual, ...)
         """
-        if not self.expansions.has_key(category):
+        if category not in self.expansions:
             self.expansions[category] = OrderedDict()
 
-        if not self.expansions[category].has_key(type):
+        if type not in self.expansions[category]:
             self.expansions[category][type] = OrderedDict()
 
         self.expansions[category][type][expansion] = callback
@@ -106,20 +106,20 @@ class Registry:
         Get a string representation of the registry, only for debugging purposes...
         """
         s = "Views:\n"
-        for category, categoryRest in self.views.items():
+        for category, categoryRest in list(self.views.items()):
             s += "  %s:\n" %category
-            for type, view in categoryRest.items():
+            for type, view in list(categoryRest.items()):
                 s += "    %s : { expression=%s priority=%d callback=%s.%s }\n" %(type,
                                                                                  view["expression"],
                                                                                  view["priority"],
                                                                                  view["callback"].__module__,
                                                                                  view["callback"].__name__)
         s += "Expansions:\n"
-        for category, remaining in self.expansions.items():
+        for category, remaining in list(self.expansions.items()):
             s += "  %s:\n" %category
-            for type, rest in remaining.items():
+            for type, rest in list(remaining.items()):
                 s += "    %s:\n" %type
-                for expansion, callback in rest.items():
+                for expansion, callback in list(rest.items()):
                     s += "      %s : %s\n" %(expansion, callback)
         return s
 

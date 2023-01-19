@@ -91,7 +91,7 @@ def convertToJsTree(abspath,relpath, tree):
 
         d = {}
 
-        if isinstance(item, basestring):
+        if isinstance(item, str):
             # convert unicode to a str if needed
             item = str(item)
             # the item is a file
@@ -105,7 +105,7 @@ def convertToJsTree(abspath,relpath, tree):
         elif isinstance(item, dict):
             # the item is a folder with a single key:value pair
 
-            folderName, folderContents = item.items()[0]
+            folderName, folderContents = list(item.items())[0]
 
             d['text'] = folderName
             d['type'] = 'folder'

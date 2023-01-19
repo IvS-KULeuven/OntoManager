@@ -1,8 +1,8 @@
 """
 Callback functions for the views of the 'org' category.
 """
-import generic
-from triplestore import QUERY, INFO
+from . import generic
+from .triplestore import QUERY, INFO
 
 
 # ====================================================== Manufacturer ==================================================

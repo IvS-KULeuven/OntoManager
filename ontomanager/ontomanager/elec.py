@@ -2,8 +2,8 @@
 Callback functions for the views of the 'elec' category.
 """
 
-from triplestore import QUERY, INFO
-import generic
+from .triplestore import QUERY, INFO
+from . import generic
 
 
 # ======================================================== CONFIGURATIONS ===================================================
@@ -87,8 +87,9 @@ def show_Terminal(node, args=None):
 
     generic.fillFields(node, optionals={ 'symbol' : 'elec:hasSymbol', 'owner' : '^elec:hasTerminal' })
 
-    if node['owner'] is not None:
-        generic.getDefaultNode(node.cache, node['owner']).show("elec")
+    if 'owner' in node:
+        if node['owner'] is not None:
+            generic.getDefaultNode(node.cache, node['owner']).show("elec")
 
     node.expand("elec", "Terminal")
 
@@ -282,7 +283,7 @@ def show_PinInstance(node, args=None):
 
     generic.fillFields(node, mandatories= { 'realizes' : 'sys:realizes' }, optionals={ 'symbol' : 'elec:hasSymbol', 'owner' : '^elec:hasPin' })
 
-    print "[[[[[[[[[[[[[[[[[[" + str(node['symbol'])+"]]]]]]]]]]]]]]]]]]]]"
+    print("[[[[[[[[[[[[[[[[[[" + str(node['symbol'])+"]]]]]]]]]]]]]]]]]]]]")
 
     if node['owner'] is not None:
         generic.getDefaultNode(node.cache, node['owner']).show("elec")

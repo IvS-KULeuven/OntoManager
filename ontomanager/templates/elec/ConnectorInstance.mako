@@ -4,7 +4,10 @@
 
 <%
     connector = CACHE[U["elec"]["show"]["qname"]]
-    connectorType = CACHE[connector["man_type"]]
+    if "man_type" in connector:
+        connectorType = CACHE[connector["man_type"]]
+    else:
+        connectorType = ''
 %>
 
 
@@ -45,8 +48,9 @@ ${ConnectorType.render_summary(connectorType)}
                 <%
                     for instanceQName in connector["pins"]:
                         instance = CACHE[instanceQName]
-                        if instance['realizes'] == pin['qname']:
-                            break
+                        if 'realizes' in instance:
+                            if instance['realizes'] == pin['qname']:
+                                break
                     else:
                         raise Exception("Pin %s doesn't have a matching pin instance of connector %s" %(pin['qname'], connector['qname']))
                 %>
@@ -54,7 +58,7 @@ ${ConnectorType.render_summary(connectorType)}
                     <td>${pin['label']}</td>
                     <td>${pin['symbol']}</td>
                     <td>${pin['comment']}</td>
-                    % if instance['symbol'] is None:
+                    % if 'symbol' not in instance:
                     <td></td>
                     % else:
                     <td>${instance['symbol']}</td>

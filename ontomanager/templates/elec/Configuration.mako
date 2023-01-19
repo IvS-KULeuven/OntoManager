@@ -73,7 +73,7 @@
     <%
         try:
             cb = cfg['circuit breakers']
-        except Exception, e:
+        except Exception as e:
             s = pp.pformat(cfg)
             raise Exception(s)
     %>
@@ -104,12 +104,16 @@
                     terminal = CACHE[qname]
                 %>
                 <tr>
-                    % if terminal.has_key('symbol'):
+                    % if 'symbol' in terminal:
                         <td>${misc.render_view_link(terminal, "term_symbol", contents=terminal['symbol'])}</td>
                     % else:
                         <td>${misc.render_view_link(terminal, "term_symbol")}</td>
                     % endif
-                    <td>${len(terminal['connections'])}</td>
+                    % if 'connections' in terminal:
+                        <td>${len(terminal['connections'])}</td>
+                    % else:
+                        <td>0</td>
+                    % endif
                     <td>${terminal['comment']}</td>
                 </tr>
 

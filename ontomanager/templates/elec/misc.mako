@@ -19,10 +19,11 @@
     else:
         kind = '???'
 
-    if node.has_key('label'): label = node['label']
-    if node.has_key('symbol'): symbol = node['symbol']
-    if node['owner'] is not None:
-        ownerNode = CACHE[node['owner']]
+    if 'label' in node: label = node['label']
+    if 'symbol' in node: symbol = node['symbol']
+    if 'owner' in node:
+        if node['owner'] is not None:
+            ownerNode = CACHE[node['owner']]
 
     # now get some info about the owner node
     if ownerNode is not None:
@@ -64,7 +65,10 @@ ${kind} ${misc.render_view_link(node, id='pin_or_terminal_${node["qname"]}', con
 
 <%def name="render_connections(pinNode, wires)">\
 <%
-    connections = [ CACHE[connectionQName] for connectionQName in pinNode['connections'] ]
+    if 'connections' in pinNode:
+        connections = [ CACHE[connectionQName] for connectionQName in pinNode['connections'] ]
+    else:
+        connections = ''
 %>
 % if len(connections) == 1:
     ${render_connection(pinNode, connections[0], wires)}
@@ -131,11 +135,13 @@ ${misc.render_colorbox(colors)} ${render_pin_or_terminal(connectionNode)}
         ${node[key]}
     % elif len(connections) > 0:
         % if connections[0][key] is not None:
-            % if connections[0]['owner'] is not None:
-                <% ownerNode = CACHE[connections[0]['owner']] %>
-                ${misc.render_view_link(ownerNode, contents=connections[0][key])}
-            % else:
-                ${connections[0][key]}
+            % if 'owner' in connections[0]:
+                % if connections[0]['owner'] is not None:
+                    <% ownerNode = CACHE[connections[0]['owner']] %>
+                    ${misc.render_view_link(ownerNode, contents=connections[0][key])}
+                % else:
+                    ${connections[0][key]}
+                % endif
             % endif
         % endif
     % endif
@@ -244,7 +250,7 @@ ${render_connections(instance, node['wires'])}
             instanceNode = CACHE[instanceQName]
 
         if typeQName is None:
-            typeNode = None
+            typeNode = ""
         else:
             typeNode = CACHE[typeQName]
     %>
@@ -349,7 +355,7 @@ ${render_connections(instance, node['wires'])}
         pointToTypeNode = None
 
 %>\
-% if node.has_key('member_of'):
+% if 'member_of' in node:
    % if node['member_of'] is not None:
        % if len(node['member_of']) > 0:
 ${render_interface_link(CACHE[node['member_of'][0]])}.\
@@ -424,7 +430,7 @@ max-height: 1000px;
             <th>Used in</th>
             <td>${render_owning_configurations(node)}</td>
         </tr>
-        % if node.has_key("cables"):
+        % if "cables" in node:
             % if len(node['cables']) > 0:
                 <tr>
                     <th>Cables</th>
@@ -442,7 +448,7 @@ max-height: 1000px;
                 </tr>
             % endif
         % endif
-        % if node.has_key("connectors"):
+        % if "connectors" in node:
             % if len(node['connectors']) > 0:
                 <tr>
                     <th>Connectors</th>
@@ -537,8 +543,11 @@ max-height: 1000px;
 
                  <%
                      instance = CACHE[qname]
-                     realizes = CACHE[instance['man_type']]
-                     if realizes.has_key('manufacturer'):
+                     if 'man_type' in instance:
+                        realizes = CACHE[instance['man_type']]
+                     else:
+                        realizes = []
+                     if 'manufacturer' in realizes:
                         manufacturer = CACHE[realizes['manufacturer']]
                      else:
                         manufacturer = None
@@ -551,12 +560,16 @@ max-height: 1000px;
                     % else:
                         <td>${misc.render_view_link(manufacturer, "io_man", contents=manufacturer['long_name'])}</td>
                     % endif
-                    % if realizes.has_key('id'):
+                    % if id in realizes:
                         <td>${misc.render_view_link(realizes, "io_type_id", contents=realizes['id'])}
                     % else:
                         <td>${misc.render_view_link(realizes, "io_type_id")}
                     % endif
-                    <td>${realizes['comment']}</td>
+                    % if "comment" in realizes:
+                        <td>${realizes['comment']}</td>
+                    % else:
+                        <td></td>
+                    % endif
                     <td>${instance['comment']}</td>
                 </tr>
 

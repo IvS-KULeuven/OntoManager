@@ -11,7 +11,7 @@
 
 ${misc.render_comment_below_title(switchType)}
 
-% if switch.has_key('symbol'):
+% if 'symbol' in switch:
 <h5>Symbol</h5>
 <p>${switch['symbol']}</p>
 % endif

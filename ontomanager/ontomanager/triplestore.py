@@ -5,8 +5,8 @@ Module containing some functions related to the triple store (the global graph).
 import os
 import rdflib
 import fnmatch
-import context
-from logging import DEBUG, INFO, ERROR
+from . import context
+from .logging import DEBUG, INFO, ERROR
 
 import pprint
 PPRINTER = pprint.PrettyPrinter(depth=6)
@@ -55,7 +55,7 @@ def LOAD_MINIMAL_CONTEXT():
         prefix "sys" = Namespace("http://www.mercator.iac.es/onto/metamodels/systems"))
     """
     global __global_graph__
-    for (prefix,uri) in context.MINIMAL_CONTEXT.items():
+    for (prefix,uri) in list(context.MINIMAL_CONTEXT.items()):
         __global_graph__.namespace_manager.bind(prefix, rdflib.namespace.Namespace(uri))
 
 
@@ -88,7 +88,7 @@ def LOG_CONTEXT():
     global __global_graph__
     INFO("CONTEXT:")
     c = CONTEXT()
-    for prefix, uri in c.items():
+    for prefix, uri in list(c.items()):
         INFO("  %s : %s" %(prefix, uri))
     INFO("TRIPLES LOADED: %d" %len(__global_graph__))
 
@@ -98,6 +98,7 @@ def QUERY(text):
     Execute a query.
     """
     strippedText = text.strip()
+
 
     for line in strippedText.split('\n'):
         DEBUG("   %s" %line)
@@ -122,10 +123,10 @@ def URI_TO_QNAME(uri):
     """
     try:
         if str(uri).find("://"):
-            return __global_graph__.namespace_manager.qname(unicode(str(uri)))
+            return __global_graph__.namespace_manager.qname(str(str(uri)))
         else:
             raise Exception("Doesn't appear to be a valid URI!")
-    except Exception, e:
+    except Exception as e:
         raise Exception("Couldn't convert '%s' to a QName: %s" %(uri,e))
 
 
@@ -177,7 +178,7 @@ def PARSE_FOR_URI(s):
     Convert URI occurrences in a string to an HTML hyperlink for the browse view.
     """
     # max 10 iterations:
-    for i in xrange(10):
+    for i in range(10):
         httpStart = s.find("http://")
         if httpStart > 0:
             httpEnd = s.find(" ", httpStart)

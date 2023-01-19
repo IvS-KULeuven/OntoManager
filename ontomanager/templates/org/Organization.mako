@@ -56,7 +56,7 @@ ${render_summary(organization)}
             <td>${misc.render_view_link(m, "item", contents=m['id'])}</td>
             <td>${m['comment']}</td>
             <td>
-            % if m.has_key('owning_configurations'):
+            % if 'owning_configurations' in m:
                 <%
                     configs = [ CACHE[configQName] for configQName in m['owning_configurations'] ]
                 %>
