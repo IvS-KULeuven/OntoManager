@@ -495,7 +495,7 @@ ${indent}</${kind}Vars>\
 
 <%def name="xml_variable(node, indent='')">\
 \
-% if address not in node:
+% if 'address' not in node:
 <variable name="${node["label"]}">
 % else:
 % if node["address"] is not None:
@@ -505,10 +505,10 @@ ${indent}</${kind}Vars>\
 % endif
 % endif
 ${indent}  ${xml_type(node)}
-        % if initial_value in node and node["initial_value"] is not None:
+        % if 'initial_value' in node and node["initial_value"] is not None:
 ${indent}  <initialValue><simpleValue value="${str(node['initial_value']).upper()}" /></initialValue>
         % endif
-        % if qualifiers in node and node["qualifiers"] is not None:
+        % if 'qualifiers' in node and node["qualifiers"] is not None:
 ${indent}  <addData>
 ${indent}    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
 ${indent}      <Attributes>
@@ -548,16 +548,16 @@ ${indent}</variable>\
 </%def>
 
 <%def name="xml_type_contents(node)">\
-    %if type in node and node["type"] is not None:
+    % if 'type' in node and node['type'] is not None:
 <% typeNode = CACHE[node['type']] %>\
 ${xml_type_element(typeNode)}\
-    %elif points_to_type in node and node["points_to_type"] is not None:
+    % elif 'points_to_type' in node and node["points_to_type"] is not None:
 <% typeNode = CACHE[node['points_to_type']] %>\
-        %if typeNode["plc_symbol"] is not None:
+        % if 'plc_symbol' in typeNode and typeNode["plc_symbol"] is not None:
 <pointer><baseType>${xml_type_element(typeNode)}</baseType></pointer>\
-        %else:
+        % else:
 <pointer><baseType>${xml_type_element(typeNode)}</baseType></pointer>\
-        %endif
+        % endif
     %endif
 </%def>
 
