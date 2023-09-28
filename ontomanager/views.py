@@ -1267,7 +1267,7 @@ class ProcessDatasetThread(threading.Thread):
         else:
             msg = '%s' %msg
 
-        self.model["dataset"]["output"] += msg
+        self.model["dataset"]["output"] += str(msg)
 
     def logHeading(self, title, newLine=True):
         """
@@ -1352,7 +1352,7 @@ class ProcessDatasetThread(threading.Thread):
                             break
 
                         if out != b'':
-                            self.log(out[:-1])
+                            self.log(out[:-1].decode('utf-8'))
                             sys.stdout.flush()
 
                     if popen.returncode == 0:
